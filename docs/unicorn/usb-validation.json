@@ -1,0 +1,279 @@
+{
+  "recorded_at": "2026-11-15T10:33:32.590803+08:00",
+  "status": "installed_default_boot_not_activated",
+  "candidate_system": "/nix/store/zgpals2iq8mljxngfl2fy3wngr60glrg-nixos-system-unicorn-26.11.20261010.6510408",
+  "candidate_kernel": "/nix/store/9p5j2wi44sad2n17ifyd10d1c99pwmrn-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6",
+  "kernel_config_sha256": "28771a4d3985f9301cd8d963aebd939348acc8f0af2dcfa0dc73509fce98c8b5",
+  "kernel_dtb_sha256": "4396c62dda8043e4ed1c589c9f64103001c5bf8556a6718a549c465244fe7274",
+  "binaries": {
+    "usb-signaller": {
+      "path": "/nix/store/nc73q53pb4jl8xz51avchh7j8vqj9v9k-usb-signaller-aarch64-unknown-linux-gnu-0.4.2/bin/usb-signaller",
+      "sha256": "7f51f9b8394a02c4dcf3360c225c96a2e0e687d312298e2ed5127c0a64e53cb4",
+      "machine": "AArch64"
+    },
+    "umtprd": {
+      "path": "/nix/store/gqbva3pqf64gpk73pd6d6ypj69mq4hid-umtp-responder-aarch64-unknown-linux-gnu-0-unstable-2026-06-05/bin/umtprd",
+      "sha256": "35bafd79637f1ee284dfe8ae81fc1677064617ac0e277482e4b8a7cee968bb77",
+      "machine": "AArch64"
+    }
+  },
+  "tests": {
+    "rust": {
+      "passed": 14,
+      "ignored_hardware_tests": 6
+    },
+    "tethering_policy": {
+      "passed": 8,
+      "includes_prebind_preparation_and_foreign_interface_rejection": true
+    },
+    "charging_authentication": {
+      "passed": 21
+    },
+    "native_and_arm64_mode_evaluation": "passed",
+    "kernel_callbacks_objects_kconfig_dtb_schema": "passed",
+    "packet_tests": "routing baseline, ip_forward=1 regression, actual NAT source, private LAN isolation, ingress, spoofing and exit: passed",
+    "systemd_unit_verification": "passed with no diagnostics",
+    "mtp_export": "only /home/dwuggh/USB-Share as dwuggh",
+    "dbus": {
+      "private_bus": "passed",
+      "blocked_worker": true,
+      "duplicate_start": "rejected",
+      "command_seconds": {
+        "get_status": 0.0013242929999250919,
+        "get_modes": 0.001568290994327981,
+        "mode_request": 0.001035942004818935,
+        "set_mode": 0.0008789079947746359,
+        "set_mode:rejected": 0.0011853629985125735
+      }
+    }
+  },
+  "checks": {
+    "device-usb-modes": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-modes",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/zcpc2kynqifjgnaxas333vl0khbp8h8g-android-usb-modes.json.drv",
+          "outputs": {
+            "out": "/nix/store/bz7jqzs8244z17y41am61kmgwivsk1bl-android-usb-modes.json"
+          }
+        }
+      ]
+    },
+    "device-usb-manager": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-manager",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/0vvs029rbmw4iafr3hmfd9rbrshiy22c-usb-signaller-0.4.2.drv",
+          "outputs": {
+            "out": "/nix/store/9snaa57lwvsm04r32v3d5igk5w4vlhcz-usb-signaller-0.4.2"
+          }
+        }
+      ]
+    },
+    "device-usb-tethering": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-tethering",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/i3rgc2ap4gy6814wg00w2wwcvpwm7jnh-usb-tethering-tests.drv",
+          "outputs": {
+            "out": "/nix/store/qhjb6ywjg7imkkxxnp65b05w6xcwyfig-usb-tethering-tests"
+          }
+        }
+      ]
+    },
+    "device-usb-signaller": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-signaller",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/iyx33bpmbzd1aym4z0czcxx20pyqzmgv-android-usb-signaller.drv",
+          "outputs": {
+            "out": "/nix/store/dj2sb8xim7f05plqam3q3v70pyf27yz8-android-usb-signaller"
+          }
+        }
+      ]
+    },
+    "device-usb-serial-lifecycle": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-serial-lifecycle",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/v81p4mwi5zla93s576lb8dkba0ixgmaf-usb-serial-lifecycle-tests-1.drv",
+          "outputs": {
+            "out": "/nix/store/rc0qgsm4nmdxlgdnl5p4qf9qf99v37sp-usb-serial-lifecycle-tests-1"
+          }
+        }
+      ]
+    },
+    "device-recovery-usb": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.recovery-usb",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/77bvbnz288l0jaz5vyh15anqf0pg6d5w-android-recovery-usb.drv",
+          "outputs": {
+            "out": "/nix/store/6q7li2qdbpnc281g04gk69bqch6qsmbm-android-recovery-usb"
+          }
+        }
+      ]
+    },
+    "device-unicorn-usb-kernel": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.unicorn-usb-kernel",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/lx01szcdrp3dgifzqn41lbs62bxa6p38-unicorn-usb-kernel-check-aarch64-unknown-linux-gnu-7.3-rc6.drv",
+          "outputs": {
+            "out": "/nix/store/bk3z890v7a2cvkb6bryd32zb2lw3fp6h-unicorn-usb-kernel-check-aarch64-unknown-linux-gnu-7.3-rc6"
+          }
+        }
+      ]
+    },
+    "configuration": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/configuration#checks.aarch64-linux.configuration",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/k02zpz96ld08l010c2xrnvvigr2qnqr2-unicorn-configuration.json.drv",
+          "outputs": {
+            "out": "/nix/store/g4wvdmlyznsfncd94h40dfrk3yd4ifhz-unicorn-configuration.json"
+          }
+        }
+      ]
+    },
+    "kernel-config": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/configuration#checks.aarch64-linux.kernel-config",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/8p3m55c6yyz3rfigf7xx9gcfg0ygf3mr-unicorn-personal-kernel-config-aarch64-unknown-linux-gnu-7.3-rc6.drv",
+          "outputs": {
+            "out": "/nix/store/kh2v127574div5z7n19j82rsfpwwadij-unicorn-personal-kernel-config-aarch64-unknown-linux-gnu-7.3-rc6"
+          }
+        }
+      ]
+    },
+    "usb-tools": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/configuration#packages.aarch64-linux.usb-tools",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/xcj2g18x9idb4lb48wfpkhqnpw7wdw0v-unicorn-usb-tools.drv",
+          "outputs": {
+            "out": "/nix/store/zvxrh5a3bdgm09azrk0iwm6mii0gqxn9-unicorn-usb-tools"
+          }
+        }
+      ]
+    },
+    "system": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/configuration#packages.aarch64-linux.system",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/hfkbvr8mni06jv54vch82jn9wy91n196-nixos-system-unicorn-26.11.20261010.6510408.drv",
+          "outputs": {
+            "out": "/nix/store/zgpals2iq8mljxngfl2fy3wngr60glrg-nixos-system-unicorn-26.11.20261010.6510408"
+          }
+        }
+      ]
+    }
+  },
+  "source_sha256": {
+    "modules/mobile/usb-signaller.nix": "307806e5c5d954b4e6ca6b2053b42b1834555120d59cc4447906821a31e1bd81",
+    "modules/mobile/usb-tethering.py": "51b4c7b507b3a9e7805bf0d7b36a27a252f97a4f96cc94fd3bfb6ae24f74eaa5",
+    "modules/mobile/initrd-usb.nix": "a05dd248835536a2e539542f2ffe99b5a5e1eb7618c8ab2ae85fe746e0475cba",
+    "modules/devices/unicorn/default.nix": "47ebd296e0834e4670add545937da020733792ec7eb9b65b4b43c1cf76aa01a2",
+    "modules/devices/unicorn/charging.nix": "c5cd2cf420669fb9b9e0d7a44db66d3e4088aa4cd47151c38e2162b0c0aa828a",
+    "pkgs/usb-signaller/default.nix": "312726b75847c01a7d936477ec9fd53ed528c4c877819f1a572f138e6a83526f",
+    "pkgs/usb-signaller/manager.rs": "4cb46dcca8e159caee027f6cbde60785e434a442a7ac3271b4b76132e1016c66",
+    "pkgs/usb-signaller/lifecycle.patch": "69e240ee08af5f1af88f9bb746a04f89ff2a35c52ac257b34e3dc0584b9405f4",
+    "pkgs/usb-signaller/nixos-integration.patch": "5942a230135e830a1a5b8eece58a3816641fd4c77503f078bf055b9e5283bdad",
+    "pkgs/usb-signaller/optional-acm.patch": "ddc1ac73c141256991db2e97bfbf823cfdb84c5bd8124b834a8c24e42acfa761",
+    "pkgs/linux-kernel/sm8475/unicorn/config.nix": "b43bed5c25b322455db3eb20f37637973c23e0ccb7ae75090af0f68910790701",
+    "pkgs/linux-kernel/sm8475/unicorn/patches/eusb2.patch": "4aa9faa171fc7bbabb097ad988ee1fd45211e6dcb62d779acb38ebe718dd4b0d",
+    "pkgs/linux-kernel/sm8475/unicorn/patches/usb-role-switch.patch": "b7b4f440552b4e961f69c999a1fb704406d99f7973df7033604f2ba14e451425",
+    "pkgs/mobile/umtp-responder.nix": "da447e2a384bbcc5cd6c0c0bfe81ffeadfe1b167d375d419e43d0f859e3fefe8",
+    "pkgs/unicorn/mipps-auth.py": "719847f645de8d39def92f151ed89f0eb07b6ada6c5b20548835cfc5664bbb3e",
+    "pkgs/unicorn/mipps-auth.nix": "446b5bbb12964c6c57f5f14126b390b2f8956f455c3d97887c3756829bfc174c",
+    "tests/usb-modes.nix": "7761c20b346b82bf9e7d40ce313e3a69de7ee27b756371ce4b21f1a82829cff6",
+    "tests/usb-tethering.py": "cf144bac5fdbc7cfd3b27a14bad8d012622476197f474fadd5d4008f155ffb56",
+    "tests/usb-tethering-netns.py": "f9ff4200b4fbd4164375dd869cf68757d08535b14b30aabab49d5a713babe49d",
+    "tests/usb-signaller-dbus.py": "211012e560f6d7850a6146eb910a74a7c19042fd16b390c0fa90b4db48087e23",
+    "tests/unicorn-usb-kernel.nix": "60ecdee4a5a8ff4677b4399671890279574b5018f51ce6444adff920152b0e11",
+    "tests/unicorn-usb-kernel.py": "4e66d3a155d7a5d9b91d3732c2fe95ed3cf438c6a8fdb74f6c937cab97c7b7a9",
+    "tests/unicorn-usb-kernel.c": "60fdd536bcb480d9decaaa3b8d8e608cf2bb90f5092e58232e90dbef280f0022",
+    "tests/unicorn-charging.py": "c6f97a5c6091e17d374061ab77f207903c15bd37193f344a481b0615ea905db6",
+    "tests/usb-signaller-acm.rs": "36f194d4a8c2caaa99d27bb29dc6542d98697198fb192885308424411f88a1ae",
+    "../unicorn-config/phone.nix": "dd4b2b36c3d57a79855631997338aaad60b433b64f60df4b6d863b0d93786839",
+    "../unicorn-config/flake.nix": "60bc7d56d4e41add7d70f31afa73d6f974f3537dee5ac4c64d0e604ea39866e0",
+    "../unicorn-config/tests/configuration.nix": "2ecf125bf242d2e885e123d66d56bcd52c4a2780ac17b5c32fcbaf8d73d4a224"
+  },
+  "lock_sha256": {
+    "device": "1452bb7e5b37153a92a225bf4018a19249dce71381be9b6050bd010c55c62818",
+    "personal": "2a89a6f83eff2b15bf9d64d34cab7b1cb700869e2371eb709876efb073746ad2"
+  },
+  "build_note": "Workstation native x86_64 tools cross-compiled ARM64. Final build used --local-only after an idle/stalled LAN builder; builder configuration and phone activation were unchanged.",
+  "physical_tests_pending": [
+    "reboot into installed generation 18 and verify runtime",
+    "computer-connected and disconnected boot, cable orientation, 20 cycles per mode",
+    "new NCM SSH connection, ACM login, MTP host transfer and SHA-256 comparison",
+    "actual host peripherals and measured VBUS",
+    "PD/PPS/Xiaomi charging and measured input power",
+    "24-hour stability, suspend/resume and DSP restart",
+    "USB3, native DP and analog Type-C audio hardware validation"
+  ],
+  "installation": {
+    "recorded_at": "2026-11-16T19:11:23.347207+08:00",
+    "generation": 18,
+    "rollback_generation": 17,
+    "installed_system": "/nix/store/zgpals2iq8mljxngfl2fy3wngr60glrg-nixos-system-unicorn-26.11.20261010.6510408",
+    "running_system": "/nix/store/rl984r2h6jr6vczprswfqlc693hpnrsw-nixos-system-unicorn-26.11.20261010.6510408",
+    "boot_id_unchanged": "3484c08f-9437-429b-b775-1bcc18a73200",
+    "default_entry": "nixos-9823041383b9a7ffd8fa78171623bf9354862e6fc05869bc1d1cb9c02f5a8787.conf",
+    "phone_record_directory": "/root/unicorn-usb-deploy-20261116",
+    "method": "LAN closure copy, system profile set, switch-to-configuration boot; no activation or reboot",
+    "latest_snapshot_rebuild": "same system derivation and output as candidate",
+    "kernel_patch_count": 69,
+    "current_local_kernel_patches_matched_by_sha256": 68,
+    "additional_kernel_patch": "Nixpkgs randstruct-provide-seed-5.19.patch",
+    "configuration_and_actual_kernel_config_checks": "passed",
+    "kernel_image_sha256": "e7a1b57c5b6bd92ae0df96e5d854e88e6628dc2ca148082d90b16f3fc2252f4f",
+    "patch_audit_record": "phone_record_directory/kernel-patch-audit.json"
+  }
+}

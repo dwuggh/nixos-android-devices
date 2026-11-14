@@ -1,0 +1,134 @@
+{
+  "recorded_at": "2026-11-16T12:57:48.689647+00:00",
+  "scope": "HIDRAW, native multitouch HID, opt-in image-backed mass storage and UVC",
+  "checks": {
+    "usb-manager": {
+      "status": "passed",
+      "detail": "15 passed, 6 upstream physical-UDC tests ignored",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-manager",
+      "results": [
+        {
+          "drvPath": "/nix/store/jn17gzkk8ajhgpx4xhm0n6d4676fw5aa-usb-signaller-0.4.2.drv",
+          "outputs": {
+            "out": "/nix/store/c0b88s4rmbhnddxfx9w1f9cxww69wf2i-usb-signaller-0.4.2"
+          }
+        }
+      ]
+    },
+    "usb-gadgets": {
+      "status": "passed",
+      "detail": "6 Python protocol and real-file tests passed",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-gadgets",
+      "results": [
+        {
+          "drvPath": "/nix/store/ksjq8xbwkzv0ysv8fipi8nvlbbn4vsd7-usb-gadgets-tests.drv",
+          "outputs": {
+            "out": "/nix/store/33my1p3vwvqin0zgrmavp1s8fkqqkmbd-usb-gadgets-tests"
+          }
+        }
+      ]
+    },
+    "usb-gadgets-vm": {
+      "status": "passed",
+      "detail": "HID enumeration/feature/evdev, uaccess tag, session exclusivity/validation/disconnect release, storage writeback/readonly/loop rejection, UVC bind failure rollback, repeated MTP/NCM/touch transitions, stale readiness/process crash cleanup and explicit retry passed",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-gadgets-vm",
+      "results": [
+        {
+          "drvPath": "/nix/store/kawazrsqc2hi3ly193qc73ysp2hz3bmc-vm-test-run-usb-gadgets.drv",
+          "outputs": {
+            "out": "/nix/store/2akjz45yby8vw1hgd3jiqx94ws3pqd8c-vm-test-run-usb-gadgets"
+          }
+        }
+      ]
+    },
+    "usb-modes": {
+      "status": "passed",
+      "detail": "Defaults, opt-in modes, permissions/services and invalid configuration assertions passed",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-modes",
+      "results": [
+        {
+          "drvPath": "/nix/store/n34wv4ckqi7n8qzmxc3gnskw0v9n050g-android-usb-modes.json.drv",
+          "outputs": {
+            "out": "/nix/store/v2ny3dcplw1ip99yp9zwd568c5k53fqv-android-usb-modes.json"
+          }
+        }
+      ]
+    },
+    "usb-signaller": {
+      "status": "passed",
+      "detail": "Existing device configuration regression evaluation passed",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-signaller",
+      "results": [
+        {
+          "drvPath": "/nix/store/iyx33bpmbzd1aym4z0czcxx20pyqzmgv-android-usb-signaller.drv",
+          "outputs": {
+            "out": "/nix/store/dj2sb8xim7f05plqam3q3v70pyf27yz8-android-usb-signaller"
+          }
+        }
+      ]
+    },
+    "unicorn-usb-kernel": {
+      "status": "passed",
+      "detail": "Actual Kconfig, AArch64 USB/HID/storage/UVC driver objects, selected USB DT schemas/DTB and repeater fault injection passed",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.unicorn-usb-kernel",
+      "results": [
+        {
+          "drvPath": "/nix/store/84nlqq029191zgvxk6z93js3309d5nam-unicorn-usb-kernel-check-aarch64-unknown-linux-gnu-7.3-rc6.drv",
+          "outputs": {
+            "out": "/nix/store/705fm3dhhw63d8k4l4kzbc6mzsahbqpd-unicorn-usb-kernel-check-aarch64-unknown-linux-gnu-7.3-rc6"
+          }
+        }
+      ]
+    },
+    "configuration": {
+      "status": "passed",
+      "detail": "Personal configuration evaluation passed",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/configuration#checks.aarch64-linux.configuration",
+      "results": [
+        {
+          "drvPath": "/nix/store/cf05vibkjvfqfj3c47yhfgq7ipadbalb-unicorn-configuration.json.drv",
+          "outputs": {
+            "out": "/nix/store/0hii402piw2ql9hcss81pacm38sg2q62-unicorn-configuration.json"
+          }
+        }
+      ]
+    },
+    "usb-tools": {
+      "status": "passed",
+      "detail": "ARM64 usb-signaller, uMTP, usb-touch, usb-storage-image, backend and UVC package build passed; ELF architecture confirmed",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/configuration#packages.aarch64-linux.usb-tools",
+      "results": [
+        {
+          "drvPath": "/nix/store/s13y3di7xblnpqblm221p7a1nn39989n-unicorn-usb-tools.drv",
+          "outputs": {
+            "out": "/nix/store/4yd51znd10l70sbd1p33hsblc3i0ggjb-unicorn-usb-tools"
+          }
+        }
+      ]
+    }
+  },
+  "uvc_source_tests": "Native UVC package checkPhase passed: actual YUYV colour-bar frames, MJPEG rejection, guard bytes, and capture-driver frame-rate adjustment rejection.",
+  "limitations": [
+    "The QEMU test is an isolated x86_64 NixOS guest with dummy_hcd, not an emulation of Unicorn board hardware.",
+    "dummy_hcd lacks isochronous endpoints: UVC descriptor preparation and expected UDC bind failure/rollback were tested, not USB video transport.",
+    "Physical Unicorn peripherals, Type-C/VBUS and UVC capture interoperability were not tested in this task.",
+    "Optional yamllint style checks were skipped by the kernel check because yamllint was absent; selected DT schema validation ran and passed."
+  ],
+  "activation_flashing_or_reboot_performed_by_this_task": false,
+  "source_sha256": {
+    "modules/mobile/usb-gadgets.nix": "1071936aef7d26ff97b0d76f5ca01c7b2c8f6ab1aaa9a29f73242a989099e4c9",
+    "pkgs/usb-signaller/manager.rs": "6ebeef5877ce76c0136153672dc0ecab70abfb8db9d35e8a0a808f096cbea0ce",
+    "pkgs/mobile/uvc-gadget.nix": "42520f06e4b71d4c74b411b49c6f5d9a49cee2bb2c9a813ca7a23a8339160e7f",
+    "pkgs/mobile/uvc-source-lifecycle.patch": "789a066212084c223cac70d096498a87f91ecae6d2fb4aca0527b30c94b29b9e",
+    "pkgs/linux-kernel/sm8475/unicorn/config.nix": "4c711a019357abd4b974a5631ae4b119992c68084e55c7d71c4b928874d73cfb",
+    "tests/unicorn-usb-kernel.nix": "d00aa7469980a3d2c8fc53a116a70f99a49fda074d5c11b699578d6d1a15a2b3",
+    "tests/uvc-source.c": "a409bb124bf83dff38bbed6711685ebc53a6a5a1736ce7d4fc51ed6debacab2f",
+    "tests/usb-gadgets.py": "b67ff804e2c45b964843c96edfa1b4de0ff1f93d7c06a359cf3edb47d0c934ed",
+    "tests/usb-gadgets-vm.nix": "54ce919684e0646ac5ef81db499030e84aa7e9092bd350f6eb8b87e5c03af6d6",
+    "tests/usb-gadgets-integration.py": "08573a9c6ac293213bdd065af0f045b46fcfd57bf296e0672f36bd316b19d025",
+    "pkgs/mobile/usb-gadgets/backend.py": "8767935977610d409c3c7709374ffb3dbe29cbcce85708abb0ca43ccff068932",
+    "pkgs/mobile/usb-gadgets/default.nix": "bc8dea127f0c7cae316a122b4e9329bc1fc3746ecd373fbc52c33805a1cf4d97",
+    "pkgs/mobile/usb-gadgets/storage.py": "b84328ce3b9d15bd54c4c079cc34d41438296b8babe7a224e48f12d1f5844716",
+    "pkgs/mobile/usb-gadgets/touch.py": "26d17e7c849e43154aa9b20bb84e2c22f72293f82e018c0d9fb3be1a482e1bdf"
+  }
+}

@@ -18,6 +18,7 @@
 | Marble / Redmi Note 12 Turbo | 独立 1 GiB `linux-boot` | `linux` | 仅 `boot_b` | [设备指南](marble/README.zh.md) |
 | T880 / iPlay 80 mini Ultra | 未测量 | 未测量 | 未测量；仅实验性构建 | [设备指南](t880/README.zh.md) |
 | Dodge / 一加 13 | 独立 `linux-boot` ESP | `linux` | 仅 `boot_b`；同槽位启动选择 | [设备指南](dodge/README.zh.md) |
+| Unicorn / Xiaomi 12S Pro | 独立 1 GiB `linux-boot` | `linux`（全部 userdata） | `boot_b`；recovery 位于 `recovery_b` | [设备指南](unicorn/README.zh.md) |
 
 完整顺序见 [U-Boot 安装](u-boot-install.zh.md)。Dodge 同槽位产品见
 [boot-choice 指南](boot-choice.zh.md)。
@@ -49,6 +50,7 @@ recovery 镜像单独更新。
 
 设备固件按设备归档，发布在仓库的
 [`firmware` release](https://github.com/dianqk/nixos-android-devices/releases/tag/firmware)。
-Git 树保留打包、补丁和配置，不包含 OEM payload。通用固件和法规数据来自 Nixpkgs
+多数设备载荷从该 release 获取；Unicorn 当前在 `pkgs/unicorn/inputs/` 保存
+经哈希校验的 OEM 归档，不包含私有校准与身份数据。通用固件和法规数据来自 Nixpkgs
 `linux-firmware` 和 `wireless-regdb`。固件二进制保留其上游许可证，不由此项目的
 MIT 或内核 GPL-2.0 许可证覆盖。

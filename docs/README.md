@@ -18,6 +18,7 @@ U-Boot → systemd-boot → Linux; Dodge uses the same-slot boot-choice variant.
 | Marble / Redmi Note 12 Turbo | Separate 1 GiB `linux-boot` | `linux` | `boot_b` only | [Device guide](marble/README.md) |
 | T880 / iPlay 80 mini Ultra | Not measured | Not measured | Not measured; experimental builds only | [Device guide](t880/README.md) |
 | Dodge / OnePlus 13 | Separate `linux-boot` ESP | `linux` | `boot_b` only; same-slot boot choice | [Device guide](dodge/README.md) |
+| Unicorn / Xiaomi 12S Pro | Separate 1 GiB `linux-boot` | `linux` (whole userdata) | `boot_b`; recovery in `recovery_b` | [Device guide](unicorn/README.md) |
 
 Follow [U-Boot installation](u-boot-install.md) for the complete sequence.
 Dodge's same-slot product is described in the [boot-choice guide](boot-choice.md).
@@ -51,7 +52,9 @@ on FAT `/boot`. Update U-Boot firmware and recovery images separately.
 
 Device firmware is published as per-device archives in the repository's
 [`firmware` release](https://github.com/dianqk/nixos-android-devices/releases/tag/firmware).
-The Git tree keeps packaging, patches and configuration, not OEM payloads.
+Most payloads are fetched from that release. Unicorn currently includes its
+hash-checked OEM archive in `pkgs/unicorn/inputs/`, excluding private calibration
+and identity files.
 Generic firmware and regulatory data come from Nixpkgs `linux-firmware` and
 `wireless-regdb`. Firmware binaries retain their upstream licenses and are not
 covered by this project's MIT or kernel GPL-2.0 licenses.

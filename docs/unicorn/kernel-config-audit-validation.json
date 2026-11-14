@@ -1,0 +1,126 @@
+{
+  "recorded_at": "2026-11-16T19:55:04.649441+08:00",
+  "status": "built_not_installed",
+  "system": "/nix/store/b27q56wxfhp1n0lmbxvkvrira8cam68s-nixos-system-unicorn-26.11.20261010.6510408",
+  "kernel": "/nix/store/45b6bfpd3cjy4bga6abxwrb8xsdc6j2l-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6",
+  "kernel_config_sha256": "ffe8e89384922cde4b47c72a80fd1c6ea266033e3e368378b93a0e9df5e59af7",
+  "full_kernel_config_equals_checked_config": true,
+  "resolved_config": {
+    "POSIX_MQUEUE": "y",
+    "POSIX_MQUEUE_SYSCTL": "y",
+    "UHID": "m",
+    "OVERLAY_FS": "y",
+    "VT": "y",
+    "VT_CONSOLE": "y"
+  },
+  "umtp_responder": {
+    "path": "/nix/store/3nzg21n98dlmv5p2wgzq50clbk3ji3dm-umtp-responder-aarch64-unknown-linux-gnu-0-unstable-2026-06-05/bin/umtprd",
+    "sha256": "86e82d798a6856f905e89c9ecf8d0e61dbf43b4df01cf2253a105f16ee4998e0",
+    "machine": "AArch64"
+  },
+  "checks": {
+    "device-umtp-mqueue": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.umtp-mqueue",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/fpvnk0x7mhydni0fg8jiks9dq7mfwhz9-umtp-responder-0-unstable-2026-06-05.drv",
+          "outputs": {
+            "out": "/nix/store/pyvznh86816vbf6lmvqjfk7y13dzpm5c-umtp-responder-0-unstable-2026-06-05"
+          }
+        }
+      ]
+    },
+    "device-unicorn-usb-kernel": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.unicorn-usb-kernel",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/3dzrfp71l2yl2j15d7k0v125r44046fp-unicorn-usb-kernel-check-aarch64-unknown-linux-gnu-7.3-rc6.drv",
+          "outputs": {
+            "out": "/nix/store/3x78mz390bkvh80yc3gmy4gc5aig1bpi-unicorn-usb-kernel-check-aarch64-unknown-linux-gnu-7.3-rc6"
+          }
+        }
+      ]
+    },
+    "device-usb-modes": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/android-devices#checks.aarch64-linux.usb-modes",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/5zhw4qyzy6xzm4gn6rhqm7qdsbk731gk-android-usb-modes.json.drv",
+          "outputs": {
+            "out": "/nix/store/mi8rdyscay5yf5lgdhi7a7jm0rndpd4y-android-usb-modes.json"
+          }
+        }
+      ]
+    },
+    "kernel-config": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/configuration#checks.aarch64-linux.kernel-config",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/q1iv96fd8xp8k2w8w8mm0kfsjdmh6kdn-unicorn-personal-kernel-config-aarch64-unknown-linux-gnu-7.3-rc6.drv",
+          "outputs": {
+            "out": "/nix/store/jz8s2a4s44gfvzc0njdf1a06920xwh2j-unicorn-personal-kernel-config-aarch64-unknown-linux-gnu-7.3-rc6"
+          }
+        }
+      ]
+    },
+    "configuration": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/configuration#checks.aarch64-linux.configuration",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/sf85yymi4x5j0xwi32j1byaxwq42b9wx-unicorn-configuration.json.drv",
+          "outputs": {
+            "out": "/nix/store/wyi2xjn0hawsl77dq5ya5k6d7nclq67y-unicorn-configuration.json"
+          }
+        }
+      ]
+    },
+    "system": {
+      "store": "daemon",
+      "installable": "path:/home/dwuggh/.cache/unicorn-config/configuration#packages.aarch64-linux.system",
+      "builders": "",
+      "local_jobs": 1,
+      "cores": 0,
+      "results": [
+        {
+          "drvPath": "/nix/store/a0j66bz55ywnx73mw7wbxjlsfp8qlxrn-nixos-system-unicorn-26.11.20261010.6510408.drv",
+          "outputs": {
+            "out": "/nix/store/b27q56wxfhp1n0lmbxvkvrira8cam68s-nixos-system-unicorn-26.11.20261010.6510408"
+          }
+        }
+      ]
+    }
+  },
+  "regression": "Original queue capacity 20 reproduces EINVAL in an unprivileged fresh IPC namespace; patched real API creates, sends, receives, closes and unlinks with capacity 10. Native Nix check passed with empty stderr.",
+  "source_sha256": {
+    "pkgs/linux-kernel/sm8475/unicorn/config.nix": "80566025c21652b25f2acc3412ecaa29ec390d989a269c1f9424981f0a07f8eb",
+    "modules/mobile/usb-signaller.nix": "978ed79ea67af1ca0b602af6f96ab240844b6f7c88d986be85157e5f1a02bbc6",
+    "pkgs/mobile/umtp-responder.nix": "29638a2c0c63d4b05eda8ee573f6704b037183171e3aed421458c203cf021b99",
+    "pkgs/mobile/umtp-nonroot-mqueue.patch": "72ba8ef072fc32122eb196a6ef8a41cea05d7ecb935c3b022c2f676c9e11e66c",
+    "tests/umtp-mqueue.c": "8e80e38800a4c7648f674642ba7375d4b2beb2daf5c98ffe33bd6257c14b6a83",
+    "tests/usb-modes.nix": "c16fc5aea392e955c5f49b7945366046d5bbff5a067129898b57ef8767df8772",
+    "tests/unicorn-usb-kernel.nix": "ebbdbea30b748f1dacee124432f689cdb20c6980defe1b9ab2958e259cd01d23",
+    "../unicorn-config/kernel-features.nix": "338aa39ecc8876e6a8b98aafc39923a64e04ca24760cfc9fb7dff99990439299",
+    "../unicorn-config/tests/configuration.nix": "e501886a828ddbf7038838ad63fe4060f69cecdd8dcb0e35ce519d113b4ef4e4"
+  },
+  "phone_runtime_validation": "pending new kernel installation and boot; MTP shutdown timeout remains separately unqualified"
+}

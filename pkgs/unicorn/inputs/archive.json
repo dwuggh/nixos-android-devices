@@ -1,0 +1,7 @@
+{
+  "file": "oem-firmware.tar.xz",
+  "bytes": 12924996,
+  "sha256": "95cceb7e82ec8e09fc589df947d8bb4124a86c322a5ec0c6f6975fb1be22590f",
+  "oem_payload_files": 61,
+  "redistribution_reviewed": false
+}

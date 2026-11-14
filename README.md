@@ -2,7 +2,7 @@
 
 [中文](README.zh.md)
 
-NixOS device modules, kernels and U-Boot firmware for eight Qualcomm and MediaTek
+NixOS device modules, kernels and U-Boot firmware for nine Qualcomm and MediaTek
 phones and tablets. Systems boot through **U-Boot → systemd-boot → Linux** and
 use standard NixOS configuration, updates and generation management.
 
@@ -18,6 +18,7 @@ use standard NixOS configuration, updates and generation management.
 | Redmi Note 12 Turbo / POCO F5 | `marble` | [Use and install](docs/marble/README.md) |
 | Alldocube iPlay 80 mini Ultra | `t880` | [Use and install](docs/t880/README.md) |
 | OnePlus 13 | `dodge` | [Use and install](docs/dodge/README.md) |
+| Xiaomi 12S Pro | `unicorn` | [Use and install](docs/unicorn/README.md) |
 
 Each guide covers the supported hardware, storage contract, first installation,
 updates, recovery and known limitations. Support status is recorded per device;
@@ -49,7 +50,9 @@ uncached native ARM dependencies. See
 
 Device firmware is distributed as per-device archives in the repository's
 [`firmware` release](https://github.com/dianqk/nixos-android-devices/releases/tag/firmware).
-The Git tree contains packaging and patches, not OEM firmware payloads.
+Most device payloads are fetched from that release. Unicorn currently carries a
+hash-checked OEM archive under `pkgs/unicorn/inputs/`; private calibration and
+identity files are excluded.
 
 **Flashing risk:** This project was generated with LLMs. Flashing its images can
 make a device unbootable or permanently unusable. Check the model, partitions and
