@@ -16,11 +16,16 @@ shared input and lock revisions are preserved.
    optional USB modes/backends, MTP queues, tethering/network identity policy,
    initrd role following, console dependency, DMA heap uaccess, USB serial
    failed-open cleanup, camera helpers and opt-in whole-userdata GPT handling.
-2. **Following Asphalt UFS commit:** add ICE/CX/MX coordination and OPP
-   initialization ordering on top of upstream's existing UFS implementation.
+2. **Asphalt UFS coordination:** extend upstream's existing OPP table with ICE
+   clock scaling, coordinated CX/MX performance requests, ICE bootstrap defaults
+   and the existing shared OPP initialization-order fix. Preserve upstream's
+   SM8475 turbo configuration, full PHY sequence and media patches. Unicorn's
+   kernel queue and resulting source remain unchanged across this commit.
 
-This first commit retains all eight existing board directories and the Sheng
-charger implementation. The following commit contains Asphalt UFS changes. Shared runtime changes, including network policy, DMA heap permissions
+The second commit changes Asphalt's UFS clock/power behavior only; it also adds
+its compiled-DTB/schema/object check and corresponding documentation. The other
+seven existing board directories and the Sheng charger implementation are
+unchanged. Shared runtime changes, including network policy, DMA heap permissions
 and USB serial unwind, belong to commit one and can affect existing devices.
 The earlier eight-device isolation comparison described the superseded split;
 it does not establish isolation of this first commit.
@@ -114,6 +119,19 @@ the kernel's relocated source/build directory were fixed and rerun. The large
 firmware source cache entry was fetched from the official cache with its original
 signature and checked compressed hash; no input pins, trusted keys or global
 Nix settings changed.
+
+## Asphalt follow-up validation after history correction
+
+The added `asphalt-ufs` project-helper check passes on Linux 7.3.4. It compiles
+ARM64 UFS core/host, GCC, GDSC and ICE objects, validates the selected GCC/UFS/ICE
+bindings and compiled board DTB, and checks the effective nine-clock table,
+CX/MX parents, ICE bootstrap, performance levels and retained turbo compatible.
+The new binding delta preserves upstream's existing SM8475 compatible entries.
+Asphalt retains its kernel configuration and prior ordered patches, with exactly
+the coordinated UFS patch and OPP initialization fix added. Unicorn and all
+seven other existing devices retain their configuration and ordered patch hashes
+from `877c8bc`. This is a software check, not a full Asphalt kernel build or a
+physical storage/suspend validation. Existing GENI unit-address warnings remain.
 
 ## Hardware and distribution limits
 
