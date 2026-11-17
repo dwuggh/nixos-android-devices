@@ -1,6 +1,5 @@
-use crate::menu::{KeyResult, Menu, KEY_POWER, KEY_VOLUMEDOWN, KEY_VOLUMEUP};
+use crate::menu::{Menu, KEY_POWER, KEY_VOLUMEDOWN, KEY_VOLUMEUP};
 use std::fs::{self, File, OpenOptions};
-use std::io;
 use std::mem::{size_of, zeroed};
 use std::os::fd::{AsRawFd, RawFd};
 use std::os::unix::fs::OpenOptionsExt;
@@ -86,7 +85,6 @@ fn drain_input(fd: RawFd) {
 pub(crate) struct PollResult {
     pub redraw: bool,
     pub action: Option<usize>,
-    pub wake: bool,
     pub extra_ready: Vec<RawFd>,
 }
 pub(crate) fn poll_inputs(
@@ -96,8 +94,7 @@ pub(crate) fn poll_inputs(
     timeout_ms: i32,
     extra_fds: &[RawFd],
     input_locked: bool,
-    mut blanked: impl FnMut() -> io::Result<bool>,
-) -> io::Result<PollResult> {
+) -> PollResult {
     let before = (
         menu.selected,
         menu.confirming,
@@ -126,7 +123,6 @@ pub(crate) fn poll_inputs(
     let mut result = PollResult {
         redraw: false,
         action: None,
-        wake: false,
         extra_ready: polls[inputs.len()..]
             .iter()
             .filter(|poll| poll.revents != 0)
@@ -137,7 +133,7 @@ pub(crate) fn poll_inputs(
     // transfer event priority so a pending confirmation cannot launch an action.
     let input_locked = input_locked || !result.extra_ready.is_empty();
     if input_locked {
-        menu.suppress_actions();
+        menu.reset_keys();
     }
     for idx in (0..inputs.len()).rev() {
         if polls[idx].revents & (libc::POLLHUP | libc::POLLERR | libc::POLLNVAL) != 0 {
@@ -147,6 +143,10 @@ pub(crate) fn poll_inputs(
             continue;
         }
         if polls[idx].revents & libc::POLLIN == 0 {
+            continue;
+        }
+        if input_locked {
+            drain_input(inputs[idx].file.as_raw_fd());
             continue;
         }
         loop {
@@ -173,22 +173,8 @@ pub(crate) fn poll_inputs(
                 continue;
             }
             if event.kind == EV_KEY {
-                match menu.key(
-                    event.code,
-                    event.value,
-                    Instant::now(),
-                    len,
-                    blanked()?,
-                    input_locked || result.wake,
-                ) {
-                    KeyResult::Wake => {
-                        result.wake = true;
-                        if result.action.take().is_some() {
-                            menu.busy = false;
-                        }
-                    }
-                    KeyResult::Action(action) if !result.wake => result.action = Some(action),
-                    _ => {}
+                if let Some(action) = menu.key(event.code, event.value, Instant::now(), len) {
+                    result.action = Some(action);
                 }
             }
         }
@@ -203,5 +189,5 @@ pub(crate) fn poll_inputs(
             menu.logs,
             menu.updates,
         );
-    Ok(result)
+    result
 }

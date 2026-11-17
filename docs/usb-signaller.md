@@ -9,6 +9,7 @@ Enable SSH and configure your public key:
 
 ```nix
 {
+  androidDevices.usbSerial = "my-phone-01";
   androidDevices.usb.ssh.enable = true;
   users.users.root.openssh.authorizedKeys.keys = [
     "ssh-ed25519 REPLACE_WITH_YOUR_PUBLIC_KEY"
@@ -62,8 +63,29 @@ If SSH fails, inspect from a local console or another working connection:
 ```sh
 ip -4 address show usb0
 systemctl status usb-signaller sshd.socket
-journalctl -b -u usb-signaller -u sshd -u systemd-networkd
+systemctl list-units --all 'sshd@*.service'
+journalctl -b -u usb-signaller -u sshd.socket -u 'sshd@*.service' -u sshd.service -u systemd-networkd
 ```
+
+SSH uses socket activation by default: systemd listens on port 22 and starts
+an `sshd@*.service` instance for each connection. A listening port alone does
+not establish that SSH can complete a login, and `journalctl -u sshd` alone
+misses the instance logs. If `systemctl` itself times out, collect the manager's
+state from the device's local console before rebooting:
+
+```sh
+sudo timeout 5s systemctl show --property=Version
+printf 'systemctl exit=%s\n' "$?"
+ps -p 1 -o pid,stat,wchan:32,comm
+sudo cat /proc/1/stack
+sudo ss -lntp 'sport = :22'
+sudo journalctl -k -b -n 120 --no-pager
+```
+
+Exit status `124` means the query exceeded five seconds. An earlier kernel
+Oops in `gs_close` may have left related operations blocked, but attributing
+the manager timeout to it requires process stacks or a comparison after the
+kernel fix. Rebooting removes the old process-stack evidence.
 
 No USB Ethernet interface usually indicates a cable, port or gadget/controller
 problem. An address without SSH access points to credentials, DHCP/routing or
@@ -78,7 +100,7 @@ Set `androidDevices.usb.acm.enable = true;` to expose an ACM serial login
 console alongside NCM in developer mode. It defaults to `false`; the public
 USB examples enable it explicitly. The kernel must include `USB_CONFIGFS_ACM`.
 Connect using the device's serial-number link under `/dev/serial/by-id/` on the
-host. After configuring ACM, usb-signaller starts `serial-getty@ttyGS0` as a background
+host. When the gadget port appears, `serial-getty@ttyGS0` starts a background
 waiter. It reads the selected controller's state without opening or resetting
 the TTY, and runs getty once USB enumeration reaches `configured`. This means
 USB is configured, not necessarily that a host application has opened the
@@ -95,6 +117,20 @@ It disappears in charging-only/host mode and returns with developer mode.
 U-Boot's ACM is a separate console that ends at Linux handoff; the installed
 system re-enumerates its own USB gadget. RAM recovery uses its independent
 `androidDevices.initrdUsb.acm.enable` setting.
+
+The shared kernel queue protects `gs_close()` when a gadget TTY open fails
+before initializing its port pointer. The failure previously caused a NULL
+pointer Oops during `tty_open` → `tty_release` → `gs_close` →
+`_raw_spin_lock_irq`; waiting for USB enumeration does not protect this error
+path. This fix does not identify the original open failure or cover every port
+lifetime race. See the [upstream proposal](https://lkml.rescloud.iu.edu/2610.1/13659.html).
+`just check-one usb-serial-lifecycle` tests failed-open cleanup and ordinary
+open/close behavior against the patched kernel callbacks on the build host.
+After installing a rebuilt system generation and rebooting, validate startup
+with and without USB, ACM login, new SSH connections, and at least 20 cable
+disconnect/reconnect cycles. Confirm there are no new Oops reports and that
+the manager query above returns within five seconds. Hardware validation is
+separate from the host checks.
 
 For SSH without socket activation, set `services.openssh.startWhenNeeded = false;`.
 When changing USB or the only SSH listener, keep another established management
@@ -125,12 +161,30 @@ this backend deliberately does not add networking to the normal initrd.
 
 ## Modes and peripherals
 
-The supported modes are `developer_mode`, `charging_only`, and
-`host_mode`. Devices whose Type-C port manager owns the USB data role (the
-T880) set `androidDevices.usb.signaller.hostMode = false`; there host mode
-follows the attached partner and PD data-role swaps instead. MTP, tethering and mass storage are not advertised because their
-supporting services and policy are not configured here. USB role changes are
-root-only by default; ordinary users may query the daemon over the system bus.
+The default modes are `developer_mode`, `charging_only`, and `host_mode`.
+`mtp_ffs_mode` and `tethering_mode` appear only when their backends are enabled.
+USB mode changes are root-only by default; ordinary users may query status.
+
+```nix
+androidDevices.usb.signaller = {
+  # Unicorn enables this by default. Other devices retain direct role switching.
+  followRole = true;
+  mtp = {
+    enable = true;
+    user = "dwuggh"; # An existing non-root account.
+    directories = [ "/home/dwuggh/USB-Share" ];
+  };
+  tethering.enable = true;
+};
+```
+
+`set_mode` accepts a request immediately; poll `get_status` until `busy=false`,
+then inspect `desired_mode`, `actual_mode` and `last_error`. A full queue returns
+an immediate error. `bound` and `enumerated` are separate. Failed setup restores
+the old gadget only if the same connection/firmware still permits device mode.
+Unicorn follows UCSI at startup and on hotplug; explicit data-role requests go
+through Type-C and never write the power role. Host role does not prove VBUS.
+See [Unicorn hardware and acceptance](unicorn/usb.md).
 
 To let selected users change modes without `sudo` or a polkit prompt, name a
 control group and add those users to it:
@@ -155,6 +209,7 @@ group or rule. Group membership takes effect at the user's next login.
 ```sh
 busctl call com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded get_modes
 busctl call com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded mode_request
+busctl call com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded get_status
 # These disconnect USB networking; issue them locally or through Wi-Fi SSH.
 # Members of controlGroup may omit sudo.
 sudo busctl call com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded set_mode s host_mode
@@ -168,39 +223,20 @@ sudo busctl call com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded se
 | USB disk/card reader | Host/VBUS and USB Storage/UAS/SCSI expose block devices. Mounting and filesystem permissions are normal OS/desktop policy; this minimal Niri example has no automount UI. |
 | Display/dock | USB-C DP needs real DP wiring, CC/PD, orientation/mux/PHY and DRM support, followed by compositor output policy. A data-role write alone cannot enable DP. DisplayLink is a separate USB graphics path. |
 
-usb-signaller monitors Type-C events but this integration does not implement an
-automatic host policy or a desktop mode-selection dialog. Automatic roles may
-already be supplied by a fully wired kernel connector driver; incomplete ports
-still require board-level CC/VBUS/role/mux work. Multi-connector arbitration is
-not implemented. Driver configuration alone is not a physical peripheral test.
+With `followRole`, startup, hotplug and firmware changes follow the negotiated
+role through one serialized manager. There is no desktop selection dialog or
+multi-connector arbitration. MTP mounts FunctionFS only for its mode and runs
+as the configured user. It requires `POSIX_MQUEUE=y`; a configuration assertion
+rejects kernels without that capability. Sharing uses networkd DHCP, a USB-only DNS listener and
+restricted IPv4 NAT to the current main-table default uplink; private destination
+networks and other LAN interfaces are blocked. Exiting removes its policy.
+Honk and complex policy routing are not adapted. Driver configuration alone is
+not a physical peripheral or VBUS test.
 
 
 Package patches and upstream details are documented [with the package](../pkgs/usb-signaller/README.md).
 
-When a Type-C port manager owns data-role selection, set
-`androidDevices.usb.signaller.manageRole = false` and
-`androidDevices.usb.signaller.hostMode = false`. T880 uses these defaults.
-Developer and charging modes configure the gadget without changing an existing
-`host`, `device` or `none` role, including at service startup. The gadget is
-ready when the port manager subsequently selects device role; selecting host
-role through the signaller is unavailable.
+## HIDRAW, touchscreen, mass storage and UVC
 
-The daemon synchronously stops the ACM console before switching roles or
-reconfiguring gadgets, including charging-only changes over D-Bus and service
-shutdown. A stop failure aborts the change. Developer mode queues the console
-start after successful gadget setup; it does not wait for a USB client.
-Systemd also orders console shutdown before usb-signaller during stop/restart.
-
-## Optional extended modes
-
-Existing devices keep the stock daemon. Enabling `usb.signaller.followRole`, MTP,
-tethering, HID touch, image-backed storage or UVC selects the serialized USB
-backend. Extended modes currently require `manageRole = true`; devices whose
-external port manager owns the role keep the stock backend. Both backends
-protect an active NBD netboot connection from USB reconfiguration.
-
-The USB network matches both interface name and gadget MAC, allowing host-mode
-Ethernet adapters to remain available to NetworkManager. Mode
-configuration and test limits are documented in the [Unicorn USB guide](unicorn/usb.md)
-and [gadget backend guide](unicorn/usb-gadgets.md); hardware support must be
-validated separately on each board.
+These optional modes use the same mode manager and error reporting. See
+[additional USB modes](unicorn/usb-gadgets.md) for configuration and CLI examples.

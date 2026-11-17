@@ -1,4 +1,0 @@
-{ ... }:
-{
-  androidDevices.recovery.enable = true;
-}

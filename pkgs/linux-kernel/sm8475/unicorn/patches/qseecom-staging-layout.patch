@@ -1,0 +1,112 @@
+Subject: [PATCH] tee: preserve disjoint QSEECOM response offsets in staging
+
+Gatekeeper sends an unpadded CBOR request and a separately word-aligned
+response. Preserve its same-SHM offset instead of treating alignment bytes
+as input or silently packing the response immediately after the request.
+Keep Goodix exact aliases, reject partial/reversed overlaps, bound the
+entire staging extent and place patched buffers beyond that extent.
+
+--- a/drivers/tee/qseecom/core.c
++++ b/drivers/tee/qseecom/core.c
+@@ -935,6 +935,37 @@
+ 	return ret;
+ }
+ 
++/* Preserve the OEM request/response relationship across private staging.
++ * CBOR commands have an exact input length and a separately aligned response;
++ * including the alignment gap in req_size changes the encoded message. */
++static int qseecom_tee_staging_layout(const struct tee_param *param,
++                                    size_t req_size, size_t rsp_size,
++                                    size_t *rsp_offset, size_t *extent)
++{
++	size_t offset = req_size;
++
++	if (!req_size || !rsp_size || req_size > QSEECOM_TEE_MAX_XFER ||
++	    rsp_size > QSEECOM_TEE_MAX_XFER)
++		return -EINVAL;
++	if (param[0].u.memref.shm == param[1].u.memref.shm) {
++		size_t start = param[0].u.memref.shm_offs;
++		size_t end = param[1].u.memref.shm_offs;
++
++		if (end < start)
++			return -EINVAL;
++		offset = end - start;
++		/* Exact aliasing is used by Goodix. Partial aliasing is not. */
++		if (offset && offset < req_size)
++			return -EINVAL;
++	}
++	if (offset > QSEECOM_TEE_MAX_XFER ||
++	    rsp_size > QSEECOM_TEE_MAX_XFER - offset)
++		return -EINVAL;
++	*rsp_offset = offset;
++	*extent = max(req_size, offset + rsp_size);
++	return 0;
++}
++
+ static int qseecom_tee_invoke_func(struct tee_context *ctx,
+ 				   struct tee_ioctl_invoke_arg *arg,
+ 				   struct tee_param *param)
+@@ -1021,7 +1052,7 @@
+ 			.policy = QCOM_TZMEM_POLICY_STATIC,
+ 		};
+ 		struct qcom_tzmem_pool *bp;
+-		size_t need, off;
++		size_t need, off, rsp_offset, extent;
+ 		void *b, *brsp;
+ 		bool shared_rsp;
+ 		unsigned int k;
+@@ -1033,10 +1064,19 @@
+ 		 * that user space has mapped are written through a cacheable
+ 		 * alias, and TZ does not see those writes.
+ 		 */
+-		need = req_size + rsp_size;
++		ret = qseecom_tee_staging_layout(param, req_size, rsp_size,
++					       &rsp_offset, &extent);
++		if (ret)
++			return ret;
++		need = extent;
+ 		for (k = 2; k < arg->num_params; k += 2)
+-			if (!param[k].u.value.c)
+-				need += param[k + 1].u.memref.size;
++			if (!param[k].u.value.c) {
++				size_t length = param[k + 1].u.memref.size;
++
++				if (length > QSEECOM_TEE_MAX_XFER - need)
++					return -EINVAL;
++				need += length;
++			}
+ 
+ 		/*
+ 		 * Every size here is bounded by the shared memory it refers to,
+@@ -1064,7 +1104,7 @@
+ 		memcpy(b, req, req_size);
+ 
+ 		/* Copy each patched buffer in and repoint the request at it. */
+-		off = PAGE_ALIGN(req_size + rsp_size);
++		off = PAGE_ALIGN(extent);
+ 		for (k = 2; k < arg->num_params; k += 2) {
+ 			struct tee_shm *pshm = param[k + 1].u.memref.shm;
+ 			size_t plen = param[k + 1].u.memref.size;
+@@ -1123,10 +1163,9 @@
+ 			off += plen;
+ 		}
+ 
+-		/* Preserve exact request/response aliasing used by the Unicorn HAL. */
+-		shared_rsp = param[0].u.memref.shm == param[1].u.memref.shm &&
+-			param[0].u.memref.shm_offs == param[1].u.memref.shm_offs;
+-		brsp = shared_rsp ? b : b + req_size;
++		/* The layout helper preserves exact aliases and disjoint gaps. */
++		shared_rsp = !rsp_offset;
++		brsp = b + rsp_offset;
+ 
+ 		ret = qcom_scm_qseecom_app_send(app_id, b, req_size, brsp, rsp_size);
+ 		if (!ret) {
+@@ -1141,7 +1180,7 @@
+ 				}
+ 			memcpy(rsp, brsp, rsp_size);
+ 
+-			off = PAGE_ALIGN(req_size + rsp_size);
++			off = PAGE_ALIGN(extent);
+ 			for (k = 2; k < arg->num_params; k += 2) {
+ 				struct tee_shm *pshm = param[k + 1].u.memref.shm;
+ 				size_t plen = param[k + 1].u.memref.size;

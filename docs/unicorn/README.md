@@ -3,9 +3,8 @@
 [中文](README.zh.md) · [All devices](../README.md)
 
 Unicorn uses U-Boot → systemd-boot → Linux, with a separate RAM recovery.
-The kernel follows the repository's locked Linux 7.3.4. Unicorn has a separate
-SM8475 patch queue; the existing Asphalt queue is unchanged. Hardware results
-below were recorded on 7.3-rc6; the rebase requires renewed hardware acceptance.
+The kernel follows the repository's locked Linux 7.3-rc6 and shares SM8475
+platform support with Asphalt.
 
 ## Configure and build
 
@@ -18,12 +17,12 @@ Set your own credentials and USB identity before personal deployment.
 [Additional USB modes](usb-gadgets.md) cover HIDRAW, native touch, image-backed storage and UVC.
 
 ```sh
-python3 tools/unicorn-build.py --device build kernel
-python3 tools/unicorn-build.py --device build u-boot
-python3 tools/unicorn-build.py --device build recovery
-python3 tools/unicorn-build.py --device build system
-python3 tools/unicorn-build.py --device build boot-files
-python3 tools/unicorn-build.py --device build bootstrap-info
+just build unicorn kernel
+just build unicorn u-boot
+just build unicorn recovery
+just build unicorn system
+just build unicorn boot-files
+just build unicorn bootstrap-info
 ```
 
 The [kernel guide](../../pkgs/linux-kernel/sm8475/unicorn/PATCHES.md) describes
@@ -91,7 +90,7 @@ unchanged; rebuild and explicitly install U-Boot when its patches change.
 | Bluetooth | Pairing, headset playback and RFCOMM transfers verified with a separately provisioned factory address; intermittent firmware-download timeout remains possible; HFP and concurrent Wi-Fi/audio acceptance pending |
 | Audio | Internal speakers and microphone recording/playback verified with private runtime inputs; USB-C digital and analogue accessories remain unverified; analogue routing is incomplete |
 | Camera | Native RAW10 drivers for S5KJN1 ultra-wide/telephoto and OV32B40 front; capture unverified; IMX707 main camera unsupported. See [camera details](camera.md) |
-| Fingerprint | Development deferred; code and validation records are preserved on branch `archive/unicorn-fingerprint`. This branch does not include fingerprint support |
+| Fingerprint | [Native C runtime, private libfprint/fprintd and bounded illumination](fingerprint.md); offline support implemented, handset enrollment/matching pending; PAM disabled in the local personal configuration |
 | Sensors and other peripherals | DSP, battery, NFC, haptics and infrared drivers included; dedicated SSC sensor data/services and full peripheral acceptance remain incomplete |
 
 SoundWire resume, audio routing and display-off commit fixes are retained.

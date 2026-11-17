@@ -1,0 +1,24 @@
+Enable the compute DSP used by the OEM Goodix algorithm firmware.
+
+The SM8450 base node already describes the CDSP PAS interrupts, power domains,
+GLINK/FastRPC channel and 32 MiB reservation. Select the installed Unicorn signed
+image, rather than leaving the node disabled and losing /dev/fastrpc-cdsp.
+
+The OEM cape DT also supplies NSP -> DDR bandwidth for boot. qcom_q6v5_prepare
+already votes the first interconnect until handover (and unwinds on failure),
+but without this property that vote is a no-op. Retain the same boot path.
+
+diff --git a/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn-dsp.dtsi b/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn-dsp.dtsi
+--- a/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn-dsp.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn-dsp.dtsi
+@@ -15,3 +15,10 @@
+ 	firmware-name = "qcom/sm8475/xiaomi/unicorn/slpi.mdt";
+ 	status = "okay";
+ };
++
++&remoteproc_cdsp {
++	firmware-name = "qcom/sm8475/xiaomi/unicorn/cdsp.mdt";
++	interconnects = <&nsp_noc MASTER_CDSP_PROC QCOM_ICC_TAG_ALWAYS
++			 &mc_virt SLAVE_EBI1 QCOM_ICC_TAG_ALWAYS>;
++	status = "okay";
++};

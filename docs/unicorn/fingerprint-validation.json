@@ -1,0 +1,1289 @@
+{
+  "date": "2026-11-17",
+  "implementation": "native C runtime, independent libfprint backend and kernel support",
+  "build_checks": {
+    "device-unicorn-fingerprint": {
+      "result": "passed",
+      "derivation": "/nix/store/my5rs4bm78n50dqrdkl8mraama35qy0p-unicorn-fingerprint-offline-tests.drv",
+      "outputs": {
+        "out": "/nix/store/r9l97wnvj4as52ap10vqgwhvnl1zq6j4-unicorn-fingerprint-offline-tests"
+      }
+    },
+    "device-unicorn-fingerprint-config": {
+      "result": "passed",
+      "derivation": "/nix/store/jn0hx43mxrgmp8ps66mgmq46iry7snzk-android-unicorn-fingerprint.drv",
+      "outputs": {
+        "out": "/nix/store/iw9gk3b29acjficg7jiga74f9fnjl1kv-android-unicorn-fingerprint"
+      }
+    },
+    "device-unicorn-fingerprint-services": {
+      "result": "passed",
+      "derivation": "/nix/store/sprfjxpmhlcmj06c5kln0kj9m000gpsr-vm-test-run-unicorn-fingerprint-services.drv",
+      "outputs": {
+        "out": "/nix/store/zq9rrgndvpb2gmc46qrfjg6syddsvxyg-vm-test-run-unicorn-fingerprint-services"
+      }
+    },
+    "device-unicorn-cdsp": {
+      "result": "passed",
+      "derivation": "/nix/store/vnmb89pdaj4xr1swlgkxgnhrmrhvp8cd-unicorn-cdsp-tests.drv",
+      "outputs": {
+        "out": "/nix/store/yzv8vshmcbqkgh1vrd7l39ln33a0dq93-unicorn-cdsp-tests"
+      }
+    },
+    "device-unicorn-display-lifecycle": {
+      "result": "passed",
+      "derivation": "/nix/store/hqkdgpkbz114m0slk51aq3jz9bsvlr8v-unicorn-display-lifecycle-tests-1.drv",
+      "outputs": {
+        "out": "/nix/store/kgyyqbcrv9s8yyz7z2vby65syhh6zhv5-unicorn-display-lifecycle-tests-1"
+      }
+    },
+    "configuration": {
+      "result": "passed",
+      "derivation": "/nix/store/i5qppj16darbzcmspq3wa57w85f0kr3r-unicorn-configuration.json.drv",
+      "outputs": {
+        "out": "/nix/store/hkx4rfxzl59npss95qqjkmy787kzirvk-unicorn-configuration.json"
+      }
+    },
+    "personal-system": {
+      "result": "passed",
+      "derivation": "/nix/store/ciyb7x560ibmcnvr65vq70vk78q6ddbd-nixos-system-unicorn-26.11.20261010.6510408.drv",
+      "outputs": {
+        "out": "/nix/store/4swzwrkq632kmdm76gkf7cmh91r6m2y9-nixos-system-unicorn-26.11.20261010.6510408"
+      }
+    }
+  },
+  "display_lifecycle_scenarios": 246,
+  "personal_pam_services_without_fingerprint": 25,
+  "evidence_audit": {
+    "original_analysis_inputs": 23,
+    "signed_ta_files": 20,
+    "matching_oem_error_table_entries": 308
+  },
+  "hardware_acceptance": {
+    "deployment": "generation31 deployed and rebooted; current/booted closure, kernel GNU Build ID, stable Image SHA256 and program hashes verified; unsafe diagnostic code withdrawn; rollback generations retained",
+    "profile_selection": "passed: stable kernel, gfuni6 full initialization and calibration; no service restart loops",
+    "root_worker_inventory": "generation31: 3 full opens/lists/closes passed, no enrolled fingerprints",
+    "fprintd_worker_open": "generation31 Claim/List/Release 11878/7514/6110ms; installed worker executable readable for provider peer validation; empty inventory",
+    "real_enrollment": "generation 25 user trial and generation 26 preflight rejected by TA GF_ERROR_INVALID_CHALLENGE (1058), before capture; challenge_present=1, token absent; cancel/post-enroll succeeded; no enrolled fingers after failure",
+    "enrolled_finger_20_trials": "not performed",
+    "unenrolled_finger_20_trials": "not performed",
+    "request_template_scope": "not performed on hardware",
+    "service_restart_persistence": "not performed",
+    "reboot_persistence": "not performed",
+    "delete_and_failure_recovery": "not performed",
+    "physical_display": "not verified",
+    "operator": "user requested self-directed finger tests",
+    "enrollment_authorization": "UNRESOLVED: generation28 exact 46/+48 new-enroll rejected TA -30; no handle or HAT; pending quarantined; no retry/reset"
+  },
+  "source_sha256": {
+    "modules/devices/unicorn/fingerprint.nix": "5da52b049ca430eea9c74159190041489d28398f3de2226b99f9bc9bb8753b84",
+    "pkgs/linux-kernel/sm8475/unicorn/patches/fingerprint-cdsp.patch": "7cf8bdd8939aa7d9a7c36592b639227e295dfd52727bc997277cd407555590d6",
+    "pkgs/linux-kernel/sm8475/unicorn/patches/fingerprint-control.patch": "441b8587aafb4cdc35d53e5aa263a42e6a6900700812947363c154c991d2c9e0",
+    "pkgs/linux-kernel/sm8475/unicorn/patches/panel-fingerprint-lease.patch": "57b49315489c3ef9bc6622b2d645b4a8ff912285ebf13cdf437306d54dbb872a",
+    "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-private-dma.patch": "6517cd276c22728d44ffa67c77ddb2f91d75cb00d541e37e0b6150c53bf43857",
+    "pkgs/unicorn/assemble-firmware.py": "a724ce02f895a5de8a4e548a7191fcfce6b690b060916cd445a1fe2c16c10165",
+    "pkgs/unicorn/fingerprint/Makefile": "9f11927e52300e5d8dc4e5573cae518544da73c9fc9527da03359c96b226a75a",
+    "pkgs/unicorn/fingerprint/arm-proxy.c": "c60e47d136efe737e42ea19ef95db19ac2d2df333dd22aaed95d5ae11c674884",
+    "pkgs/unicorn/fingerprint/assemble-ta.py": "8253afc7179c33be3e1ba4c37258cb85b90aba2dfb6048ae1c3551e4dc42a74d",
+    "pkgs/unicorn/fingerprint/default.nix": "bcd6419437fdfdaeda08c9c24be904ccedc16e25a3c8cf6c746328302ed222bf",
+    "pkgs/unicorn/fingerprint/display-hint.c": "53db62b8f8b2fedabd40d43b42548cbd71d90f697f99028cb886a709f0009edb",
+    "pkgs/unicorn/fingerprint/display.c": "c4779337476d5ea49f440ba26d7840cb34d17bf8391df572f241348015233ff8",
+    "pkgs/unicorn/fingerprint/display.h": "0b3aa3135826b2bf213d30fe9166eab0c3d924fcbb3a38ee607f7c6dde4ffa8b",
+    "pkgs/unicorn/fingerprint/dsp-firmware.nix": "2441977a081fc2b9c1020587cb7222cc6eabc63199410def6f2bbe1ce449f415",
+    "pkgs/unicorn/fingerprint/dsp.c": "bbed9936f1bbb8c4c292c08d69f1681f6ffc2f0750ad2057e51a5e840217bda7",
+    "pkgs/unicorn/fingerprint/dsp.h": "64c0c1b981880c32e3e52770dd5d7da172bf2cb41cd7f3e15b4e6d7baf33a8a3",
+    "pkgs/unicorn/fingerprint/engine.c": "81d6e6feb09b14afb8edc905ea704f1aaa47aeaf5072a05099e865e4ee550422",
+    "pkgs/unicorn/fingerprint/fastrpc-shell-path.patch": "94666483a73ee47314a9e9e81c6366a5dbf1d560d80a9a0776b382aa8aae4adf",
+    "pkgs/unicorn/fingerprint/fprintd.nix": "526494058ab4cca342a0a94f901b20c0527e445d4e8f83e99d6153db9eeeb407",
+    "pkgs/unicorn/fingerprint/hint-broker.c": "321f2cd4c913a419c5e54cdb0bf5b273c390f9f186c7babf73233476a5faa254",
+    "pkgs/unicorn/fingerprint/inputs/dsp-firmware.tar.xz": "3a34531f88451c482875409abc60184cd722742e1fca8e450ad44f731976d16e",
+    "pkgs/unicorn/fingerprint/inputs/dsp-manifest.json": "013cf66f6802b2ed68d881ac164c0e6633e011997accfb95446be9f34504ba2d",
+    "pkgs/unicorn/fingerprint/ipc.h": "dd84cdd3c18fe9f3c947ddec262bdbae8b36479803404416580f7282e101141a",
+    "pkgs/unicorn/fingerprint/libfprint-misc.patch": "c7ebd2e25ce468c5ad755207aa8d3d311cb59d2264275b979757ead2934c63bd",
+    "pkgs/unicorn/fingerprint/libfprint-unicorn.c": "3400d5c318dbd258369f097c6b71a2acbad7be9b935170a3d3235e0b36f7235d",
+    "pkgs/unicorn/fingerprint/libfprint.nix": "e2b1f791e0f9b7164509a8b4ef5d509084ec12e7e499cf49f02967a716eba406",
+    "pkgs/unicorn/fingerprint/main.c": "5866575f1e97e4d44cf3a539f1be355894c948058a0d7f682bb9dd58f6ac8e68",
+    "pkgs/unicorn/fingerprint/platform.c": "f02609d770ffa6f2f8d100fad726516f0eaa710f71da3964b6b62ff65322da2a",
+    "pkgs/unicorn/fingerprint/platform.h": "4ff44f04c6aa10e36827c16f5d51ed20615665c74ad2727895e084d3ad5d2d6f",
+    "pkgs/unicorn/fingerprint/protocol.c": "a95c0b3beda33c13817518b0e7334d6c615a1d57946868b6e3c3f852334cc023",
+    "pkgs/unicorn/fingerprint/protocol.h": "fc5faa680fd67be68b2ee2acb189c8b1dd36493bc5be320a3217e2d5c13f76b1",
+    "pkgs/unicorn/fingerprint/qsee-supplicant.nix": "634b0e815dde26fa73678e2d6d136605dfe9ae131a9ab879d09f77dc54747fb5",
+    "pkgs/unicorn/fingerprint/rpc-abi.h": "66a510699c3b0a6b19e1d29922790dbce1d5dfdb1905a3615639ddd1045dbea2",
+    "pkgs/unicorn/fingerprint/select.c": "587d20f91f72b21406652d6245c3f86768b23208decdf0124c06d5929bac8b82",
+    "pkgs/unicorn/fingerprint/sensor.c": "466fa1d730e7ab72c9bccaa4f7ed3a49ea0aae00d7f8bf152ae12e99525c85d4",
+    "pkgs/unicorn/fingerprint/sensor.h": "b0f4b4c3d01095aeb0763300674a87fce0282e9975b5973b7c1eb36b3ddbed54",
+    "pkgs/unicorn/fingerprint/ta.nix": "df45675f6b5be97c197c22ace7a08b29bca065702f26b794bd852354f6c23066",
+    "pkgs/unicorn/fingerprint/tee.c": "0fe70539e507953d79ade49dab387f993cb389f6642f8876c7a6df1e815103f8",
+    "pkgs/unicorn/fingerprint/tee.h": "7a6c2d0cfd0c19e40146f132b0daeb3dacded8d12dcd88b984f20023a2abbc5d",
+    "pkgs/unicorn/fingerprint/tests/actions.c": "bb50ff9e2a43dd508b7044e6269a6812f68482a64e9d83383d3543a36c3749f8",
+    "pkgs/unicorn/fingerprint/tests/broker-peer.c": "d01ca550ea8d189c989edff31664ea1e739c74cd458721c67ca5766ab149564f",
+    "pkgs/unicorn/fingerprint/tests/broker.py": "8e3be3504a2a781ffc354f3640abc391c5dc61c13cf07e677ac2b8d9e82b2fa9",
+    "pkgs/unicorn/fingerprint/tests/driver.c": "e9f60c49a81a63c8b702d64ef3098f11c17203aecb5788b7e24ede429afa4dcd",
+    "pkgs/unicorn/fingerprint/tests/dsp.c": "0ddbe676b8156b7a31a5ff8bed88a854fa148ecbe22169299812883b9aea9136",
+    "pkgs/unicorn/fingerprint/tests/engine.c": "7079e70a1dc22949be522bd27a5f57c1423f47205d7f62bd58195e4383769ed4",
+    "pkgs/unicorn/fingerprint/tests/fake-worker.c": "f13b4d734ac4131b5515209bc32750e0494e0caef8d09b3c6f128809e8569566",
+    "pkgs/unicorn/fingerprint/tests/lifecycle.c": "417446a8c626667370adacf3cbe1f2711a3813375e6e8932aed2bfc808e8a9fe",
+    "pkgs/unicorn/fingerprint/tests/platform.c": "a53544e353a3aeb4b63c7706fc4062972f0ace1fffc13df8e0a1e7de65fca103",
+    "pkgs/unicorn/fingerprint/tests/protocol.c": "364de663817367b73c4998c632b87dd85d1b2dbd059e6dd3cf5e2cf07e55c408",
+    "pkgs/unicorn/fingerprint/tests/sensor.c": "b74a3e700280519ceacb76b4d5373898c942407db65d229eaaecda9e1f0d7970",
+    "pkgs/unicorn/fingerprint/tests/touch.c": "5ba79629f4bd13f9f8f231c273351c3605c988258e83da5584f0dc1a7c51dedb",
+    "pkgs/unicorn/fingerprint/tests/transport.c": "1e2b665cb6037611d66cae6ed88c911db8e764b447522922505c4ca5239fc91b",
+    "pkgs/unicorn/fingerprint/touch.c": "62cdcc63a7c68d01cc29ce5ae9939734dd28cc708145b4ad594ae6d463196ab6",
+    "pkgs/unicorn/fingerprint/touch.h": "c44f4406a07425ab92d393c85cb7908237357589596e3a28a4a0d9ecfb9c294a",
+    "pkgs/unicorn/fingerprint/wayland/wlr-layer-shell-unstable-v1.xml": "996b8c66e1c2276c443336d4cb174634e8e5948823779042f244930525b79cc2",
+    "pkgs/unicorn/inputs/archive.json": "b5bb8544698b317a554ea377af63392f6a87ffbff22102ce7aecac7d03dd7da9",
+    "pkgs/unicorn/inputs/oem-firmware.tar.xz": "4fd9a30bf7647fcca137442515445f9fd6087643073096fdf08d5137083da753",
+    "pkgs/unicorn/manifest.json": "7f3ef3f09d5a84fd2735aeecc3376f5a0f9c5954e568e2bc2b1a7f6d282e07d5",
+    "tests/unicorn-cdsp.nix": "b2e189eb77347c88db638dba1b8507dc6aaafd31e786e1343319a27a1b98d7a4",
+    "tests/unicorn-cdsp.py": "5fbd366dc80fd38402833ba5973eccda5ce9d9107d8697c4244e6e59cf2a384d",
+    "tests/unicorn-display-lifecycle.c": "abc9543d7bcd9d0edc10e1205e040bc84561784d6f2cee1dac4784d68830715d",
+    "tests/unicorn-display-lifecycle.nix": "5f178407c8f59b9a230369505690d8ad78c83560d64e26c371440e5f9ec57863",
+    "tests/unicorn-display-lifecycle.py": "a0c886a3a91b14c6bd53b8608981605220800a5b6040026e6a655e96871abbfe",
+    "tests/unicorn-fingerprint-check.nix": "6570cc21e465359ef4e8a1e996f345f3c8d2ff7081ed9264776dabeaa467c89e",
+    "tests/unicorn-fingerprint-driver.nix": "ce107a7ee2813e737853b5260384c9fbfb7fd3f64be4f9da4b075af909deb748",
+    "tests/unicorn-fingerprint-lease.c": "4e0352b953b43ba5986ff7b999dc88d0a93cc12e94d21a9974d9b9192c4200fd",
+    "tests/unicorn-fingerprint-lease.py": "5419b4912d1e09c5dd968ebe5e6a9057ed0e4cb308ca5419c0c7cc1ad6e2326c",
+    "tests/unicorn-fingerprint-services.nix": "3a2ac2e39e4f2b11da72db709390aec5451491cb696cb793bc352c32d91cb296",
+    "tests/unicorn-fingerprint-services.py": "4f59619b8226a27f8e3061815e0e4e838f4f83a15b501711069f6dce450c6689",
+    "tests/unicorn-fingerprint.nix": "eebab73d6de67493123215f48a3ff77090dc4938f4e833127997aca98ccb2e0f",
+    "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-listener-budget.patch": "37644d45a51beb4c24ff9c112be0dbde1c2428fc64b431d2d3ca3d1085e39e8f",
+    "pkgs/unicorn/fingerprint/selection.c": "6d112ef9b4b3773bcc7368a45becbc9a383626365be9ac59758c2e35f3ad2a72",
+    "pkgs/unicorn/fingerprint/selection.h": "abe3be4d1922d2b924dd6e338b9d8553f1bc0db2c709a778f33143d3ba38ae59",
+    "pkgs/unicorn/fingerprint/fprintd-template-protection.patch": "9aa05aacc76db19f2afb133f7bd230840b874d009323ed5f56059509d7ae6156",
+    "tests/unicorn-qsee-listener.c": "bfbcb546699589630b9e3a2d78eb175e997f1a7410061e1c93d7ef343f07afb2",
+    "tests/unicorn-qsee-listener.py": "7c5cbe12cdf30c892ac8bb29ef606d95b75acc6ba637e2f6a2f716f1eb9025fb",
+    "pkgs/unicorn/fingerprint/evidence.json": "cc885d2e6e746f6ed41e17ecc0588612da49a7693dd5a4fde54be2ee60538bd8",
+    "pkgs/unicorn/fingerprint/gatekeeper.h": "7a72fd1398960a8917e392e2a0716320e5def672d8b8068841107ea7bf4aa5df",
+    "pkgs/unicorn/fingerprint/gatekeeper.c": "58ad65d3dd0009f31540782ff165dbaaaab8d2567143501564af08837987f7e7",
+    "pkgs/unicorn/fingerprint/authorization.h": "68fa20615091cf0eed7bd4df7c2640400a7c2512d9f76eaae44a455b861bc716",
+    "pkgs/unicorn/fingerprint/authorization.c": "c78bc00dc952b047a1019a4136025850a254790fcc618d29821ef16a47cf571d",
+    "pkgs/unicorn/fingerprint/authorization-state.h": "3135a93eca5d44aec8f2cec023bee60b781d68250ca74bcb0e738e3e036a7f83",
+    "pkgs/unicorn/fingerprint/authorization-state.c": "6ea5d0a4518b805903a45584910e469585271a87ac09a9f1762515db9f90cc77",
+    "pkgs/unicorn/fingerprint/authorize.c": "4e9a99119a24f2e395f9933194b9b105c12730a22a0f6aba3b48d835f05558e4",
+    "pkgs/unicorn/fingerprint/login.h": "06f7fe33cd48778a86a568f02587c17da774cccda1cfa8f5e8f2d8da4e796788",
+    "pkgs/unicorn/fingerprint/login.c": "da9c561508ec8abd34e6616d531f914500a449912eb49b8ab23b2a448e917b45",
+    "pkgs/unicorn/fingerprint/tests/selection.c": "8d7ea7d7670aeae7729ba4cf9f52d633a2a5cffe38444983b3b2283b06a9f10b",
+    "pkgs/unicorn/fingerprint/tests/init.c": "7c531712e6b9055eaede1bb1bfd0eccc49ca24d024d86c4d52ae89b2f0dc245e",
+    "pkgs/unicorn/fingerprint/tests/gatekeeper.c": "bb55c3787621e103458cb88954fdc66c30de38de660804afb4f832d1e254133e",
+    "pkgs/unicorn/fingerprint/tests/authorization-state.c": "381389326b6d36d880da7a079ea1dbd02729fe75f9ed55b453d632bdcc8a891c",
+    "pkgs/unicorn/fingerprint/tests/login.c": "4fffa0144cb70a8f75ceb957412d63c9d09ccd04d7b9d49208eda784bde658a5",
+    "pkgs/unicorn/fingerprint/tests/authorization.c": "1a1e4226d243eabd66dca4b7f23c349f0f2b8944d077dd8c0883e177e10f721c",
+    "pkgs/unicorn/fingerprint/generated/layer-shell.c": "699dabe913a95113f56f82c87f59b3748cdfd959c17c45f39073b53cb2af998e",
+    "pkgs/unicorn/fingerprint/generated/layer-shell.h": "bd359658282daf42b2f3270f2f670ae7d1d045ea47e3410bd3fdd012c8b47237",
+    "pkgs/unicorn/fingerprint/generated/viewporter.c": "62de15f2fc06cf3eec6aaeb2b90eff408b683f4292bbd5033659c4924835ff4f",
+    "pkgs/unicorn/fingerprint/generated/viewporter.h": "6e839e9a46693ebcadd8abeb1e0e3dea0fa518cc832c1cf0954fde418ddb5ca4",
+    "pkgs/unicorn/fingerprint/generated/idle-inhibit.c": "d65152753aa779dd145c2828727919f2690b3092e48bb92c567132bd9b139189",
+    "pkgs/unicorn/fingerprint/generated/idle-inhibit.h": "afb7f8e24fec6727fc2602220668f0dfdd156e5bfbd15f7cf3a52d9a21f39260",
+    "pkgs/unicorn/fingerprint/generated/xdg-shell.c": "9e12fcd5676d8c6b6cfd233c2eba563163c0ea7e586cb6e27f202a328323c7f0",
+    "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-staging-layout.patch": "07acdda3621cd17189b6002f0ccc3944cd0fcf75481b4c04d8675602cc8e2740",
+    "tests/unicorn-qsee-staging.c": "18bb5e1308e01385d719897b2fb89f0524459a59dbdf20f8e98cd3c9a8e1c9dd",
+    "tests/unicorn-qsee-staging.py": "97a5ea6538bc4c049c14c800b382372695d30edd76f5f25990c729ed21a28ba3",
+    "tools/unicorn-fingerprint-evidence.py": "fe1bbce67fbca25b96d8a84d3cb654a7fa51ecbbb3155e8292fd449364003db1",
+    "pkgs/linux-kernel/sm8475/unicorn/series.nix": "3c4f2b1eb5c228a1254f2def91ef2f8f5c2131e09edaa28360538d200b33067b",
+    "pkgs/unicorn/fingerprint/tests/provision.c": "a0012e00219927c389f78376d8f9c210ad81dbf9a06d1659c24cde16b494247b"
+  },
+  "rendered_unit_checks": [
+    "Explicit empty CapabilityBoundingSet for fprintd and the display broker",
+    "TEE/input/sensor/illumination/FastRPC/DMA-heap device access added to the upstream fprintd allowlist",
+    "Hint runs with host credentials; root broker and passed root fd authenticate in systemd VM",
+    "Selector exits 78 without loading TAs when CDSP is absent; systemd reports zero restarts",
+    "Final personal system units contain no hint user namespace/mount isolation and selector RestartPreventExitStatus=78, StartLimitBurst=3; all generated PAM texts lack pam_fprintd.so"
+  ],
+  "installation": {
+    "system": "/nix/store/lpya1977vd6pw84ylm6nf8rjss5md73g-nixos-system-unicorn-26.11.20261010.6510408",
+    "installed_generation": 21,
+    "default_entry": "nixos-c530ee7574ba14ba01e3c0ae2450e26f76faddaabd4f38674077a3832a811348.conf",
+    "boot_payload_sha256": {
+      "linux": "65bcdfb46b6bfbe4acc8b07c40e4c4e727dba86f31b02293742dd18de064666d",
+      "initrd": "14e380a0b671e7e000760918c096a1a0ccde69e9ea8655eace6e005bb2877157",
+      "devicetree": "e7a6055ac5eb1acaca12f205f1e5791e9d9d3dd3471783d0c121d545cf7b64ed"
+    },
+    "previous_generation_retained": true,
+    "activation": "booted generation 21",
+    "reboot_performed": true,
+    "previous_boot_id": "18dfe46b-a6a2-48b0-b7d1-4f17c88ffcd3",
+    "reboot_request_exit": 0,
+    "reboot_request_output": "",
+    "boot_id": "7e5aea47-1eff-448c-a626-952cd6e66b9c",
+    "currently_running_system": "/nix/store/lpya1977vd6pw84ylm6nf8rjss5md73g-nixos-system-unicorn-26.11.20261010.6510408",
+    "cdsp_boot_validation": "passed: running, FastRPC secure/nonsecure nodes present",
+    "hint_service": "active/running, NRestarts=0",
+    "profile_selection": "failed: both full initialization probes timed out errno=110; selector exit=78, NRestarts=0"
+  },
+  "previous_installation": {
+    "system": "/nix/store/4ghcirz8ck9w7m81swb1kxplph6fja5s-nixos-system-unicorn-26.11.20261010.6510408",
+    "installed_generation": 20,
+    "default_entry": "nixos-27673820b1279e67499af61ea50ca1820d7b6a5a28bba28f8c814fd3b0674a53.conf",
+    "boot_payload_sha256": {
+      "linux": "751faf091083a3894462dfa86deac2a7f68c119a7056d236a017540ce57a0552",
+      "initrd": "14e380a0b671e7e000760918c096a1a0ccde69e9ea8655eace6e005bb2877157",
+      "devicetree": "f45580e81da5f911aca695597dd9ce63cf151a78df892440b5ab6ef6d274e8eb"
+    },
+    "previous_generation_retained": true,
+    "activation": "generation 20 boot observed on 2026-11-16; audit correction not installed",
+    "reboot_performed": false,
+    "currently_running_system": "/nix/store/4ghcirz8ck9w7m81swb1kxplph6fja5s-nixos-system-unicorn-26.11.20261010.6510408",
+    "private_oled_input": "restored from same-device boot evidence; root 0600; not in Nix store",
+    "cdsp_boot_validation": "failed: start timed out (-110), remoteproc2 offline, absent FastRPC nodes",
+    "boot_observed": true
+  },
+  "live_startup_evidence": {
+    "generation": 20,
+    "keymaster_and_detector": "both TA candidates accepted",
+    "cdsp": "signed image loaded at 22:19:04; start timed out at 22:19:10 (-110); offline and no FastRPC nodes",
+    "cdsp_ready_handover_smp2p_interrupts": 0,
+    "full_initialization": "FastRPC domain 3 open ENOENT, reported EREMOTEIO 121",
+    "hint_peer_uid": "host root 0 outside user namespace; 65534 with original user service mount sandbox",
+    "restart_counts_at_2307": {
+      "selector": 247,
+      "hint": 1279
+    },
+    "enrollment": "not reached",
+    "private_input_metadata": "oled_wp exists: 8 bytes, root 0600; optional OTP cache absent; no private contents logged"
+  },
+  "previous_build_checks": {
+    "device-unicorn-fingerprint-config": {
+      "result": "passed",
+      "derivation": "/nix/store/jn0hx43mxrgmp8ps66mgmq46iry7snzk-android-unicorn-fingerprint.drv",
+      "outputs": {
+        "out": "/nix/store/iw9gk3b29acjficg7jiga74f9fnjl1kv-android-unicorn-fingerprint"
+      }
+    },
+    "device-unicorn-display-lifecycle": {
+      "result": "passed",
+      "derivation": "/nix/store/in7llgdasjiwzvvhklpf3rpq493gflmy-unicorn-display-lifecycle-tests-1.drv",
+      "outputs": {
+        "out": "/nix/store/1jnyykfmmv2ir2k23fx92yqpfs9z2a4d-unicorn-display-lifecycle-tests-1"
+      }
+    },
+    "configuration": {
+      "result": "passed",
+      "derivation": "/nix/store/b6w85hqibjwnwghpn0zj9kc0xfhwbpx0-unicorn-configuration.json.drv",
+      "outputs": {
+        "out": "/nix/store/hy2b1hqv8gi9ss8i0x76mp6nkkqcf5wf-unicorn-configuration.json"
+      }
+    },
+    "device-unicorn-fingerprint": {
+      "result": "passed",
+      "derivation": "/nix/store/mgmg4phm2f4n20z1p4lh1pzlkmc967ml-unicorn-fingerprint-offline-tests.drv",
+      "outputs": {
+        "out": "/nix/store/awqjg5lm1dw558f71z5409ygdj403bl2-unicorn-fingerprint-offline-tests"
+      }
+    },
+    "personal-system": {
+      "result": "passed",
+      "derivation": "/nix/store/9qf8njwzhviax7y0jnyym999ipw7sjp2-nixos-system-unicorn-26.11.20261010.6510408.drv",
+      "outputs": {
+        "out": "/nix/store/4ghcirz8ck9w7m81swb1kxplph6fja5s-nixos-system-unicorn-26.11.20261010.6510408"
+      }
+    },
+    "device-unicorn-cdsp": {
+      "result": "passed",
+      "derivation": "/nix/store/rvfqaqnszw69cxhqbi4q5d683fb44qah-unicorn-cdsp-tests.drv",
+      "outputs": {
+        "out": "/nix/store/xh6n5dyg83l76hs2qj0n7kinnljp1qhw-unicorn-cdsp-tests"
+      }
+    }
+  },
+  "previous_live_startup_evidence": {
+    "generation": 19,
+    "keymaster_and_detector": "both TA candidates accepted",
+    "cdsp": "disabled node and absent device files; correction staged in generation 20",
+    "enrollment": "not performed",
+    "calibration_input": "original OLED parameter restored privately after matching archived and current device serial identifiers"
+  },
+  "audit_fixes": [
+    {
+      "area": "CDSP",
+      "change": "supply OEM NSP-to-DDR interconnect so Q6v5 boot vote is not a no-op",
+      "validation": "compiled DT endpoint/tag/firmware checks pass; boot effect remains unverified"
+    },
+    {
+      "area": "service credentials",
+      "change": "remove implicit user-namespace mount sandbox from hint, preserving SO_PEERCRED root identity",
+      "validation": "production broker and user helper with actual systemd settings passed VM fd-handoff test"
+    },
+    {
+      "area": "startup failure",
+      "change": "wait for CDSP/FastRPC before any TA load; status 78 prevents permanent-failure restart loops; rate-limit other failures",
+      "validation": "platform fixture plus real selector/systemd VM test"
+    },
+    {
+      "area": "illumination",
+      "change": "exit self-refresh through KMS before acquiring lease, block fresh idle admission, lock connector and CRTC state with deadlock unwind",
+      "validation": "246 extracted display lifecycle cases plus real lease ioctl tests; physical timings not tested"
+    },
+    {
+      "area": "secure errors",
+      "change": "reset/transport failure invalidates session; clear stale retry status; check event delivery",
+      "validation": "real engine with injected TA reset and DSP failure"
+    },
+    {
+      "area": "threading",
+      "change": "always dispatch libfprint progress through attached main-context source, invalidate old request ID, make DSP broken state atomic",
+      "validation": "real libfprint async tests including callback thread/context assertion"
+    },
+    {
+      "area": "template identity",
+      "change": "version-2 locators include full 18-byte serial and length; reject truncated v1 locators",
+      "validation": "serial suffix/length distinction, real print serialization and gallery isolation"
+    },
+    {
+      "area": "touch",
+      "change": "drain queued transitions before exposing, preventing stale finger-down from hiding newer finger-up",
+      "validation": "real engine queued-transition regression plus evdev fixtures"
+    },
+    {
+      "area": "IPC/display",
+      "change": "reject malformed reply profile/flags/locators, align hint timeout budgets, handle discovery write backpressure and ignore unrelated global removal",
+      "validation": "malformed-reply cases in real libfprint; production broker handoff; display changes compiled"
+    }
+  ],
+  "runtime_source_match": [
+    {
+      "output": "/nix/store/z5lr6fcn78462r9zbsjxs28bk82502jk-unicorn-fingerprint-runtime-0.2.0",
+      "derivation": "/nix/store/70vpbclr1w5ag5k9b5ydyddn3wqq21lx-unicorn-fingerprint-runtime-0.2.0.drv",
+      "source": "/nix/store/nlp0vyb9fywdvdk4m8519irs4jrcqrwz-source",
+      "matching_files": 56,
+      "kind": "native_runtime"
+    },
+    {
+      "output": "/nix/store/rjb3xzyviqk67r6x8yrwl2lhg68hgwzp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0",
+      "derivation": "/nix/store/byi1ba6m3lr6pn4sg48z437rpwfzzpzs-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0.drv",
+      "source": "/nix/store/nlp0vyb9fywdvdk4m8519irs4jrcqrwz-source",
+      "matching_files": 56,
+      "kind": "target_runtime"
+    }
+  ],
+  "reviewable_system": "/nix/store/8vm3cg29l05lr330qv13637p46p3d7br-nixos-system-unicorn-26.11.20261010.6510408",
+  "personal_pam_configurations_without_fingerprint": 29,
+  "generation21_postboot": {
+    "cdsp": "running; signed firmware boot success; /dev/fastrpc-cdsp and secure node present",
+    "hint": "active/running, NRestarts=0",
+    "selector": "both initialization probes errno=110, selection_failed accepted=0, exit=78, NRestarts=0",
+    "fprintd": "dependency failed; biometric capture not reached",
+    "other_failed_units": [
+      "unicorn-bluetooth-identity.service"
+    ],
+    "raw_logs": "local .work/unicorn/fingerprint/audit-20261116/postboot-*.log"
+  },
+  "previous_records": [
+    {
+      "date": "2026-11-16",
+      "build_checks": {
+        "device-unicorn-fingerprint-config": {
+          "result": "passed",
+          "derivation": "/nix/store/jn0hx43mxrgmp8ps66mgmq46iry7snzk-android-unicorn-fingerprint.drv",
+          "outputs": {
+            "out": "/nix/store/iw9gk3b29acjficg7jiga74f9fnjl1kv-android-unicorn-fingerprint"
+          }
+        },
+        "device-unicorn-display-lifecycle": {
+          "result": "passed",
+          "derivation": "/nix/store/fn1fbwgvp2bsplq4zi7hn7w723wawrxy-unicorn-display-lifecycle-tests-1.drv",
+          "outputs": {
+            "out": "/nix/store/cyhdl8szzcrjj0bzndm7jcr3pgr5vhbg-unicorn-display-lifecycle-tests-1"
+          }
+        },
+        "configuration": {
+          "result": "passed",
+          "derivation": "/nix/store/ya0ava3jp9sxbg6m35v71jas81kxqi3x-unicorn-configuration.json.drv",
+          "outputs": {
+            "out": "/nix/store/wi7l1qd91z2v6plljx2pbsg1yrzgkjjr-unicorn-configuration.json"
+          }
+        },
+        "device-unicorn-fingerprint": {
+          "result": "passed",
+          "derivation": "/nix/store/f8m79kzii8cvvzw3d2mcpv296g2nfh5a-unicorn-fingerprint-offline-tests.drv",
+          "outputs": {
+            "out": "/nix/store/098dpr3hkg59skqkfxskwzbyb20vg7y3-unicorn-fingerprint-offline-tests"
+          }
+        },
+        "device-unicorn-cdsp": {
+          "result": "passed",
+          "derivation": "/nix/store/i8dk620xzvz2lpcawp1q19vlshkkdlbg-unicorn-cdsp-tests.drv",
+          "outputs": {
+            "out": "/nix/store/nh6jbb6d4r7jphd54p4q2r5zwdm9ii2v-unicorn-cdsp-tests"
+          }
+        },
+        "device-unicorn-fingerprint-services": {
+          "result": "passed",
+          "derivation": "/nix/store/3199cxnjmmm222i3fmrx7qn3alivq0sr-vm-test-run-unicorn-fingerprint-services.drv",
+          "outputs": {
+            "out": "/nix/store/vi8qpl824zxvb8qapv4xhssl1vskckj2-vm-test-run-unicorn-fingerprint-services"
+          }
+        },
+        "personal-system": {
+          "result": "passed",
+          "derivation": "/nix/store/4qmhqdch8lsz861qjqhz5hp3z1cfd3vf-nixos-system-unicorn-26.11.20261010.6510408.drv",
+          "outputs": {
+            "out": "/nix/store/f94w0wmxw9md62wiw34kl6d2m54abd3n-nixos-system-unicorn-26.11.20261010.6510408"
+          }
+        }
+      },
+      "hardware_acceptance": {
+        "deployment": "generation 21 deployed and rebooted by explicit user request; verified booted/current system match audited build",
+        "profile_selection": "generation 21: CDSP boot fixed; both detector probes accept; full gfuni/gfuni6 initialization now reaches FastRPC proxy but times out errno=110; selector exits 78 without restart",
+        "real_enrollment": "not performed",
+        "enrolled_finger_20_trials": "not performed",
+        "unenrolled_finger_20_trials": "not performed",
+        "service_restart_persistence": "not performed",
+        "reboot_persistence": "not performed",
+        "delete_and_failure_recovery": "not performed"
+      },
+      "source_sha256": {
+        "modules/devices/unicorn/fingerprint.nix": "66d70fbda4308cd0d878a4fb72eb21e885b735cc4e7a147805a9a7f5b07fed49",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/fingerprint-cdsp.patch": "7cf8bdd8939aa7d9a7c36592b639227e295dfd52727bc997277cd407555590d6",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/fingerprint-control.patch": "441b8587aafb4cdc35d53e5aa263a42e6a6900700812947363c154c991d2c9e0",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/panel-fingerprint-lease.patch": "57b49315489c3ef9bc6622b2d645b4a8ff912285ebf13cdf437306d54dbb872a",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-private-dma.patch": "6517cd276c22728d44ffa67c77ddb2f91d75cb00d541e37e0b6150c53bf43857",
+        "pkgs/unicorn/assemble-firmware.py": "a724ce02f895a5de8a4e548a7191fcfce6b690b060916cd445a1fe2c16c10165",
+        "pkgs/unicorn/fingerprint/Makefile": "c541cedd5859b6391b21e7d4d45cce3d5286ee7d9a8bcbfa3f1245aa9e497cd9",
+        "pkgs/unicorn/fingerprint/arm-proxy.c": "c60e47d136efe737e42ea19ef95db19ac2d2df333dd22aaed95d5ae11c674884",
+        "pkgs/unicorn/fingerprint/assemble-ta.py": "8253afc7179c33be3e1ba4c37258cb85b90aba2dfb6048ae1c3551e4dc42a74d",
+        "pkgs/unicorn/fingerprint/default.nix": "59b767a3686a33483641f8edae14a8b8491c7635c41cca6413cccba4d05650d4",
+        "pkgs/unicorn/fingerprint/display-hint.c": "53db62b8f8b2fedabd40d43b42548cbd71d90f697f99028cb886a709f0009edb",
+        "pkgs/unicorn/fingerprint/display.c": "c4779337476d5ea49f440ba26d7840cb34d17bf8391df572f241348015233ff8",
+        "pkgs/unicorn/fingerprint/display.h": "0b3aa3135826b2bf213d30fe9166eab0c3d924fcbb3a38ee607f7c6dde4ffa8b",
+        "pkgs/unicorn/fingerprint/dsp-firmware.nix": "2441977a081fc2b9c1020587cb7222cc6eabc63199410def6f2bbe1ce449f415",
+        "pkgs/unicorn/fingerprint/dsp.c": "bbed9936f1bbb8c4c292c08d69f1681f6ffc2f0750ad2057e51a5e840217bda7",
+        "pkgs/unicorn/fingerprint/dsp.h": "64c0c1b981880c32e3e52770dd5d7da172bf2cb41cd7f3e15b4e6d7baf33a8a3",
+        "pkgs/unicorn/fingerprint/engine.c": "c79c072625d2667f805c8d558e89d399f6ac84b09a54afb8c00af177c62347b4",
+        "pkgs/unicorn/fingerprint/fastrpc-shell-path.patch": "94666483a73ee47314a9e9e81c6366a5dbf1d560d80a9a0776b382aa8aae4adf",
+        "pkgs/unicorn/fingerprint/fprintd.nix": "526494058ab4cca342a0a94f901b20c0527e445d4e8f83e99d6153db9eeeb407",
+        "pkgs/unicorn/fingerprint/hint-broker.c": "321f2cd4c913a419c5e54cdb0bf5b273c390f9f186c7babf73233476a5faa254",
+        "pkgs/unicorn/fingerprint/inputs/dsp-firmware.tar.xz": "3a34531f88451c482875409abc60184cd722742e1fca8e450ad44f731976d16e",
+        "pkgs/unicorn/fingerprint/inputs/dsp-manifest.json": "013cf66f6802b2ed68d881ac164c0e6633e011997accfb95446be9f34504ba2d",
+        "pkgs/unicorn/fingerprint/ipc.h": "dd84cdd3c18fe9f3c947ddec262bdbae8b36479803404416580f7282e101141a",
+        "pkgs/unicorn/fingerprint/libfprint-misc.patch": "c7ebd2e25ce468c5ad755207aa8d3d311cb59d2264275b979757ead2934c63bd",
+        "pkgs/unicorn/fingerprint/libfprint-unicorn.c": "107c9660b0f8ecf091979224c84b31530f4c3211b20602afc872b70d7f8e44be",
+        "pkgs/unicorn/fingerprint/libfprint.nix": "e2b1f791e0f9b7164509a8b4ef5d509084ec12e7e499cf49f02967a716eba406",
+        "pkgs/unicorn/fingerprint/main.c": "ae95cfb747fc4f7a8ada650f5e50767ea0172c23b55abeb76b3310f3566811af",
+        "pkgs/unicorn/fingerprint/platform.c": "f02609d770ffa6f2f8d100fad726516f0eaa710f71da3964b6b62ff65322da2a",
+        "pkgs/unicorn/fingerprint/platform.h": "4ff44f04c6aa10e36827c16f5d51ed20615665c74ad2727895e084d3ad5d2d6f",
+        "pkgs/unicorn/fingerprint/protocol.c": "a95c0b3beda33c13817518b0e7334d6c615a1d57946868b6e3c3f852334cc023",
+        "pkgs/unicorn/fingerprint/protocol.h": "fc5faa680fd67be68b2ee2acb189c8b1dd36493bc5be320a3217e2d5c13f76b1",
+        "pkgs/unicorn/fingerprint/qsee-supplicant.nix": "634b0e815dde26fa73678e2d6d136605dfe9ae131a9ab879d09f77dc54747fb5",
+        "pkgs/unicorn/fingerprint/rpc-abi.h": "66a510699c3b0a6b19e1d29922790dbce1d5dfdb1905a3615639ddd1045dbea2",
+        "pkgs/unicorn/fingerprint/select.c": "587d20f91f72b21406652d6245c3f86768b23208decdf0124c06d5929bac8b82",
+        "pkgs/unicorn/fingerprint/sensor.c": "466fa1d730e7ab72c9bccaa4f7ed3a49ea0aae00d7f8bf152ae12e99525c85d4",
+        "pkgs/unicorn/fingerprint/sensor.h": "b0f4b4c3d01095aeb0763300674a87fce0282e9975b5973b7c1eb36b3ddbed54",
+        "pkgs/unicorn/fingerprint/ta.nix": "df45675f6b5be97c197c22ace7a08b29bca065702f26b794bd852354f6c23066",
+        "pkgs/unicorn/fingerprint/tee.c": "0fe70539e507953d79ade49dab387f993cb389f6642f8876c7a6df1e815103f8",
+        "pkgs/unicorn/fingerprint/tee.h": "7a6c2d0cfd0c19e40146f132b0daeb3dacded8d12dcd88b984f20023a2abbc5d",
+        "pkgs/unicorn/fingerprint/tests/actions.c": "bb50ff9e2a43dd508b7044e6269a6812f68482a64e9d83383d3543a36c3749f8",
+        "pkgs/unicorn/fingerprint/tests/broker-peer.c": "d01ca550ea8d189c989edff31664ea1e739c74cd458721c67ca5766ab149564f",
+        "pkgs/unicorn/fingerprint/tests/broker.py": "8e3be3504a2a781ffc354f3640abc391c5dc61c13cf07e677ac2b8d9e82b2fa9",
+        "pkgs/unicorn/fingerprint/tests/driver.c": "ef291317d429e803be330971523da12e81c3bed8391a6825da3a2ddd6ed0fb96",
+        "pkgs/unicorn/fingerprint/tests/dsp.c": "0ddbe676b8156b7a31a5ff8bed88a854fa148ecbe22169299812883b9aea9136",
+        "pkgs/unicorn/fingerprint/tests/engine.c": "31f535d51c1deb38a02b93fab0f0e0a263898478f9ee44d29011b38653e6f852",
+        "pkgs/unicorn/fingerprint/tests/fake-worker.c": "82f3588bd3882299308beca5874825e197a28f2e6582e12a40c872a589605387",
+        "pkgs/unicorn/fingerprint/tests/lifecycle.c": "417446a8c626667370adacf3cbe1f2711a3813375e6e8932aed2bfc808e8a9fe",
+        "pkgs/unicorn/fingerprint/tests/platform.c": "a53544e353a3aeb4b63c7706fc4062972f0ace1fffc13df8e0a1e7de65fca103",
+        "pkgs/unicorn/fingerprint/tests/protocol.c": "364de663817367b73c4998c632b87dd85d1b2dbd059e6dd3cf5e2cf07e55c408",
+        "pkgs/unicorn/fingerprint/tests/sensor.c": "b74a3e700280519ceacb76b4d5373898c942407db65d229eaaecda9e1f0d7970",
+        "pkgs/unicorn/fingerprint/tests/touch.c": "5ba79629f4bd13f9f8f231c273351c3605c988258e83da5584f0dc1a7c51dedb",
+        "pkgs/unicorn/fingerprint/tests/transport.c": "769eb8ddc5ab80fb2cef638064a3e13eede1745df245b15666335e042dd1c705",
+        "pkgs/unicorn/fingerprint/touch.c": "62cdcc63a7c68d01cc29ce5ae9939734dd28cc708145b4ad594ae6d463196ab6",
+        "pkgs/unicorn/fingerprint/touch.h": "c44f4406a07425ab92d393c85cb7908237357589596e3a28a4a0d9ecfb9c294a",
+        "pkgs/unicorn/fingerprint/wayland/wlr-layer-shell-unstable-v1.xml": "996b8c66e1c2276c443336d4cb174634e8e5948823779042f244930525b79cc2",
+        "pkgs/unicorn/inputs/archive.json": "b5bb8544698b317a554ea377af63392f6a87ffbff22102ce7aecac7d03dd7da9",
+        "pkgs/unicorn/inputs/oem-firmware.tar.xz": "4fd9a30bf7647fcca137442515445f9fd6087643073096fdf08d5137083da753",
+        "pkgs/unicorn/manifest.json": "7f3ef3f09d5a84fd2735aeecc3376f5a0f9c5954e568e2bc2b1a7f6d282e07d5",
+        "tests/unicorn-cdsp.nix": "b2e189eb77347c88db638dba1b8507dc6aaafd31e786e1343319a27a1b98d7a4",
+        "tests/unicorn-cdsp.py": "5fbd366dc80fd38402833ba5973eccda5ce9d9107d8697c4244e6e59cf2a384d",
+        "tests/unicorn-display-lifecycle.c": "abc9543d7bcd9d0edc10e1205e040bc84561784d6f2cee1dac4784d68830715d",
+        "tests/unicorn-display-lifecycle.nix": "22189bf64948effa7d04dfe82bfbb2c08bc36a77ebf6d392d1f582e6714a2a30",
+        "tests/unicorn-display-lifecycle.py": "a0c886a3a91b14c6bd53b8608981605220800a5b6040026e6a655e96871abbfe",
+        "tests/unicorn-fingerprint-check.nix": "6570cc21e465359ef4e8a1e996f345f3c8d2ff7081ed9264776dabeaa467c89e",
+        "tests/unicorn-fingerprint-driver.nix": "ce107a7ee2813e737853b5260384c9fbfb7fd3f64be4f9da4b075af909deb748",
+        "tests/unicorn-fingerprint-lease.c": "4e0352b953b43ba5986ff7b999dc88d0a93cc12e94d21a9974d9b9192c4200fd",
+        "tests/unicorn-fingerprint-lease.py": "5419b4912d1e09c5dd968ebe5e6a9057ed0e4cb308ca5419c0c7cc1ad6e2326c",
+        "tests/unicorn-fingerprint-services.nix": "3a2ac2e39e4f2b11da72db709390aec5451491cb696cb793bc352c32d91cb296",
+        "tests/unicorn-fingerprint-services.py": "4f59619b8226a27f8e3061815e0e4e838f4f83a15b501711069f6dce450c6689",
+        "tests/unicorn-fingerprint.nix": "10f4b5fe450ba26a9a6a15e061c237791ce4ec939c41bd49bdb6ec2bb9e58531",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-listener-budget.patch": "37644d45a51beb4c24ff9c112be0dbde1c2428fc64b431d2d3ca3d1085e39e8f",
+        "pkgs/unicorn/fingerprint/selection.c": "6d112ef9b4b3773bcc7368a45becbc9a383626365be9ac59758c2e35f3ad2a72",
+        "pkgs/unicorn/fingerprint/selection.h": "abe3be4d1922d2b924dd6e338b9d8553f1bc0db2c709a778f33143d3ba38ae59",
+        "pkgs/unicorn/fingerprint/fprintd-template-protection.patch": "9aa05aacc76db19f2afb133f7bd230840b874d009323ed5f56059509d7ae6156",
+        "tests/unicorn-qsee-listener.c": "bfbcb546699589630b9e3a2d78eb175e997f1a7410061e1c93d7ef343f07afb2",
+        "tests/unicorn-qsee-listener.py": "7c5cbe12cdf30c892ac8bb29ef606d95b75acc6ba637e2f6a2f716f1eb9025fb"
+      }
+    },
+    {
+      "date": "2026-11-17",
+      "generation": 24,
+      "build_checks": {
+        "device-unicorn-fingerprint-config": {
+          "result": "passed",
+          "derivation": "/nix/store/jn0hx43mxrgmp8ps66mgmq46iry7snzk-android-unicorn-fingerprint.drv",
+          "outputs": {
+            "out": "/nix/store/iw9gk3b29acjficg7jiga74f9fnjl1kv-android-unicorn-fingerprint"
+          }
+        },
+        "device-unicorn-display-lifecycle": {
+          "result": "passed",
+          "derivation": "/nix/store/fn1fbwgvp2bsplq4zi7hn7w723wawrxy-unicorn-display-lifecycle-tests-1.drv",
+          "outputs": {
+            "out": "/nix/store/cyhdl8szzcrjj0bzndm7jcr3pgr5vhbg-unicorn-display-lifecycle-tests-1"
+          }
+        },
+        "configuration": {
+          "result": "passed",
+          "derivation": "/nix/store/k0jbpwrfihj24n9ax0cxk274cp6yivjf-unicorn-configuration.json.drv",
+          "outputs": {
+            "out": "/nix/store/a4kkgd9m4mdfc9wh6csng89bb9vbcbwp-unicorn-configuration.json"
+          }
+        },
+        "device-unicorn-fingerprint": {
+          "result": "passed",
+          "derivation": "/nix/store/f8m79kzii8cvvzw3d2mcpv296g2nfh5a-unicorn-fingerprint-offline-tests.drv",
+          "outputs": {
+            "out": "/nix/store/098dpr3hkg59skqkfxskwzbyb20vg7y3-unicorn-fingerprint-offline-tests"
+          }
+        },
+        "device-unicorn-cdsp": {
+          "result": "passed",
+          "derivation": "/nix/store/i8dk620xzvz2lpcawp1q19vlshkkdlbg-unicorn-cdsp-tests.drv",
+          "outputs": {
+            "out": "/nix/store/nh6jbb6d4r7jphd54p4q2r5zwdm9ii2v-unicorn-cdsp-tests"
+          }
+        },
+        "device-unicorn-fingerprint-services": {
+          "result": "passed",
+          "derivation": "/nix/store/ax08mg6kfapivq9pibrgsl9f0myanjjk-vm-test-run-unicorn-fingerprint-services.drv",
+          "outputs": {
+            "out": "/nix/store/8vizpvzi9j5y8hxw4nb0kzni6gympnkk-vm-test-run-unicorn-fingerprint-services"
+          }
+        },
+        "personal-system": {
+          "result": "passed",
+          "derivation": "/nix/store/aap02d2rwrivwnp2mzjk7yp5ijs53ycb-nixos-system-unicorn-26.11.20261010.6510408.drv",
+          "outputs": {
+            "out": "/nix/store/vri2l9hqifk2g0c6mnmx669wz32n9h7z-nixos-system-unicorn-26.11.20261010.6510408"
+          }
+        }
+      },
+      "hardware_acceptance": {
+        "deployment": "generation 25 deployed and rebooted; booted/current links and EFI kernel/initrd match final build; prior generations retained",
+        "profile_selection": "passed: gfuni6 full TA/DSP initialization, calibration 0x13; successful-candidate cache used after reboot",
+        "root_worker_inventory": "passed: full open/list/close; 0 device templates before enrollment",
+        "fprintd_worker_open": "passed: required ADSP allocator node allowlisted; 3 persistent-client Claim/Release cycles before deployment and 3 after reboot; empty capability set; no runtime override after reboot",
+        "real_enrollment": "generation 24 attempt failed before capture; device-open error fixed in generation 25; real enrollment awaits user self-test",
+        "enrolled_finger_20_trials": "not performed",
+        "unenrolled_finger_20_trials": "not performed",
+        "request_template_scope": "not performed on hardware",
+        "service_restart_persistence": "not performed",
+        "reboot_persistence": "not performed",
+        "delete_and_failure_recovery": "not performed",
+        "physical_display": "not verified",
+        "operator": "user requested self-directed finger tests"
+      },
+      "source_sha256": {
+        "modules/devices/unicorn/fingerprint.nix": "5da52b049ca430eea9c74159190041489d28398f3de2226b99f9bc9bb8753b84",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/fingerprint-cdsp.patch": "7cf8bdd8939aa7d9a7c36592b639227e295dfd52727bc997277cd407555590d6",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/fingerprint-control.patch": "441b8587aafb4cdc35d53e5aa263a42e6a6900700812947363c154c991d2c9e0",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/panel-fingerprint-lease.patch": "57b49315489c3ef9bc6622b2d645b4a8ff912285ebf13cdf437306d54dbb872a",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-private-dma.patch": "6517cd276c22728d44ffa67c77ddb2f91d75cb00d541e37e0b6150c53bf43857",
+        "pkgs/unicorn/assemble-firmware.py": "a724ce02f895a5de8a4e548a7191fcfce6b690b060916cd445a1fe2c16c10165",
+        "pkgs/unicorn/fingerprint/Makefile": "c541cedd5859b6391b21e7d4d45cce3d5286ee7d9a8bcbfa3f1245aa9e497cd9",
+        "pkgs/unicorn/fingerprint/arm-proxy.c": "c60e47d136efe737e42ea19ef95db19ac2d2df333dd22aaed95d5ae11c674884",
+        "pkgs/unicorn/fingerprint/assemble-ta.py": "8253afc7179c33be3e1ba4c37258cb85b90aba2dfb6048ae1c3551e4dc42a74d",
+        "pkgs/unicorn/fingerprint/default.nix": "59b767a3686a33483641f8edae14a8b8491c7635c41cca6413cccba4d05650d4",
+        "pkgs/unicorn/fingerprint/display-hint.c": "53db62b8f8b2fedabd40d43b42548cbd71d90f697f99028cb886a709f0009edb",
+        "pkgs/unicorn/fingerprint/display.c": "c4779337476d5ea49f440ba26d7840cb34d17bf8391df572f241348015233ff8",
+        "pkgs/unicorn/fingerprint/display.h": "0b3aa3135826b2bf213d30fe9166eab0c3d924fcbb3a38ee607f7c6dde4ffa8b",
+        "pkgs/unicorn/fingerprint/dsp-firmware.nix": "2441977a081fc2b9c1020587cb7222cc6eabc63199410def6f2bbe1ce449f415",
+        "pkgs/unicorn/fingerprint/dsp.c": "bbed9936f1bbb8c4c292c08d69f1681f6ffc2f0750ad2057e51a5e840217bda7",
+        "pkgs/unicorn/fingerprint/dsp.h": "64c0c1b981880c32e3e52770dd5d7da172bf2cb41cd7f3e15b4e6d7baf33a8a3",
+        "pkgs/unicorn/fingerprint/engine.c": "c79c072625d2667f805c8d558e89d399f6ac84b09a54afb8c00af177c62347b4",
+        "pkgs/unicorn/fingerprint/fastrpc-shell-path.patch": "94666483a73ee47314a9e9e81c6366a5dbf1d560d80a9a0776b382aa8aae4adf",
+        "pkgs/unicorn/fingerprint/fprintd.nix": "526494058ab4cca342a0a94f901b20c0527e445d4e8f83e99d6153db9eeeb407",
+        "pkgs/unicorn/fingerprint/hint-broker.c": "321f2cd4c913a419c5e54cdb0bf5b273c390f9f186c7babf73233476a5faa254",
+        "pkgs/unicorn/fingerprint/inputs/dsp-firmware.tar.xz": "3a34531f88451c482875409abc60184cd722742e1fca8e450ad44f731976d16e",
+        "pkgs/unicorn/fingerprint/inputs/dsp-manifest.json": "013cf66f6802b2ed68d881ac164c0e6633e011997accfb95446be9f34504ba2d",
+        "pkgs/unicorn/fingerprint/ipc.h": "dd84cdd3c18fe9f3c947ddec262bdbae8b36479803404416580f7282e101141a",
+        "pkgs/unicorn/fingerprint/libfprint-misc.patch": "c7ebd2e25ce468c5ad755207aa8d3d311cb59d2264275b979757ead2934c63bd",
+        "pkgs/unicorn/fingerprint/libfprint-unicorn.c": "107c9660b0f8ecf091979224c84b31530f4c3211b20602afc872b70d7f8e44be",
+        "pkgs/unicorn/fingerprint/libfprint.nix": "e2b1f791e0f9b7164509a8b4ef5d509084ec12e7e499cf49f02967a716eba406",
+        "pkgs/unicorn/fingerprint/main.c": "ae95cfb747fc4f7a8ada650f5e50767ea0172c23b55abeb76b3310f3566811af",
+        "pkgs/unicorn/fingerprint/platform.c": "f02609d770ffa6f2f8d100fad726516f0eaa710f71da3964b6b62ff65322da2a",
+        "pkgs/unicorn/fingerprint/platform.h": "4ff44f04c6aa10e36827c16f5d51ed20615665c74ad2727895e084d3ad5d2d6f",
+        "pkgs/unicorn/fingerprint/protocol.c": "a95c0b3beda33c13817518b0e7334d6c615a1d57946868b6e3c3f852334cc023",
+        "pkgs/unicorn/fingerprint/protocol.h": "fc5faa680fd67be68b2ee2acb189c8b1dd36493bc5be320a3217e2d5c13f76b1",
+        "pkgs/unicorn/fingerprint/qsee-supplicant.nix": "634b0e815dde26fa73678e2d6d136605dfe9ae131a9ab879d09f77dc54747fb5",
+        "pkgs/unicorn/fingerprint/rpc-abi.h": "66a510699c3b0a6b19e1d29922790dbce1d5dfdb1905a3615639ddd1045dbea2",
+        "pkgs/unicorn/fingerprint/select.c": "587d20f91f72b21406652d6245c3f86768b23208decdf0124c06d5929bac8b82",
+        "pkgs/unicorn/fingerprint/sensor.c": "466fa1d730e7ab72c9bccaa4f7ed3a49ea0aae00d7f8bf152ae12e99525c85d4",
+        "pkgs/unicorn/fingerprint/sensor.h": "b0f4b4c3d01095aeb0763300674a87fce0282e9975b5973b7c1eb36b3ddbed54",
+        "pkgs/unicorn/fingerprint/ta.nix": "df45675f6b5be97c197c22ace7a08b29bca065702f26b794bd852354f6c23066",
+        "pkgs/unicorn/fingerprint/tee.c": "0fe70539e507953d79ade49dab387f993cb389f6642f8876c7a6df1e815103f8",
+        "pkgs/unicorn/fingerprint/tee.h": "7a6c2d0cfd0c19e40146f132b0daeb3dacded8d12dcd88b984f20023a2abbc5d",
+        "pkgs/unicorn/fingerprint/tests/actions.c": "bb50ff9e2a43dd508b7044e6269a6812f68482a64e9d83383d3543a36c3749f8",
+        "pkgs/unicorn/fingerprint/tests/broker-peer.c": "d01ca550ea8d189c989edff31664ea1e739c74cd458721c67ca5766ab149564f",
+        "pkgs/unicorn/fingerprint/tests/broker.py": "8e3be3504a2a781ffc354f3640abc391c5dc61c13cf07e677ac2b8d9e82b2fa9",
+        "pkgs/unicorn/fingerprint/tests/driver.c": "ef291317d429e803be330971523da12e81c3bed8391a6825da3a2ddd6ed0fb96",
+        "pkgs/unicorn/fingerprint/tests/dsp.c": "0ddbe676b8156b7a31a5ff8bed88a854fa148ecbe22169299812883b9aea9136",
+        "pkgs/unicorn/fingerprint/tests/engine.c": "31f535d51c1deb38a02b93fab0f0e0a263898478f9ee44d29011b38653e6f852",
+        "pkgs/unicorn/fingerprint/tests/fake-worker.c": "82f3588bd3882299308beca5874825e197a28f2e6582e12a40c872a589605387",
+        "pkgs/unicorn/fingerprint/tests/lifecycle.c": "417446a8c626667370adacf3cbe1f2711a3813375e6e8932aed2bfc808e8a9fe",
+        "pkgs/unicorn/fingerprint/tests/platform.c": "a53544e353a3aeb4b63c7706fc4062972f0ace1fffc13df8e0a1e7de65fca103",
+        "pkgs/unicorn/fingerprint/tests/protocol.c": "364de663817367b73c4998c632b87dd85d1b2dbd059e6dd3cf5e2cf07e55c408",
+        "pkgs/unicorn/fingerprint/tests/sensor.c": "b74a3e700280519ceacb76b4d5373898c942407db65d229eaaecda9e1f0d7970",
+        "pkgs/unicorn/fingerprint/tests/touch.c": "5ba79629f4bd13f9f8f231c273351c3605c988258e83da5584f0dc1a7c51dedb",
+        "pkgs/unicorn/fingerprint/tests/transport.c": "769eb8ddc5ab80fb2cef638064a3e13eede1745df245b15666335e042dd1c705",
+        "pkgs/unicorn/fingerprint/touch.c": "62cdcc63a7c68d01cc29ce5ae9939734dd28cc708145b4ad594ae6d463196ab6",
+        "pkgs/unicorn/fingerprint/touch.h": "c44f4406a07425ab92d393c85cb7908237357589596e3a28a4a0d9ecfb9c294a",
+        "pkgs/unicorn/fingerprint/wayland/wlr-layer-shell-unstable-v1.xml": "996b8c66e1c2276c443336d4cb174634e8e5948823779042f244930525b79cc2",
+        "pkgs/unicorn/inputs/archive.json": "b5bb8544698b317a554ea377af63392f6a87ffbff22102ce7aecac7d03dd7da9",
+        "pkgs/unicorn/inputs/oem-firmware.tar.xz": "4fd9a30bf7647fcca137442515445f9fd6087643073096fdf08d5137083da753",
+        "pkgs/unicorn/manifest.json": "7f3ef3f09d5a84fd2735aeecc3376f5a0f9c5954e568e2bc2b1a7f6d282e07d5",
+        "tests/unicorn-cdsp.nix": "b2e189eb77347c88db638dba1b8507dc6aaafd31e786e1343319a27a1b98d7a4",
+        "tests/unicorn-cdsp.py": "5fbd366dc80fd38402833ba5973eccda5ce9d9107d8697c4244e6e59cf2a384d",
+        "tests/unicorn-display-lifecycle.c": "abc9543d7bcd9d0edc10e1205e040bc84561784d6f2cee1dac4784d68830715d",
+        "tests/unicorn-display-lifecycle.nix": "22189bf64948effa7d04dfe82bfbb2c08bc36a77ebf6d392d1f582e6714a2a30",
+        "tests/unicorn-display-lifecycle.py": "a0c886a3a91b14c6bd53b8608981605220800a5b6040026e6a655e96871abbfe",
+        "tests/unicorn-fingerprint-check.nix": "6570cc21e465359ef4e8a1e996f345f3c8d2ff7081ed9264776dabeaa467c89e",
+        "tests/unicorn-fingerprint-driver.nix": "ce107a7ee2813e737853b5260384c9fbfb7fd3f64be4f9da4b075af909deb748",
+        "tests/unicorn-fingerprint-lease.c": "4e0352b953b43ba5986ff7b999dc88d0a93cc12e94d21a9974d9b9192c4200fd",
+        "tests/unicorn-fingerprint-lease.py": "5419b4912d1e09c5dd968ebe5e6a9057ed0e4cb308ca5419c0c7cc1ad6e2326c",
+        "tests/unicorn-fingerprint-services.nix": "3a2ac2e39e4f2b11da72db709390aec5451491cb696cb793bc352c32d91cb296",
+        "tests/unicorn-fingerprint-services.py": "4f59619b8226a27f8e3061815e0e4e838f4f83a15b501711069f6dce450c6689",
+        "tests/unicorn-fingerprint.nix": "eebab73d6de67493123215f48a3ff77090dc4938f4e833127997aca98ccb2e0f",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-listener-budget.patch": "37644d45a51beb4c24ff9c112be0dbde1c2428fc64b431d2d3ca3d1085e39e8f",
+        "pkgs/unicorn/fingerprint/selection.c": "6d112ef9b4b3773bcc7368a45becbc9a383626365be9ac59758c2e35f3ad2a72",
+        "pkgs/unicorn/fingerprint/selection.h": "abe3be4d1922d2b924dd6e338b9d8553f1bc0db2c709a778f33143d3ba38ae59",
+        "pkgs/unicorn/fingerprint/fprintd-template-protection.patch": "9aa05aacc76db19f2afb133f7bd230840b874d009323ed5f56059509d7ae6156",
+        "tests/unicorn-qsee-listener.c": "bfbcb546699589630b9e3a2d78eb175e997f1a7410061e1c93d7ef343f07afb2",
+        "tests/unicorn-qsee-listener.py": "7c5cbe12cdf30c892ac8bb29ef606d95b75acc6ba637e2f6a2f716f1eb9025fb"
+      }
+    },
+    {
+      "note": "generation 26 before native Gatekeeper provider",
+      "build_checks": {
+        "device-unicorn-fingerprint-config": {
+          "result": "passed",
+          "derivation": "/nix/store/jn0hx43mxrgmp8ps66mgmq46iry7snzk-android-unicorn-fingerprint.drv",
+          "outputs": {
+            "out": "/nix/store/iw9gk3b29acjficg7jiga74f9fnjl1kv-android-unicorn-fingerprint"
+          }
+        },
+        "device-unicorn-display-lifecycle": {
+          "result": "passed",
+          "derivation": "/nix/store/fn1fbwgvp2bsplq4zi7hn7w723wawrxy-unicorn-display-lifecycle-tests-1.drv",
+          "outputs": {
+            "out": "/nix/store/cyhdl8szzcrjj0bzndm7jcr3pgr5vhbg-unicorn-display-lifecycle-tests-1"
+          }
+        },
+        "configuration": {
+          "result": "passed",
+          "derivation": "/nix/store/rgvrlf8hvpacq17y42lyklwnamcqcr2v-unicorn-configuration.json.drv",
+          "outputs": {
+            "out": "/nix/store/sw410dnip5vq9d60nlc113f9jfhl84kc-unicorn-configuration.json"
+          }
+        },
+        "device-unicorn-fingerprint": {
+          "result": "passed",
+          "derivation": "/nix/store/xs33z2aqb09scvmfcz7z997qkqw1b2r6-unicorn-fingerprint-offline-tests.drv",
+          "outputs": {
+            "out": "/nix/store/j28490jwn3ydf89kgvy03w4cm6wjwnlk-unicorn-fingerprint-offline-tests"
+          }
+        },
+        "device-unicorn-cdsp": {
+          "result": "passed",
+          "derivation": "/nix/store/i8dk620xzvz2lpcawp1q19vlshkkdlbg-unicorn-cdsp-tests.drv",
+          "outputs": {
+            "out": "/nix/store/nh6jbb6d4r7jphd54p4q2r5zwdm9ii2v-unicorn-cdsp-tests"
+          }
+        },
+        "device-unicorn-fingerprint-services": {
+          "result": "passed",
+          "derivation": "/nix/store/w9prc4yzxhv34kjryh23d33aby0w9w5q-vm-test-run-unicorn-fingerprint-services.drv",
+          "outputs": {
+            "out": "/nix/store/pjfbr2xxnpb8jx3l06w7xnwfpjnq8dpk-vm-test-run-unicorn-fingerprint-services"
+          }
+        },
+        "personal-system": {
+          "result": "passed",
+          "derivation": "/nix/store/55znaynxw20zw65rw8ihpxnqjfjv0bls-nixos-system-unicorn-26.11.20261010.6510408.drv",
+          "outputs": {
+            "out": "/nix/store/fln1xajkri48b51w070blg92g0lfc3s2-nixos-system-unicorn-26.11.20261010.6510408"
+          }
+        }
+      },
+      "hardware_acceptance": {
+        "deployment": "generation 27 live switch successful; actual current closure and program hashes match build; booted generation 25 retained; final reboot acceptance pending",
+        "profile_selection": "passed: gfuni6 full TA/DSP initialization, calibration 0x13; successful-candidate cache used after reboot",
+        "root_worker_inventory": "passed: full open/list/close; 0 device templates before enrollment",
+        "fprintd_worker_open": "generation 27: 3 Claim/List/Release cycles passed, empty inventory, installed worker exe readable for provider peer checks",
+        "real_enrollment": "generation 25 user trial and generation 26 preflight rejected by TA GF_ERROR_INVALID_CHALLENGE (1058), before capture; challenge_present=1, token absent; cancel/post-enroll succeeded; no enrolled fingers after failure",
+        "enrolled_finger_20_trials": "not performed",
+        "unenrolled_finger_20_trials": "not performed",
+        "request_template_scope": "not performed on hardware",
+        "service_restart_persistence": "not performed",
+        "reboot_persistence": "not performed",
+        "delete_and_failure_recovery": "not performed",
+        "physical_display": "not verified",
+        "operator": "user requested self-directed finger tests",
+        "enrollment_authorization": "C Gatekeeper provider implemented; real read-only API 4.1 / TA 4.1012 negotiation passed; awaiting user local current-login-password setup, signed HAT and Goodix acceptance; not yet resolved on hardware"
+      },
+      "source_sha256": {
+        "modules/devices/unicorn/fingerprint.nix": "5da52b049ca430eea9c74159190041489d28398f3de2226b99f9bc9bb8753b84",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/fingerprint-cdsp.patch": "7cf8bdd8939aa7d9a7c36592b639227e295dfd52727bc997277cd407555590d6",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/fingerprint-control.patch": "441b8587aafb4cdc35d53e5aa263a42e6a6900700812947363c154c991d2c9e0",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/panel-fingerprint-lease.patch": "57b49315489c3ef9bc6622b2d645b4a8ff912285ebf13cdf437306d54dbb872a",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-private-dma.patch": "6517cd276c22728d44ffa67c77ddb2f91d75cb00d541e37e0b6150c53bf43857",
+        "pkgs/unicorn/assemble-firmware.py": "a724ce02f895a5de8a4e548a7191fcfce6b690b060916cd445a1fe2c16c10165",
+        "pkgs/unicorn/fingerprint/Makefile": "0e1980add8ea53101e22287fbafd87771f4a90542da849738d496f795fc58716",
+        "pkgs/unicorn/fingerprint/arm-proxy.c": "c60e47d136efe737e42ea19ef95db19ac2d2df333dd22aaed95d5ae11c674884",
+        "pkgs/unicorn/fingerprint/assemble-ta.py": "8253afc7179c33be3e1ba4c37258cb85b90aba2dfb6048ae1c3551e4dc42a74d",
+        "pkgs/unicorn/fingerprint/default.nix": "bcd6419437fdfdaeda08c9c24be904ccedc16e25a3c8cf6c746328302ed222bf",
+        "pkgs/unicorn/fingerprint/display-hint.c": "53db62b8f8b2fedabd40d43b42548cbd71d90f697f99028cb886a709f0009edb",
+        "pkgs/unicorn/fingerprint/display.c": "c4779337476d5ea49f440ba26d7840cb34d17bf8391df572f241348015233ff8",
+        "pkgs/unicorn/fingerprint/display.h": "0b3aa3135826b2bf213d30fe9166eab0c3d924fcbb3a38ee607f7c6dde4ffa8b",
+        "pkgs/unicorn/fingerprint/dsp-firmware.nix": "2441977a081fc2b9c1020587cb7222cc6eabc63199410def6f2bbe1ce449f415",
+        "pkgs/unicorn/fingerprint/dsp.c": "bbed9936f1bbb8c4c292c08d69f1681f6ffc2f0750ad2057e51a5e840217bda7",
+        "pkgs/unicorn/fingerprint/dsp.h": "64c0c1b981880c32e3e52770dd5d7da172bf2cb41cd7f3e15b4e6d7baf33a8a3",
+        "pkgs/unicorn/fingerprint/engine.c": "81d6e6feb09b14afb8edc905ea704f1aaa47aeaf5072a05099e865e4ee550422",
+        "pkgs/unicorn/fingerprint/fastrpc-shell-path.patch": "94666483a73ee47314a9e9e81c6366a5dbf1d560d80a9a0776b382aa8aae4adf",
+        "pkgs/unicorn/fingerprint/fprintd.nix": "526494058ab4cca342a0a94f901b20c0527e445d4e8f83e99d6153db9eeeb407",
+        "pkgs/unicorn/fingerprint/hint-broker.c": "321f2cd4c913a419c5e54cdb0bf5b273c390f9f186c7babf73233476a5faa254",
+        "pkgs/unicorn/fingerprint/inputs/dsp-firmware.tar.xz": "3a34531f88451c482875409abc60184cd722742e1fca8e450ad44f731976d16e",
+        "pkgs/unicorn/fingerprint/inputs/dsp-manifest.json": "013cf66f6802b2ed68d881ac164c0e6633e011997accfb95446be9f34504ba2d",
+        "pkgs/unicorn/fingerprint/ipc.h": "dd84cdd3c18fe9f3c947ddec262bdbae8b36479803404416580f7282e101141a",
+        "pkgs/unicorn/fingerprint/libfprint-misc.patch": "c7ebd2e25ce468c5ad755207aa8d3d311cb59d2264275b979757ead2934c63bd",
+        "pkgs/unicorn/fingerprint/libfprint-unicorn.c": "3400d5c318dbd258369f097c6b71a2acbad7be9b935170a3d3235e0b36f7235d",
+        "pkgs/unicorn/fingerprint/libfprint.nix": "e2b1f791e0f9b7164509a8b4ef5d509084ec12e7e499cf49f02967a716eba406",
+        "pkgs/unicorn/fingerprint/main.c": "5866575f1e97e4d44cf3a539f1be355894c948058a0d7f682bb9dd58f6ac8e68",
+        "pkgs/unicorn/fingerprint/platform.c": "f02609d770ffa6f2f8d100fad726516f0eaa710f71da3964b6b62ff65322da2a",
+        "pkgs/unicorn/fingerprint/platform.h": "4ff44f04c6aa10e36827c16f5d51ed20615665c74ad2727895e084d3ad5d2d6f",
+        "pkgs/unicorn/fingerprint/protocol.c": "a95c0b3beda33c13817518b0e7334d6c615a1d57946868b6e3c3f852334cc023",
+        "pkgs/unicorn/fingerprint/protocol.h": "fc5faa680fd67be68b2ee2acb189c8b1dd36493bc5be320a3217e2d5c13f76b1",
+        "pkgs/unicorn/fingerprint/qsee-supplicant.nix": "634b0e815dde26fa73678e2d6d136605dfe9ae131a9ab879d09f77dc54747fb5",
+        "pkgs/unicorn/fingerprint/rpc-abi.h": "66a510699c3b0a6b19e1d29922790dbce1d5dfdb1905a3615639ddd1045dbea2",
+        "pkgs/unicorn/fingerprint/select.c": "587d20f91f72b21406652d6245c3f86768b23208decdf0124c06d5929bac8b82",
+        "pkgs/unicorn/fingerprint/sensor.c": "466fa1d730e7ab72c9bccaa4f7ed3a49ea0aae00d7f8bf152ae12e99525c85d4",
+        "pkgs/unicorn/fingerprint/sensor.h": "b0f4b4c3d01095aeb0763300674a87fce0282e9975b5973b7c1eb36b3ddbed54",
+        "pkgs/unicorn/fingerprint/ta.nix": "df45675f6b5be97c197c22ace7a08b29bca065702f26b794bd852354f6c23066",
+        "pkgs/unicorn/fingerprint/tee.c": "0fe70539e507953d79ade49dab387f993cb389f6642f8876c7a6df1e815103f8",
+        "pkgs/unicorn/fingerprint/tee.h": "7a6c2d0cfd0c19e40146f132b0daeb3dacded8d12dcd88b984f20023a2abbc5d",
+        "pkgs/unicorn/fingerprint/tests/actions.c": "bb50ff9e2a43dd508b7044e6269a6812f68482a64e9d83383d3543a36c3749f8",
+        "pkgs/unicorn/fingerprint/tests/broker-peer.c": "d01ca550ea8d189c989edff31664ea1e739c74cd458721c67ca5766ab149564f",
+        "pkgs/unicorn/fingerprint/tests/broker.py": "8e3be3504a2a781ffc354f3640abc391c5dc61c13cf07e677ac2b8d9e82b2fa9",
+        "pkgs/unicorn/fingerprint/tests/driver.c": "e9f60c49a81a63c8b702d64ef3098f11c17203aecb5788b7e24ede429afa4dcd",
+        "pkgs/unicorn/fingerprint/tests/dsp.c": "0ddbe676b8156b7a31a5ff8bed88a854fa148ecbe22169299812883b9aea9136",
+        "pkgs/unicorn/fingerprint/tests/engine.c": "7079e70a1dc22949be522bd27a5f57c1423f47205d7f62bd58195e4383769ed4",
+        "pkgs/unicorn/fingerprint/tests/fake-worker.c": "f13b4d734ac4131b5515209bc32750e0494e0caef8d09b3c6f128809e8569566",
+        "pkgs/unicorn/fingerprint/tests/lifecycle.c": "417446a8c626667370adacf3cbe1f2711a3813375e6e8932aed2bfc808e8a9fe",
+        "pkgs/unicorn/fingerprint/tests/platform.c": "a53544e353a3aeb4b63c7706fc4062972f0ace1fffc13df8e0a1e7de65fca103",
+        "pkgs/unicorn/fingerprint/tests/protocol.c": "364de663817367b73c4998c632b87dd85d1b2dbd059e6dd3cf5e2cf07e55c408",
+        "pkgs/unicorn/fingerprint/tests/sensor.c": "b74a3e700280519ceacb76b4d5373898c942407db65d229eaaecda9e1f0d7970",
+        "pkgs/unicorn/fingerprint/tests/touch.c": "5ba79629f4bd13f9f8f231c273351c3605c988258e83da5584f0dc1a7c51dedb",
+        "pkgs/unicorn/fingerprint/tests/transport.c": "769eb8ddc5ab80fb2cef638064a3e13eede1745df245b15666335e042dd1c705",
+        "pkgs/unicorn/fingerprint/touch.c": "62cdcc63a7c68d01cc29ce5ae9939734dd28cc708145b4ad594ae6d463196ab6",
+        "pkgs/unicorn/fingerprint/touch.h": "c44f4406a07425ab92d393c85cb7908237357589596e3a28a4a0d9ecfb9c294a",
+        "pkgs/unicorn/fingerprint/wayland/wlr-layer-shell-unstable-v1.xml": "996b8c66e1c2276c443336d4cb174634e8e5948823779042f244930525b79cc2",
+        "pkgs/unicorn/inputs/archive.json": "b5bb8544698b317a554ea377af63392f6a87ffbff22102ce7aecac7d03dd7da9",
+        "pkgs/unicorn/inputs/oem-firmware.tar.xz": "4fd9a30bf7647fcca137442515445f9fd6087643073096fdf08d5137083da753",
+        "pkgs/unicorn/manifest.json": "7f3ef3f09d5a84fd2735aeecc3376f5a0f9c5954e568e2bc2b1a7f6d282e07d5",
+        "tests/unicorn-cdsp.nix": "b2e189eb77347c88db638dba1b8507dc6aaafd31e786e1343319a27a1b98d7a4",
+        "tests/unicorn-cdsp.py": "5fbd366dc80fd38402833ba5973eccda5ce9d9107d8697c4244e6e59cf2a384d",
+        "tests/unicorn-display-lifecycle.c": "abc9543d7bcd9d0edc10e1205e040bc84561784d6f2cee1dac4784d68830715d",
+        "tests/unicorn-display-lifecycle.nix": "22189bf64948effa7d04dfe82bfbb2c08bc36a77ebf6d392d1f582e6714a2a30",
+        "tests/unicorn-display-lifecycle.py": "a0c886a3a91b14c6bd53b8608981605220800a5b6040026e6a655e96871abbfe",
+        "tests/unicorn-fingerprint-check.nix": "6570cc21e465359ef4e8a1e996f345f3c8d2ff7081ed9264776dabeaa467c89e",
+        "tests/unicorn-fingerprint-driver.nix": "ce107a7ee2813e737853b5260384c9fbfb7fd3f64be4f9da4b075af909deb748",
+        "tests/unicorn-fingerprint-lease.c": "4e0352b953b43ba5986ff7b999dc88d0a93cc12e94d21a9974d9b9192c4200fd",
+        "tests/unicorn-fingerprint-lease.py": "5419b4912d1e09c5dd968ebe5e6a9057ed0e4cb308ca5419c0c7cc1ad6e2326c",
+        "tests/unicorn-fingerprint-services.nix": "3a2ac2e39e4f2b11da72db709390aec5451491cb696cb793bc352c32d91cb296",
+        "tests/unicorn-fingerprint-services.py": "4f59619b8226a27f8e3061815e0e4e838f4f83a15b501711069f6dce450c6689",
+        "tests/unicorn-fingerprint.nix": "eebab73d6de67493123215f48a3ff77090dc4938f4e833127997aca98ccb2e0f",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-listener-budget.patch": "37644d45a51beb4c24ff9c112be0dbde1c2428fc64b431d2d3ca3d1085e39e8f",
+        "pkgs/unicorn/fingerprint/selection.c": "6d112ef9b4b3773bcc7368a45becbc9a383626365be9ac59758c2e35f3ad2a72",
+        "pkgs/unicorn/fingerprint/selection.h": "abe3be4d1922d2b924dd6e338b9d8553f1bc0db2c709a778f33143d3ba38ae59",
+        "pkgs/unicorn/fingerprint/fprintd-template-protection.patch": "9aa05aacc76db19f2afb133f7bd230840b874d009323ed5f56059509d7ae6156",
+        "tests/unicorn-qsee-listener.c": "bfbcb546699589630b9e3a2d78eb175e997f1a7410061e1c93d7ef343f07afb2",
+        "tests/unicorn-qsee-listener.py": "7c5cbe12cdf30c892ac8bb29ef606d95b75acc6ba637e2f6a2f716f1eb9025fb",
+        "pkgs/unicorn/fingerprint/evidence.json": "2acf576bafcb0a5ab967aeb04e54102079c6d86292c39e5b162f6941f77c4d68",
+        "pkgs/unicorn/fingerprint/gatekeeper.h": "8933c2330f9ca18dd5fd8d7442e8826a25e72de1d6572646b9bf93f366e8a0b5",
+        "pkgs/unicorn/fingerprint/gatekeeper.c": "798041fd10d6d23734d7403afb0ed1f09fa7260c35dc5370fdbdd041c218351a",
+        "pkgs/unicorn/fingerprint/authorization.h": "68fa20615091cf0eed7bd4df7c2640400a7c2512d9f76eaae44a455b861bc716",
+        "pkgs/unicorn/fingerprint/authorization.c": "c78bc00dc952b047a1019a4136025850a254790fcc618d29821ef16a47cf571d",
+        "pkgs/unicorn/fingerprint/authorization-state.h": "3135a93eca5d44aec8f2cec023bee60b781d68250ca74bcb0e738e3e036a7f83",
+        "pkgs/unicorn/fingerprint/authorization-state.c": "6ea5d0a4518b805903a45584910e469585271a87ac09a9f1762515db9f90cc77",
+        "pkgs/unicorn/fingerprint/authorize.c": "18f97c27b9900dfb9047f9247520c6fb4e942a8586c52a7964c6e8455a52f2fa",
+        "pkgs/unicorn/fingerprint/login.h": "06f7fe33cd48778a86a568f02587c17da774cccda1cfa8f5e8f2d8da4e796788",
+        "pkgs/unicorn/fingerprint/login.c": "da9c561508ec8abd34e6616d531f914500a449912eb49b8ab23b2a448e917b45",
+        "pkgs/unicorn/fingerprint/tests/selection.c": "8d7ea7d7670aeae7729ba4cf9f52d633a2a5cffe38444983b3b2283b06a9f10b",
+        "pkgs/unicorn/fingerprint/tests/init.c": "7c531712e6b9055eaede1bb1bfd0eccc49ca24d024d86c4d52ae89b2f0dc245e",
+        "pkgs/unicorn/fingerprint/tests/gatekeeper.c": "cedb8fa6fc1cc2fe7ad183461b329fd51cea33e1eddd754bdf5246f7f8670bc6",
+        "pkgs/unicorn/fingerprint/tests/authorization-state.c": "381389326b6d36d880da7a079ea1dbd02729fe75f9ed55b453d632bdcc8a891c",
+        "pkgs/unicorn/fingerprint/tests/login.c": "4fffa0144cb70a8f75ceb957412d63c9d09ccd04d7b9d49208eda784bde658a5",
+        "pkgs/unicorn/fingerprint/tests/authorization.c": "1a1e4226d243eabd66dca4b7f23c349f0f2b8944d077dd8c0883e177e10f721c",
+        "pkgs/unicorn/fingerprint/generated/layer-shell.c": "699dabe913a95113f56f82c87f59b3748cdfd959c17c45f39073b53cb2af998e",
+        "pkgs/unicorn/fingerprint/generated/layer-shell.h": "bd359658282daf42b2f3270f2f670ae7d1d045ea47e3410bd3fdd012c8b47237",
+        "pkgs/unicorn/fingerprint/generated/viewporter.c": "62de15f2fc06cf3eec6aaeb2b90eff408b683f4292bbd5033659c4924835ff4f",
+        "pkgs/unicorn/fingerprint/generated/viewporter.h": "6e839e9a46693ebcadd8abeb1e0e3dea0fa518cc832c1cf0954fde418ddb5ca4",
+        "pkgs/unicorn/fingerprint/generated/idle-inhibit.c": "d65152753aa779dd145c2828727919f2690b3092e48bb92c567132bd9b139189",
+        "pkgs/unicorn/fingerprint/generated/idle-inhibit.h": "afb7f8e24fec6727fc2602220668f0dfdd156e5bfbd15f7cf3a52d9a21f39260",
+        "pkgs/unicorn/fingerprint/generated/xdg-shell.c": "9e12fcd5676d8c6b6cfd233c2eba563163c0ea7e586cb6e27f202a328323c7f0"
+      }
+    },
+    {
+      "note": "generation 27 before CBOR length and kernel response-gap correction",
+      "build_checks": {
+        "device-unicorn-fingerprint": {
+          "result": "passed",
+          "derivation": "/nix/store/zg7mr2077a42bwgz14cfkqrxc7rfb2zw-unicorn-fingerprint-offline-tests.drv",
+          "outputs": {
+            "out": "/nix/store/11dmysqy869liwli88r7qpqdd1nfj6lc-unicorn-fingerprint-offline-tests"
+          }
+        },
+        "device-unicorn-fingerprint-config": {
+          "result": "passed",
+          "derivation": "/nix/store/jn0hx43mxrgmp8ps66mgmq46iry7snzk-android-unicorn-fingerprint.drv",
+          "outputs": {
+            "out": "/nix/store/iw9gk3b29acjficg7jiga74f9fnjl1kv-android-unicorn-fingerprint"
+          }
+        },
+        "device-unicorn-fingerprint-services": {
+          "result": "passed",
+          "derivation": "/nix/store/scpfby7hy2xgwfllgznirx5frppcqrrl-vm-test-run-unicorn-fingerprint-services.drv",
+          "outputs": {
+            "out": "/nix/store/0xma6cfwd5l455d140l7vfw38s1wmraj-vm-test-run-unicorn-fingerprint-services"
+          }
+        },
+        "device-unicorn-cdsp": {
+          "result": "passed",
+          "derivation": "/nix/store/i8dk620xzvz2lpcawp1q19vlshkkdlbg-unicorn-cdsp-tests.drv",
+          "outputs": {
+            "out": "/nix/store/nh6jbb6d4r7jphd54p4q2r5zwdm9ii2v-unicorn-cdsp-tests"
+          }
+        },
+        "device-unicorn-display-lifecycle": {
+          "result": "passed",
+          "derivation": "/nix/store/fn1fbwgvp2bsplq4zi7hn7w723wawrxy-unicorn-display-lifecycle-tests-1.drv",
+          "outputs": {
+            "out": "/nix/store/cyhdl8szzcrjj0bzndm7jcr3pgr5vhbg-unicorn-display-lifecycle-tests-1"
+          }
+        },
+        "configuration": {
+          "result": "passed",
+          "derivation": "/nix/store/wcg0vxp766j4mvbyvlbzmkvlg1vvpz32-unicorn-configuration.json.drv",
+          "outputs": {
+            "out": "/nix/store/fmva9qxql9lp4in7kq0nvriwc9468yg9-unicorn-configuration.json"
+          }
+        },
+        "personal-system": {
+          "result": "passed",
+          "derivation": "/nix/store/l9qnajyg9zbwhzdyfss6naj2flkg6d3j-nixos-system-unicorn-26.11.20261010.6510408.drv",
+          "outputs": {
+            "out": "/nix/store/xz3mda4iaq5gnfhxdyzydrv0lv57b3sa-nixos-system-unicorn-26.11.20261010.6510408"
+          }
+        }
+      },
+      "hardware_acceptance": {
+        "deployment": "generation 28 deployed/rebooted; current/booted closure match final build; installed program hashes and loaded QSEECOM module Build ID verified; same main Image hash, changed transport module",
+        "profile_selection": "passed: gfuni6 full TA/DSP initialization, calibration 0x13; successful-candidate cache used after reboot",
+        "root_worker_inventory": "passed: full open/list/close; 0 device templates before enrollment",
+        "fprintd_worker_open": "generation 28 after reboot: 3 Claim/List/Release cycles passed, empty inventory; installed worker exe readable for provider peer checks",
+        "real_enrollment": "generation 25 user trial and generation 26 preflight rejected by TA GF_ERROR_INVALID_CHALLENGE (1058), before capture; challenge_present=1, token absent; cancel/post-enroll succeeded; no enrolled fingers after failure",
+        "enrolled_finger_20_trials": "not performed",
+        "unenrolled_finger_20_trials": "not performed",
+        "request_template_scope": "not performed on hardware",
+        "service_restart_persistence": "not performed",
+        "reboot_persistence": "not performed",
+        "delete_and_failure_recovery": "not performed",
+        "physical_display": "not verified",
+        "operator": "user requested self-directed finger tests",
+        "enrollment_authorization": "generation 27 setup failed status16 after local PAM success; exact input length and same-SHM response gap corrected/tested/deployed/rebooted as generation28; awaits user credential-creation retry and real signed HAT/Goodix acceptance"
+      },
+      "source_sha256": {
+        "modules/devices/unicorn/fingerprint.nix": "5da52b049ca430eea9c74159190041489d28398f3de2226b99f9bc9bb8753b84",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/fingerprint-cdsp.patch": "7cf8bdd8939aa7d9a7c36592b639227e295dfd52727bc997277cd407555590d6",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/fingerprint-control.patch": "441b8587aafb4cdc35d53e5aa263a42e6a6900700812947363c154c991d2c9e0",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/panel-fingerprint-lease.patch": "57b49315489c3ef9bc6622b2d645b4a8ff912285ebf13cdf437306d54dbb872a",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-private-dma.patch": "6517cd276c22728d44ffa67c77ddb2f91d75cb00d541e37e0b6150c53bf43857",
+        "pkgs/unicorn/assemble-firmware.py": "a724ce02f895a5de8a4e548a7191fcfce6b690b060916cd445a1fe2c16c10165",
+        "pkgs/unicorn/fingerprint/Makefile": "0e1980add8ea53101e22287fbafd87771f4a90542da849738d496f795fc58716",
+        "pkgs/unicorn/fingerprint/arm-proxy.c": "c60e47d136efe737e42ea19ef95db19ac2d2df333dd22aaed95d5ae11c674884",
+        "pkgs/unicorn/fingerprint/assemble-ta.py": "8253afc7179c33be3e1ba4c37258cb85b90aba2dfb6048ae1c3551e4dc42a74d",
+        "pkgs/unicorn/fingerprint/default.nix": "bcd6419437fdfdaeda08c9c24be904ccedc16e25a3c8cf6c746328302ed222bf",
+        "pkgs/unicorn/fingerprint/display-hint.c": "53db62b8f8b2fedabd40d43b42548cbd71d90f697f99028cb886a709f0009edb",
+        "pkgs/unicorn/fingerprint/display.c": "c4779337476d5ea49f440ba26d7840cb34d17bf8391df572f241348015233ff8",
+        "pkgs/unicorn/fingerprint/display.h": "0b3aa3135826b2bf213d30fe9166eab0c3d924fcbb3a38ee607f7c6dde4ffa8b",
+        "pkgs/unicorn/fingerprint/dsp-firmware.nix": "2441977a081fc2b9c1020587cb7222cc6eabc63199410def6f2bbe1ce449f415",
+        "pkgs/unicorn/fingerprint/dsp.c": "bbed9936f1bbb8c4c292c08d69f1681f6ffc2f0750ad2057e51a5e840217bda7",
+        "pkgs/unicorn/fingerprint/dsp.h": "64c0c1b981880c32e3e52770dd5d7da172bf2cb41cd7f3e15b4e6d7baf33a8a3",
+        "pkgs/unicorn/fingerprint/engine.c": "81d6e6feb09b14afb8edc905ea704f1aaa47aeaf5072a05099e865e4ee550422",
+        "pkgs/unicorn/fingerprint/fastrpc-shell-path.patch": "94666483a73ee47314a9e9e81c6366a5dbf1d560d80a9a0776b382aa8aae4adf",
+        "pkgs/unicorn/fingerprint/fprintd.nix": "526494058ab4cca342a0a94f901b20c0527e445d4e8f83e99d6153db9eeeb407",
+        "pkgs/unicorn/fingerprint/hint-broker.c": "321f2cd4c913a419c5e54cdb0bf5b273c390f9f186c7babf73233476a5faa254",
+        "pkgs/unicorn/fingerprint/inputs/dsp-firmware.tar.xz": "3a34531f88451c482875409abc60184cd722742e1fca8e450ad44f731976d16e",
+        "pkgs/unicorn/fingerprint/inputs/dsp-manifest.json": "013cf66f6802b2ed68d881ac164c0e6633e011997accfb95446be9f34504ba2d",
+        "pkgs/unicorn/fingerprint/ipc.h": "dd84cdd3c18fe9f3c947ddec262bdbae8b36479803404416580f7282e101141a",
+        "pkgs/unicorn/fingerprint/libfprint-misc.patch": "c7ebd2e25ce468c5ad755207aa8d3d311cb59d2264275b979757ead2934c63bd",
+        "pkgs/unicorn/fingerprint/libfprint-unicorn.c": "3400d5c318dbd258369f097c6b71a2acbad7be9b935170a3d3235e0b36f7235d",
+        "pkgs/unicorn/fingerprint/libfprint.nix": "e2b1f791e0f9b7164509a8b4ef5d509084ec12e7e499cf49f02967a716eba406",
+        "pkgs/unicorn/fingerprint/main.c": "5866575f1e97e4d44cf3a539f1be355894c948058a0d7f682bb9dd58f6ac8e68",
+        "pkgs/unicorn/fingerprint/platform.c": "f02609d770ffa6f2f8d100fad726516f0eaa710f71da3964b6b62ff65322da2a",
+        "pkgs/unicorn/fingerprint/platform.h": "4ff44f04c6aa10e36827c16f5d51ed20615665c74ad2727895e084d3ad5d2d6f",
+        "pkgs/unicorn/fingerprint/protocol.c": "a95c0b3beda33c13817518b0e7334d6c615a1d57946868b6e3c3f852334cc023",
+        "pkgs/unicorn/fingerprint/protocol.h": "fc5faa680fd67be68b2ee2acb189c8b1dd36493bc5be320a3217e2d5c13f76b1",
+        "pkgs/unicorn/fingerprint/qsee-supplicant.nix": "634b0e815dde26fa73678e2d6d136605dfe9ae131a9ab879d09f77dc54747fb5",
+        "pkgs/unicorn/fingerprint/rpc-abi.h": "66a510699c3b0a6b19e1d29922790dbce1d5dfdb1905a3615639ddd1045dbea2",
+        "pkgs/unicorn/fingerprint/select.c": "587d20f91f72b21406652d6245c3f86768b23208decdf0124c06d5929bac8b82",
+        "pkgs/unicorn/fingerprint/sensor.c": "466fa1d730e7ab72c9bccaa4f7ed3a49ea0aae00d7f8bf152ae12e99525c85d4",
+        "pkgs/unicorn/fingerprint/sensor.h": "b0f4b4c3d01095aeb0763300674a87fce0282e9975b5973b7c1eb36b3ddbed54",
+        "pkgs/unicorn/fingerprint/ta.nix": "df45675f6b5be97c197c22ace7a08b29bca065702f26b794bd852354f6c23066",
+        "pkgs/unicorn/fingerprint/tee.c": "0fe70539e507953d79ade49dab387f993cb389f6642f8876c7a6df1e815103f8",
+        "pkgs/unicorn/fingerprint/tee.h": "7a6c2d0cfd0c19e40146f132b0daeb3dacded8d12dcd88b984f20023a2abbc5d",
+        "pkgs/unicorn/fingerprint/tests/actions.c": "bb50ff9e2a43dd508b7044e6269a6812f68482a64e9d83383d3543a36c3749f8",
+        "pkgs/unicorn/fingerprint/tests/broker-peer.c": "d01ca550ea8d189c989edff31664ea1e739c74cd458721c67ca5766ab149564f",
+        "pkgs/unicorn/fingerprint/tests/broker.py": "8e3be3504a2a781ffc354f3640abc391c5dc61c13cf07e677ac2b8d9e82b2fa9",
+        "pkgs/unicorn/fingerprint/tests/driver.c": "e9f60c49a81a63c8b702d64ef3098f11c17203aecb5788b7e24ede429afa4dcd",
+        "pkgs/unicorn/fingerprint/tests/dsp.c": "0ddbe676b8156b7a31a5ff8bed88a854fa148ecbe22169299812883b9aea9136",
+        "pkgs/unicorn/fingerprint/tests/engine.c": "7079e70a1dc22949be522bd27a5f57c1423f47205d7f62bd58195e4383769ed4",
+        "pkgs/unicorn/fingerprint/tests/fake-worker.c": "f13b4d734ac4131b5515209bc32750e0494e0caef8d09b3c6f128809e8569566",
+        "pkgs/unicorn/fingerprint/tests/lifecycle.c": "417446a8c626667370adacf3cbe1f2711a3813375e6e8932aed2bfc808e8a9fe",
+        "pkgs/unicorn/fingerprint/tests/platform.c": "a53544e353a3aeb4b63c7706fc4062972f0ace1fffc13df8e0a1e7de65fca103",
+        "pkgs/unicorn/fingerprint/tests/protocol.c": "364de663817367b73c4998c632b87dd85d1b2dbd059e6dd3cf5e2cf07e55c408",
+        "pkgs/unicorn/fingerprint/tests/sensor.c": "b74a3e700280519ceacb76b4d5373898c942407db65d229eaaecda9e1f0d7970",
+        "pkgs/unicorn/fingerprint/tests/touch.c": "5ba79629f4bd13f9f8f231c273351c3605c988258e83da5584f0dc1a7c51dedb",
+        "pkgs/unicorn/fingerprint/tests/transport.c": "1e2b665cb6037611d66cae6ed88c911db8e764b447522922505c4ca5239fc91b",
+        "pkgs/unicorn/fingerprint/touch.c": "62cdcc63a7c68d01cc29ce5ae9939734dd28cc708145b4ad594ae6d463196ab6",
+        "pkgs/unicorn/fingerprint/touch.h": "c44f4406a07425ab92d393c85cb7908237357589596e3a28a4a0d9ecfb9c294a",
+        "pkgs/unicorn/fingerprint/wayland/wlr-layer-shell-unstable-v1.xml": "996b8c66e1c2276c443336d4cb174634e8e5948823779042f244930525b79cc2",
+        "pkgs/unicorn/inputs/archive.json": "b5bb8544698b317a554ea377af63392f6a87ffbff22102ce7aecac7d03dd7da9",
+        "pkgs/unicorn/inputs/oem-firmware.tar.xz": "4fd9a30bf7647fcca137442515445f9fd6087643073096fdf08d5137083da753",
+        "pkgs/unicorn/manifest.json": "7f3ef3f09d5a84fd2735aeecc3376f5a0f9c5954e568e2bc2b1a7f6d282e07d5",
+        "tests/unicorn-cdsp.nix": "b2e189eb77347c88db638dba1b8507dc6aaafd31e786e1343319a27a1b98d7a4",
+        "tests/unicorn-cdsp.py": "5fbd366dc80fd38402833ba5973eccda5ce9d9107d8697c4244e6e59cf2a384d",
+        "tests/unicorn-display-lifecycle.c": "abc9543d7bcd9d0edc10e1205e040bc84561784d6f2cee1dac4784d68830715d",
+        "tests/unicorn-display-lifecycle.nix": "5f178407c8f59b9a230369505690d8ad78c83560d64e26c371440e5f9ec57863",
+        "tests/unicorn-display-lifecycle.py": "a0c886a3a91b14c6bd53b8608981605220800a5b6040026e6a655e96871abbfe",
+        "tests/unicorn-fingerprint-check.nix": "6570cc21e465359ef4e8a1e996f345f3c8d2ff7081ed9264776dabeaa467c89e",
+        "tests/unicorn-fingerprint-driver.nix": "ce107a7ee2813e737853b5260384c9fbfb7fd3f64be4f9da4b075af909deb748",
+        "tests/unicorn-fingerprint-lease.c": "4e0352b953b43ba5986ff7b999dc88d0a93cc12e94d21a9974d9b9192c4200fd",
+        "tests/unicorn-fingerprint-lease.py": "5419b4912d1e09c5dd968ebe5e6a9057ed0e4cb308ca5419c0c7cc1ad6e2326c",
+        "tests/unicorn-fingerprint-services.nix": "3a2ac2e39e4f2b11da72db709390aec5451491cb696cb793bc352c32d91cb296",
+        "tests/unicorn-fingerprint-services.py": "4f59619b8226a27f8e3061815e0e4e838f4f83a15b501711069f6dce450c6689",
+        "tests/unicorn-fingerprint.nix": "eebab73d6de67493123215f48a3ff77090dc4938f4e833127997aca98ccb2e0f",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-listener-budget.patch": "37644d45a51beb4c24ff9c112be0dbde1c2428fc64b431d2d3ca3d1085e39e8f",
+        "pkgs/unicorn/fingerprint/selection.c": "6d112ef9b4b3773bcc7368a45becbc9a383626365be9ac59758c2e35f3ad2a72",
+        "pkgs/unicorn/fingerprint/selection.h": "abe3be4d1922d2b924dd6e338b9d8553f1bc0db2c709a778f33143d3ba38ae59",
+        "pkgs/unicorn/fingerprint/fprintd-template-protection.patch": "9aa05aacc76db19f2afb133f7bd230840b874d009323ed5f56059509d7ae6156",
+        "tests/unicorn-qsee-listener.c": "bfbcb546699589630b9e3a2d78eb175e997f1a7410061e1c93d7ef343f07afb2",
+        "tests/unicorn-qsee-listener.py": "7c5cbe12cdf30c892ac8bb29ef606d95b75acc6ba637e2f6a2f716f1eb9025fb",
+        "pkgs/unicorn/fingerprint/evidence.json": "294ae6b8d000efae6bdc860e4610fea1f06298752c8aa502a6c5ec056ed9132c",
+        "pkgs/unicorn/fingerprint/gatekeeper.h": "7a72fd1398960a8917e392e2a0716320e5def672d8b8068841107ea7bf4aa5df",
+        "pkgs/unicorn/fingerprint/gatekeeper.c": "58ad65d3dd0009f31540782ff165dbaaaab8d2567143501564af08837987f7e7",
+        "pkgs/unicorn/fingerprint/authorization.h": "68fa20615091cf0eed7bd4df7c2640400a7c2512d9f76eaae44a455b861bc716",
+        "pkgs/unicorn/fingerprint/authorization.c": "c78bc00dc952b047a1019a4136025850a254790fcc618d29821ef16a47cf571d",
+        "pkgs/unicorn/fingerprint/authorization-state.h": "3135a93eca5d44aec8f2cec023bee60b781d68250ca74bcb0e738e3e036a7f83",
+        "pkgs/unicorn/fingerprint/authorization-state.c": "6ea5d0a4518b805903a45584910e469585271a87ac09a9f1762515db9f90cc77",
+        "pkgs/unicorn/fingerprint/authorize.c": "10bfe9e0cb0abb4a4d40ccb9130e1b0e119141d0d36dfcb19bbd9b1a4f4aa4e8",
+        "pkgs/unicorn/fingerprint/login.h": "06f7fe33cd48778a86a568f02587c17da774cccda1cfa8f5e8f2d8da4e796788",
+        "pkgs/unicorn/fingerprint/login.c": "da9c561508ec8abd34e6616d531f914500a449912eb49b8ab23b2a448e917b45",
+        "pkgs/unicorn/fingerprint/tests/selection.c": "8d7ea7d7670aeae7729ba4cf9f52d633a2a5cffe38444983b3b2283b06a9f10b",
+        "pkgs/unicorn/fingerprint/tests/init.c": "7c531712e6b9055eaede1bb1bfd0eccc49ca24d024d86c4d52ae89b2f0dc245e",
+        "pkgs/unicorn/fingerprint/tests/gatekeeper.c": "bb55c3787621e103458cb88954fdc66c30de38de660804afb4f832d1e254133e",
+        "pkgs/unicorn/fingerprint/tests/authorization-state.c": "381389326b6d36d880da7a079ea1dbd02729fe75f9ed55b453d632bdcc8a891c",
+        "pkgs/unicorn/fingerprint/tests/login.c": "4fffa0144cb70a8f75ceb957412d63c9d09ccd04d7b9d49208eda784bde658a5",
+        "pkgs/unicorn/fingerprint/tests/authorization.c": "1a1e4226d243eabd66dca4b7f23c349f0f2b8944d077dd8c0883e177e10f721c",
+        "pkgs/unicorn/fingerprint/generated/layer-shell.c": "699dabe913a95113f56f82c87f59b3748cdfd959c17c45f39073b53cb2af998e",
+        "pkgs/unicorn/fingerprint/generated/layer-shell.h": "bd359658282daf42b2f3270f2f670ae7d1d045ea47e3410bd3fdd012c8b47237",
+        "pkgs/unicorn/fingerprint/generated/viewporter.c": "62de15f2fc06cf3eec6aaeb2b90eff408b683f4292bbd5033659c4924835ff4f",
+        "pkgs/unicorn/fingerprint/generated/viewporter.h": "6e839e9a46693ebcadd8abeb1e0e3dea0fa518cc832c1cf0954fde418ddb5ca4",
+        "pkgs/unicorn/fingerprint/generated/idle-inhibit.c": "d65152753aa779dd145c2828727919f2690b3092e48bb92c567132bd9b139189",
+        "pkgs/unicorn/fingerprint/generated/idle-inhibit.h": "afb7f8e24fec6727fc2602220668f0dfdd156e5bfbd15f7cf3a52d9a21f39260",
+        "pkgs/unicorn/fingerprint/generated/xdg-shell.c": "9e12fcd5676d8c6b6cfd233c2eba563163c0ea7e586cb6e27f202a328323c7f0",
+        "pkgs/linux-kernel/sm8475/unicorn/patches/qseecom-staging-layout.patch": "07acdda3621cd17189b6002f0ccc3944cd0fcf75481b4c04d8675602cc8e2740",
+        "tests/unicorn-qsee-staging.c": "18bb5e1308e01385d719897b2fb89f0524459a59dbdf20f8e98cd3c9a8e1c9dd",
+        "tests/unicorn-qsee-staging.py": "97a5ea6538bc4c049c14c800b382372695d30edd76f5f25990c729ed21a28ba3",
+        "tools/unicorn-fingerprint-evidence.py": "a65e5bfae1ba4c4f8ff2563bda3c443aad6be9225db59c57686d4ea4c9100505"
+      }
+    }
+  ],
+  "generation24_artifacts": {
+    "system": "/nix/store/f94w0wmxw9md62wiw34kl6d2m54abd3n-nixos-system-unicorn-26.11.20261010.6510408",
+    "runtime": "/nix/store/w0awq9kx8ggnzq7j82zsk419ar7lrnvk-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0",
+    "fprintd": "/nix/store/9vni9wr8bmhn1gyvn7pjlnfvz09ikrk6-fprintd-aarch64-unknown-linux-gnu-1.94.5",
+    "hashes": {
+      "/nix/store/a6sapsazm4f51fx6lprnxlh1ilfbsgci-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6/Image": "2303cbf5326f40c38fde5c4c7ee41a323fadc2068c64bc5b99399b36b3a81c9c",
+      "/nix/store/c90nx9d8qd2sx1p7sliqj66j4iyk9wrc-initrd-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6/initrd": "14e380a0b671e7e000760918c096a1a0ccde69e9ea8655eace6e005bb2877157",
+      "/nix/store/w0awq9kx8ggnzq7j82zsk419ar7lrnvk-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/bin/unicorn-fingerprint-runtime": "2b6f48a69a341d4e125ecdee65aa3a10150dc9d0600e73f3ab9d119bb47133d4",
+      "/nix/store/w0awq9kx8ggnzq7j82zsk419ar7lrnvk-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/lib/libunicorn-fingerprint.so": "19c53ae30a67d4664614d953e6fbb8c5d308dc8ff029a06274a1f0e8c55f4530",
+      "/nix/store/w0awq9kx8ggnzq7j82zsk419ar7lrnvk-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/lib/libarm_proxy_skel.so": "fcccefcceb51072ff1f4a37eb3728703e6b913c5c0c70577727389bc5a7166a3",
+      "/nix/store/9vni9wr8bmhn1gyvn7pjlnfvz09ikrk6-fprintd-aarch64-unknown-linux-gnu-1.94.5/libexec/fprintd": "3be0dce6cdb917e969ec5cb79e3afeebea991f8020ecbf6e5ae31e11127ebf69"
+    }
+  },
+  "private_calibration_provisioning": {
+    "files_imported": 107,
+    "source": "device factory persist mounted ro,noload; currently unmounted",
+    "existing_files_overwritten": false,
+    "source_copy_comparison": "passed",
+    "private_bytes_in_repository": false
+  },
+  "fprintd_generation25_trials": [
+    {
+      "trial": 1
+    },
+    {
+      "method": "Claim",
+      "result": 1,
+      "elapsed_ms": 11593
+    },
+    {
+      "method": "ListEnrolledFingers",
+      "result": -5,
+      "elapsed_ms": 19,
+      "error": "Failed to discover prints",
+      "error_name": "net.reactivated.Fprint.Error.NoEnrolledPrints"
+    },
+    {
+      "method": "Release",
+      "result": 1,
+      "elapsed_ms": 8
+    },
+    {
+      "trial": 2
+    },
+    {
+      "method": "Claim",
+      "result": 1,
+      "elapsed_ms": 5679
+    },
+    {
+      "method": "ListEnrolledFingers",
+      "result": -5,
+      "elapsed_ms": 28,
+      "error": "Failed to discover prints",
+      "error_name": "net.reactivated.Fprint.Error.NoEnrolledPrints"
+    },
+    {
+      "method": "Release",
+      "result": 1,
+      "elapsed_ms": 5
+    },
+    {
+      "trial": 3
+    },
+    {
+      "method": "Claim",
+      "result": 1,
+      "elapsed_ms": 4833
+    },
+    {
+      "method": "ListEnrolledFingers",
+      "result": -5,
+      "elapsed_ms": 31,
+      "error": "Failed to discover prints",
+      "error_name": "net.reactivated.Fprint.Error.NoEnrolledPrints"
+    },
+    {
+      "method": "Release",
+      "result": 1,
+      "elapsed_ms": 5
+    }
+  ],
+  "generation25_artifacts": {
+    "system": "/nix/store/vri2l9hqifk2g0c6mnmx669wz32n9h7z-nixos-system-unicorn-26.11.20261010.6510408",
+    "temporary_override_present": false,
+    "capabilities": "empty",
+    "adsp_allocator_allowlisted": true,
+    "hashes": {
+      "/nix/store/a6sapsazm4f51fx6lprnxlh1ilfbsgci-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6/Image": "2303cbf5326f40c38fde5c4c7ee41a323fadc2068c64bc5b99399b36b3a81c9c",
+      "/nix/store/c90nx9d8qd2sx1p7sliqj66j4iyk9wrc-initrd-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6/initrd": "14e380a0b671e7e000760918c096a1a0ccde69e9ea8655eace6e005bb2877157",
+      "/boot/EFI/nixos/a6sapsazm4f51fx6lprnxlh1ilfbsgci-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6-Image.efi": "2303cbf5326f40c38fde5c4c7ee41a323fadc2068c64bc5b99399b36b3a81c9c",
+      "/boot/EFI/nixos/c90nx9d8qd2sx1p7sliqj66j4iyk9wrc-initrd-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6-initrd.efi": "14e380a0b671e7e000760918c096a1a0ccde69e9ea8655eace6e005bb2877157",
+      "/boot/EFI/nixos/a6sapsazm4f51fx6lprnxlh1ilfbsgci-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6-sm8475-xiaomi-unicorn.dtb.efi": "e7a6055ac5eb1acaca12f205f1e5791e9d9d3dd3471783d0c121d545cf7b64ed"
+    },
+    "boot_entry": "/boot/loader/entries/nixos-9b56c9cb666d7341aefab0afe23f2a7b84247f622158267dba902390866b6166.conf"
+  },
+  "enrollment_failure": {
+    "generation": 25,
+    "handset_time": "2026-11-17 00:55:15",
+    "profile": "gfuni6",
+    "pre_enroll": "GF_SUCCESS",
+    "enroll": "GF_ERROR_INVALID_CHALLENGE",
+    "ta_code": 1058,
+    "sensor_capture_commands": 0,
+    "save_commands": 0,
+    "initial_cli_stage": "upstream fprintd duplicate identification with empty gallery",
+    "cleanup": "cancel/post-enroll succeeded"
+  },
+  "generation26_artifacts": {
+    "current_system": "/nix/store/fln1xajkri48b51w070blg92g0lfc3s2-nixos-system-unicorn-26.11.20261010.6510408",
+    "booted_system": "/nix/store/vri2l9hqifk2g0c6mnmx669wz32n9h7z-nixos-system-unicorn-26.11.20261010.6510408",
+    "runtime": "/nix/store/vvxxqhw9pm9nc1a7w66ibiffvvirc7bf-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0",
+    "fprintd": "/nix/store/003fp71mv2pa8wvwvjg804bm23czlfzq-fprintd-aarch64-unknown-linux-gnu-1.94.5",
+    "hashes": {
+      "/nix/store/a6sapsazm4f51fx6lprnxlh1ilfbsgci-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6/Image": "2303cbf5326f40c38fde5c4c7ee41a323fadc2068c64bc5b99399b36b3a81c9c",
+      "/nix/store/c90nx9d8qd2sx1p7sliqj66j4iyk9wrc-initrd-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6/initrd": "14e380a0b671e7e000760918c096a1a0ccde69e9ea8655eace6e005bb2877157",
+      "/nix/store/vvxxqhw9pm9nc1a7w66ibiffvvirc7bf-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/bin/unicorn-fingerprint-runtime": "a138bf17b52ffd95362db1cce9c862670791308362f722b6c066d8f5c096b635",
+      "/nix/store/vvxxqhw9pm9nc1a7w66ibiffvvirc7bf-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/lib/libunicorn-fingerprint.so": "c904b0ffd01363e0e630bfcc6b84d53a195ed20a1958769349756799b5e6fe34",
+      "/nix/store/vvxxqhw9pm9nc1a7w66ibiffvvirc7bf-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/lib/libarm_proxy_skel.so": "8d19bd62cfb63bff8af831f9584b0e24657e63c71983833d22be431a081a44d4",
+      "/nix/store/003fp71mv2pa8wvwvjg804bm23czlfzq-fprintd-aarch64-unknown-linux-gnu-1.94.5/libexec/fprintd": "c2d95a338ae43169f4c562ce71192d0dfcb64bcdab376ca3e5cb2ce48bd93b6a"
+    }
+  },
+  "authorization_regression": {
+    "native_engine": "both profiles; 1058/1059/1142 terminal; no progress, capture, read, save, remove or enrollment replay; cleanup preserves original error",
+    "libfprint": "real public API: permission-denied with no progress callback",
+    "handset": "generation 26 real fprintd: challenge_present=1 token absent; rejected 1058 before capture; explicit provider error in journal; no local enrollment",
+    "cli_vocabulary": "unchanged enroll-unknown-error; first stage is duplicate-check completion",
+    "provider": "real sockets: missing provider, mode/peer rejection, wrong challenge, malformed length, throttling and cancellation; output wiped",
+    "credential_state": "atomic no replacement, existing state preservation, unsafe modes, hardlinks/symlinks and malformed records rejected",
+    "current_login_password": "existing PAM authentication and account checks; rejects auth failure, expired account and empty input; no PAM config changes",
+    "gatekeeper_codec": "exact OEM requests, both handshake stages, CBOR truncations/duplicate keys/unknown fields/overflow, challenge/SID/version/type/MAC length, retry delays, no replay after transport failure",
+    "kernel_transport": "production memref/patch-validation/layout/invoke tested with SCM/allocation/session substitutes: 46-byte input +48 response, 117-byte input +120 response, alias scrubbing, normal/private patching, allocation bounds and error cleanup"
+  },
+  "service_observation": {
+    "system": "running after generation28 reboot",
+    "selector": "active; NRestarts=0",
+    "fprintd": "inactive after normal D-Bus idle timeout; Result=success; NRestarts=0",
+    "user_hint": "active; NRestarts=0 after reboot; physical frame unverified"
+  },
+  "generation27_artifacts": {
+    "current_system": "/nix/store/xz3mda4iaq5gnfhxdyzydrv0lv57b3sa-nixos-system-unicorn-26.11.20261010.6510408",
+    "booted_system": "/nix/store/vri2l9hqifk2g0c6mnmx669wz32n9h7z-nixos-system-unicorn-26.11.20261010.6510408",
+    "activation": "live switch; no reboot; same kernel/initrd; generations 24-26 retained",
+    "runtime": "/nix/store/7l2vcl2qkfppsafs196yldwcpq8lpbcp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0",
+    "fprintd": "/nix/store/wajwhlccr7kj9951652pcgvh12zql7lr-fprintd-aarch64-unknown-linux-gnu-1.94.5",
+    "hashes": {
+      "/nix/store/a6sapsazm4f51fx6lprnxlh1ilfbsgci-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6/Image": "2303cbf5326f40c38fde5c4c7ee41a323fadc2068c64bc5b99399b36b3a81c9c",
+      "/nix/store/c90nx9d8qd2sx1p7sliqj66j4iyk9wrc-initrd-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6/initrd": "14e380a0b671e7e000760918c096a1a0ccde69e9ea8655eace6e005bb2877157",
+      "/nix/store/7l2vcl2qkfppsafs196yldwcpq8lpbcp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/bin/unicorn-fingerprint-runtime": "27fbfddf7f616d4d203a5415e4003afd52881fc17d4d3996f7cdc92ffd633b06",
+      "/nix/store/7l2vcl2qkfppsafs196yldwcpq8lpbcp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/bin/unicorn-fingerprint-authorize": "7ba383dadc5c4526bd04255e222bc1cf6cd7e8cdd2305792518a904bb03ace75",
+      "/nix/store/7l2vcl2qkfppsafs196yldwcpq8lpbcp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/lib/libunicorn-fingerprint.so": "547dca186c1fdef01eb794bc327767720db7ca423464b927b1f7c54452f23d16",
+      "/nix/store/7l2vcl2qkfppsafs196yldwcpq8lpbcp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/lib/libarm_proxy_skel.so": "fe955af3cbfb19c2abbf4b81bf403842e3789b07167989836a639272215a6954",
+      "/nix/store/wajwhlccr7kj9951652pcgvh12zql7lr-fprintd-aarch64-unknown-linux-gnu-1.94.5/libexec/fprintd": "c78c8d3c255d4c612bf05047e7a686e8c14906db0f616054e4d8872537f21a1f",
+      "/nix/store/wajwhlccr7kj9951652pcgvh12zql7lr-fprintd-aarch64-unknown-linux-gnu-1.94.5/bin/fprintd-enroll": "d7aaa14ed5aaace451026dabb562a84d426e026441fbedd3fae9846ac55f93a7"
+    },
+    "read_only_worker_claim_ms": [
+      6442,
+      7181,
+      6420
+    ]
+  },
+  "gatekeeper_authorization": {
+    "credential_source": "current Linux login password, validated with existing login PAM stack",
+    "plaintext_persisted": false,
+    "linux_uid_namespace": "0x55460000 | uid (uid <=65535)",
+    "kdf": "scrypt N=32768 r=8 p=1, random salt 16 bytes, derived secret 32 bytes",
+    "credential_state": "root-only salt + opaque handle, atomic no-replace, pending marker on uncertain creation",
+    "provider": "one-shot root-only SOCK_SEQPACKET, root peer and installed worker exe checks, fresh challenge-bound 69-byte HAT",
+    "hardware_read_only_probe": "passed API4.1 TA4.1012; only 0x200 / 0x207, no credential operation",
+    "hardware_credential_setup": "generation27 status16; generation28 exact request46/response48 returns -30; no automatic retry or credential reset",
+    "hardware_signed_hat": "not tested",
+    "hardware_goodix_acceptance": "not tested",
+    "forbidden_operations": "no delete-user (0x21003), no secure-identity reset, no fabricated token",
+    "password_change_migration": "not implemented; no silent reset",
+    "transport_correction": "passed real engine/codec tests and extracted production kernel invoke; deployed/rebooted; loaded module build ID 94ee500370d8b86aa5cedfd7945c4dd01443dfbd matches corrected artifact"
+  },
+  "gatekeeper_setup_generation27": {
+    "ta_status": 16,
+    "reported_retry_ms": 16,
+    "tee_code": 0,
+    "current_login_password_validation": "passed existing PAM stack",
+    "fingerprint_capture": false,
+    "request_layout_defect": "48 bytes sent, OEM length 46 with response at +48",
+    "kernel_layout_defect": "disjoint same-SHM response was packed immediately after request",
+    "cause_status": "defects confirmed; status16 consistent with stock QCBOR trailing bytes; corrected hardware trial pending",
+    "replay": "none automatic"
+  },
+  "generation28_artifacts": {
+    "current_system": "/nix/store/8vm3cg29l05lr330qv13637p46p3d7br-nixos-system-unicorn-26.11.20261010.6510408",
+    "booted_system": "/nix/store/8vm3cg29l05lr330qv13637p46p3d7br-nixos-system-unicorn-26.11.20261010.6510408",
+    "activation": "boot entry installed, rebooted over LAN; current/booted closure match; older generations retained",
+    "runtime": "/nix/store/rjb3xzyviqk67r6x8yrwl2lhg68hgwzp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0",
+    "fprintd": "/nix/store/8z0s3nfvmgl80pv5mcag4k58576fsaa0-fprintd-aarch64-unknown-linux-gnu-1.94.5",
+    "hashes": {
+      "/nix/store/hdh5wrpp24r5j8f6r55ssjgcd783glf1-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6/Image": "2303cbf5326f40c38fde5c4c7ee41a323fadc2068c64bc5b99399b36b3a81c9c",
+      "/nix/store/c90nx9d8qd2sx1p7sliqj66j4iyk9wrc-initrd-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6/initrd": "14e380a0b671e7e000760918c096a1a0ccde69e9ea8655eace6e005bb2877157",
+      "/nix/store/rjb3xzyviqk67r6x8yrwl2lhg68hgwzp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/bin/unicorn-fingerprint-runtime": "6276a83b1937297da82f42c53fe38d870ca569d1a06a2f90e5d928103cd12d60",
+      "/nix/store/rjb3xzyviqk67r6x8yrwl2lhg68hgwzp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/bin/unicorn-fingerprint-authorize": "00d20fc19fe9a001b6b38bf5c2288e36e94d143bb5794a9a8252efe6968a7585",
+      "/nix/store/rjb3xzyviqk67r6x8yrwl2lhg68hgwzp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/lib/libunicorn-fingerprint.so": "903e14c24333963739d1af836a0f3486a53f6df9ca03aa14f3b109a0f8351fce",
+      "/nix/store/rjb3xzyviqk67r6x8yrwl2lhg68hgwzp-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0/lib/libarm_proxy_skel.so": "e9f6d9f1ce0644ee18ba323e5401a85866cfed0489bd13b854c387a0b9ff8017",
+      "/nix/store/8z0s3nfvmgl80pv5mcag4k58576fsaa0-fprintd-aarch64-unknown-linux-gnu-1.94.5/libexec/fprintd": "eaf90f707a2d5c03b9331a81a50df84f7559b4aff3ea1eb4fcc3a39b94550858",
+      "/nix/store/zialzvvx80f9a9mlh5ayfmqfg890dp1d-linux-unicorn-aarch64-unknown-linux-gnu-7.3-rc6-modules/lib/modules/7.3.0-rc6/kernel/drivers/tee/qseecom/qseecomtee.ko": "3167c83314a19612a4917ef9fc6588a6075c5a97735933db966a4581ca1dba66"
+    },
+    "loaded_qseecom_module_build_id": "94ee500370d8b86aa5cedfd7945c4dd01443dfbd",
+    "previous_module_sha256": "9d8fc4e37def20c37d06fdd8233bba87545f237d48616ca8078f64834e3ccd17",
+    "read_only_worker_claim_ms": [
+      11526,
+      7465,
+      4429
+    ],
+    "inventory_before_user_retry": "empty; credential directory had no committed files",
+    "backup": "/root/unicorn-fingerprint-acceptance/20261117/before-layout-state.tar.gz; kept on handset only"
+  },
+  "gatekeeper_setup_generation28": {
+    "command": "0x21001",
+    "request_bytes": 46,
+    "response_offset": 48,
+    "ta_status": -30,
+    "retry_ms": 0,
+    "tee_code": 0,
+    "local_pam": "passed",
+    "credential_handle_created": false,
+    "signed_hat_obtained": false,
+    "fingerprint_capture": false,
+    "result": "unresolved TA verification rejection; password format, initialization and secure-storage prerequisites under static investigation"
+  },
+  "gatekeeper_diagnostics": {
+    "status": "FAILED ON HARDWARE; withdrawn from source/build queue, rolled back and rebooted; not present in final generation31",
+    "simulation_scenarios": 33,
+    "simulation_result": "passed but did not establish secure-world memory access",
+    "hardware_result": "registration acknowledged; first ring-header read caused synchronous external abort in qseecom_gatekeeper_errors_show+0xa4; process died before read-only probe",
+    "credential_commands_issued": "none during diagnostic experiment",
+    "raw_logs_collected": false,
+    "fault_kernel_build_id": "306e73ad64e389f99a76781c9fedf9a97795cf5c",
+    "unresolved_cause": "CPU ownership/encrypted log requirements not established; no further legacy ring access",
+    "evidence": "ignored gatekeeper-rejection-20261117/withdrawn-diagnostics directory"
+  },
+  "generation31_artifacts": {
+    "current_system": "/nix/store/4swzwrkq632kmdm76gkf7cmh91r6m2y9-nixos-system-unicorn-26.11.20261010.6510408",
+    "booted_system": "/nix/store/4swzwrkq632kmdm76gkf7cmh91r6m2y9-nixos-system-unicorn-26.11.20261010.6510408",
+    "profile_generation": "system-31-link",
+    "boot_id": "fbfca2ea-c3b6-4ef5-b03d-23cc5217fb06",
+    "stable_kernel_sha256": "2303cbf5326f40c38fde5c4c7ee41a323fadc2068c64bc5b99399b36b3a81c9c",
+    "unsafe_diagnostic_interface": "absent",
+    "program_sha256": {
+      "unicorn-fingerprint-authorize": "698fef23268449aea30f8489cb47a2041cb9df94265d25ddebee6640fff38fd5",
+      "unicorn-fingerprint-runtime": "981cba9273c6091a74613b45b5a4dd26daa616f68a7d90f25a57979ad96893bf",
+      "fprintd-enroll": "d7aaa14ed5aaace451026dabb562a84d426e026441fbedd3fae9846ac55f93a7"
+    },
+    "setup_pending_guard": "rejected before password prompt; no TEE credential operation",
+    "enroll_pending_guard": "rejected before password prompt; no TEE credential operation",
+    "loaded_kernel_build_id": "96bdcb33cb1e00a3742327470cd7e74b54a9eb5c"
+  },
+  "pending_protection": {
+    "native_and_target_sources": {
+      "native_runtime": {
+        "output": "/nix/store/vmysysfgiann3ac8hqpr4zirvq74apfj-unicorn-fingerprint-runtime-0.2.0",
+        "derivation": "/nix/store/wi8wyzr3icc7phsrifcvxwwlbd1pllrg-unicorn-fingerprint-runtime-0.2.0.drv",
+        "source": "/nix/store/2kx23rnkilwapphn6v87vz57d9z95mdk-source",
+        "matching_files": 57
+      },
+      "target_runtime": {
+        "output": "/nix/store/6yyygi6bqvr8173z2m31gix6g5hc2f5q-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0",
+        "derivation": "/nix/store/y6sw1k687jck3jalgcgqnik7j9wd61pg-unicorn-fingerprint-runtime-aarch64-unknown-linux-gnu-0.2.0.drv",
+        "source": "/nix/store/2kx23rnkilwapphn6v87vz57d9z95mdk-source",
+        "matching_files": 57
+      }
+    },
+    "policy": "retain durable pending marker for EVERY failed Gatekeeper credential creation, including returned TA status; no replay or credential reset",
+    "reason": "signed TA can fail after writing user record (sync_sector/copy_hmac_to_signature)",
+    "regression": "real provisioning and filesystem, only TEE/credential commit boundaries replaced; TA -30/-49/+16, transport uncertainty, failed local commit, no replay, success and close error passed",
+    "hardware": "setup and enroll with current pending marker reject before password prompt; no credential operation",
+    "current_state": "root-owned mode0600 pending-1000 quarantines generation28 -30; no credential handle or HAT"
+  },
+  "last_observed_services": {
+    "system": "generation31 stable kernel and no-replay companion",
+    "qsee-supplicant": "active success NRestarts0",
+    "unicorn-fingerprint-select": "active success NRestarts0",
+    "fprintd": "active success NRestarts0 at postboot regression; normal idle stop allowed",
+    "user_hint": "root status could not observe user service; physical display unverified"
+  }
+}

@@ -570,9 +570,7 @@ fn connection(e: Arc<Engine>, mut stream: UnixStream) -> Result<()> {
             capabilities: None,
         };
         match request.command {
-            Command::Capabilities => {
-                r.capabilities = Some(super::operations::capabilities(&e.config))
-            }
+            Command::Capabilities => r.capabilities = Some(super::operations::capabilities()),
             Command::Status => {}
             Command::Task { id } => r.snapshot = e.task(id)?,
             Command::Watch { after } => r.snapshot = e.watch(after),
@@ -607,7 +605,6 @@ mod tests {
             controller: "ufs".into(),
             hostname: "fixture".into(),
             root_label: "ROOT".into(),
-            boot_label: "BOOT".into(),
             esp_bytes: 1 << 30,
             minimum_root_bytes: 16 << 30,
             slot_metadata: "qcom-gpt".into(),

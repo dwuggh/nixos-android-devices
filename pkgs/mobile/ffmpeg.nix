@@ -47,7 +47,6 @@ let
   };
 in
 minimal.overrideAttrs (old: {
-  patches = (old.patches or [ ]) ++ [ ./ffmpeg-vaapi-no-hrd.patch ];
   doCheck = false;
   doInstallCheck = false;
   # nixpkgs adds texinfo even when all documentation outputs are disabled.

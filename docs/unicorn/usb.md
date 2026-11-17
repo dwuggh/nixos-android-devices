@@ -7,11 +7,10 @@ acceptance record](usb.zh.md) for hardware provenance, validation and pending
 physical tests, and [USB mode configuration](../usb-signaller.md) for commands.
 
 [Additional USB modes](usb-gadgets.md) document HIDRAW, native multitouch,
-optional image-backed mass storage and UVC. Their validation records identify which software and physical tests passed.
+optional image-backed mass storage and UVC. These additions have not been deployed.
 
-The 2026-11-16 generation 18 checkpoint in the older validation records is historical. The phone later
-booted generation 32 with fingerprint support disabled and basic desktop,
-network and service checks passed. This branch is now rebased onto Linux 7.3.4;
-that revision has not been deployed or tested on physical USB hardware.
+The current candidate has passed workstation driver/DTB/schema and isolated
+network tests. On 2026-11-16 it was installed as default boot generation 18,
+with generation 17 retained for rollback. The phone has not rebooted into it.
 Host data
 role is not evidence of VBUS power, DP support, or analog audio support.

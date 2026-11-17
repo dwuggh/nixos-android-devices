@@ -2,7 +2,6 @@
   lib,
   runCommand,
   mkSSCRegistry,
-  firmware-source,
 }:
 let
   registry = mkSSCRegistry {
@@ -17,7 +16,7 @@ runCommand "asphalt-sensors" { meta.license = lib.licenses.unfree; } ''
   cp -r ${registry} "$out"
   chmod -R u+w "$out"
   mkdir -p "$out/lib/firmware/qcom/sm8475/lenovo/tb320fc" "$out/share"
-  cp ${firmware-source}/sensors/firmware/* "$out/lib/firmware/qcom/sm8475/lenovo/tb320fc/"
-  cp -r ${firmware-source}/sensors/dsp "$out/dsp"
+  cp ${./firmware}/* "$out/lib/firmware/qcom/sm8475/lenovo/tb320fc/"
+  cp -r ${./dsp} "$out/dsp"
   ln -s ../lib/firmware "$out/share/uncompressed-firmware"
 ''

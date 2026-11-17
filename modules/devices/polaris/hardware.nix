@@ -7,6 +7,7 @@
 }:
 {
   androidDevices = {
+    kernelPackage = lib.mkDefault androidPackages.devices.polaris.kernel;
 
     boot.android = {
       base = "0x00000000";
@@ -18,8 +19,5 @@
       dtbs = [ "dtbs/qcom/sdm845-xiaomi-polaris.dtb" ];
       maximumBytes = 67108864;
     };
-    # The PM8998 RTC (rtc@6000) has neither allow-set-time nor an offset nvmem
-    # cell, so Linux can read but not set it.
-    clock.rtcOffset.enable = lib.mkDefault (!config.androidDevices.recovery.enable);
   };
 }

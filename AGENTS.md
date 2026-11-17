@@ -15,5 +15,3 @@ These Unicorn-specific rules do not change other devices' build workflows.
 - All-core defaults are now enabled: local `--max-jobs 1 --cores 0`, one native phone slot. Phone root SSH Nix processes read `/root/.config/nix/unicorn-builder.conf` (`cores = 0`); personal `phone.nix` also declares `nix.settings.cores = 0` for future activation. The local `--cores` flag controls workstation tasks; it is not forwarded as a phone core limit. Existing already-running builds keep their original core settings.
 
 - Cross compilation is now the default: personal `buildSystem = "x86_64-linux"`, target/output namespace remains `aarch64-linux`. Repository example artifacts use `legacyPackages.x86_64-linux`. Never switch the kernel back to ARM64 tools under QEMU for workstation builds.
-
-- Unicorn fingerprint development is deferred on this branch. Its implementation, firmware inputs and validation records are preserved on `archive/unicorn-fingerprint`; keep fingerprint services, packages and kernel additions off the active branch. Local reverse-engineering material remains under ignored `.work/unicorn/fingerprint`.

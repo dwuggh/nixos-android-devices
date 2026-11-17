@@ -14,9 +14,7 @@ pkgs: with pkgs; [
   android-tools
   openssl
   pahole
-  # Kernel host helpers query build-host OpenSSL metadata.
-  pkgs.pkgsBuildBuild.pkg-config
-  pkgs.pkgsBuildBuild.ubootTools
+  pkg-config
   python3
   rsync
   xz

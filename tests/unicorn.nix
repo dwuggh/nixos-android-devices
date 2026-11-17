@@ -72,20 +72,13 @@ lib.genAttrs [ "x86_64-linux" "aarch64-linux" ] (
     contract = builtins.fromJSON recovery.boot.initrd.systemd.contents."/etc/mobile-recovery.json".text;
   in
   assert !system.androidDevices.usb.acm.enable;
-  assert !system.services.fprintd.enable;
-  assert !recovery.services.fprintd.enable;
-  assert !(system.systemd.services ? qsee-supplicant);
-  assert !(system.systemd.services ? unicorn-fingerprint-select);
-  assert !(flake.legacyPackages.${buildSystem}.devices.unicorn ? fingerprint-runtime);
-  assert !(flake.legacyPackages.${buildSystem}.devices.unicorn ? libfprint);
-  assert !(system.androidDevices.kernelPackage.config.isYes "QCOM_QSEECOM");
   assert lib.all (a: a.assertion) usb.assertions;
   assert lib.all (a: a.assertion) usbWithoutAcm.assertions;
   assert usb.androidDevices.kernelPackage.config.isYes "USB_CONFIGFS_ACM";
   assert usb.systemd.services.usb-signaller.environment.USB_SIGNALLER_ACM == "1";
   assert usbWithoutAcm.systemd.services.usb-signaller.environment.USB_SIGNALLER_ACM == "0";
   assert !(usbWithoutAcm.systemd.services ? "serial-getty@ttyGS0");
-  assert !(lib.hasInfix "serial-getty@ttyGS0.service" usb.services.udev.extraRules);
+  assert lib.hasInfix "serial-getty@ttyGS0.service" usb.services.udev.extraRules;
   assert !(lib.hasInfix "serial-getty@ttyGS0.service" usbWithoutAcm.services.udev.extraRules);
   assert usb.systemd.services."serial-getty@ttyGS0".serviceConfig.Type == "simple";
   assert usb.systemd.services."serial-getty@ttyGS0".serviceConfig.StandardInput == "null";

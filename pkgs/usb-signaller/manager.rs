@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // All mutations (startup, D-Bus, Type-C and shutdown) run on one worker.
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{Context, Result, bail, ensure};
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
-use std::sync::{mpsc, Arc, Mutex, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock, mpsc};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -91,7 +91,6 @@ pub struct Observation {
     pub bound: bool,
     pub policy: bool,
     pub backend_ready: bool,
-    pub read_only: bool,
 }
 impl Observation {
     fn permits_gadget(&self) -> bool {
@@ -118,10 +117,6 @@ impl<B: Backend> Engine<B> {
     // the same name. A partially created gadget is also cleaned on every error.
     pub fn transition(&mut self, mode: Mode, explicit: bool) -> Result<()> {
         let before = self.backend.observe()?;
-        ensure!(
-            !before.read_only,
-            "Connected NBD netboot keeps USB read-only"
-        );
         let previous = Mode::parse(&before.actual).ok();
         self.desired = mode;
         let result = (|| {
@@ -379,7 +374,6 @@ impl Backend for LinuxBackend {
             policy,
             firmware,
             backend_ready,
-            read_only: Path::new("/sys/block/nbd0/pid").exists(),
             power: selected_role(&read(self.port.join("power_role"))),
             udc_state: read(Path::new("/sys/class/udc").join(&self.udc).join("state")),
         })
@@ -460,10 +454,6 @@ impl Backend for LinuxBackend {
         }
     }
     fn teardown(&mut self) -> Result<()> {
-        ensure!(
-            !Path::new("/sys/block/nbd0/pid").exists(),
-            "Connected NBD netboot keeps USB read-only"
-        );
         // Touch needs to release contacts and UVC must close its V4L2 node
         // before unbind. MTP blocking endpoint reads must instead be cancelled
         // by unbind before waiting for its process; storage holds its inode
@@ -883,26 +873,6 @@ mod tests {
         }
     }
     #[test]
-    fn connected_netboot_rejects_every_transition_before_mutation() {
-        for mode in [
-            Mode::Developer,
-            Mode::Host,
-            Mode::Charging,
-            Mode::Mtp,
-            Mode::Tethering,
-            Mode::HidTouch,
-            Mode::MassStorage,
-            Mode::Uvc,
-        ] {
-            let mut e = engine();
-            e.backend.state.read_only = true;
-            assert!(e.transition(mode, true).is_err());
-            assert!(e.backend.log.is_empty());
-            assert_eq!(e.desired, Mode::Developer);
-            assert_eq!(e.backend.state.actual, "developer_mode");
-        }
-    }
-    #[test]
     fn same_name_is_deleted_before_recreation() {
         let mut e = engine();
         e.transition(Mode::Developer, true).unwrap();
@@ -1006,10 +976,11 @@ mod tests {
         worker.join().unwrap();
         let fake = backend.0.lock().unwrap();
         // Each completed installation has exactly one immediately preceding cleanup.
-        assert!(fake
-            .log
-            .chunks_exact(2)
-            .all(|pair| pair == ["stop/unbind/delete", "developer_mode"]));
+        assert!(
+            fake.log
+                .chunks_exact(2)
+                .all(|pair| pair == ["stop/unbind/delete", "developer_mode"])
+        );
     }
     #[test]
     fn a_failed_transition_does_not_retry_without_new_evidence() {

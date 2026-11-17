@@ -4,7 +4,7 @@
   "scope": "OEM code firmware and OEM selected WLAN board/regulatory data; no runtime identities or speaker calibration",
   "redistribution_reviewed": false,
   "modem_partition_bytes": 398458880,
-  "modem_verification": "Every selected DSP and WLAN file was rehashed from the installed modem_a partition by recorded byte extents on 2026-11-13; no partition image retained.",
+  "modem_verification": "Every selected DSP and WLAN file was rehashed from the installed modem_a partition by recorded byte extents on 2026-11-13; no partition image retained. CDSP files were read and hashed from a read-only modem_a mount on 2026-11-16.",
   "gpu_verification": "Six files match recorded hashes of the installed vendor firmware inputs.",
   "wlan": {
     "selection_source": "https://github.com/MiCode/Xiaomi_Kernel_OpenSource/tree/fa4513e61931e11a59e3f177ae590d4e090d7229",
@@ -818,6 +818,139 @@
         }
       ],
       "current_device_sha256_verified": true
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.mdt",
+      "bytes": 4764,
+      "sha256": "1b6ba013a1c8456cb0bbe65bccba5af79e68d074f8ed423fdf71e47968cd9d0d",
+      "origin": "modem_a:image/cdsp.mdt",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b00",
+      "bytes": 628,
+      "sha256": "c7d3731a587f6308b4b58a4df9e7b3798b5963040f0408cdde6c8faa6f9522bc",
+      "origin": "modem_a:image/cdsp.b00",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b01",
+      "bytes": 7464,
+      "sha256": "849e5230a6ca0e3a60a9dbebd42f289eb1544d6b809fcba36fc235336c0aff11",
+      "origin": "modem_a:image/cdsp.b01",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b02",
+      "bytes": 1581609,
+      "sha256": "a967c58fb3bdfb61d0c99660f552d839ca4189b1693d73f744f209131c28b7c6",
+      "origin": "modem_a:image/cdsp.b02",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b03",
+      "bytes": 1172,
+      "sha256": "a1fc96c258a118ba71791c46ceff8266217303ea7f1100f536a6b3d1f423b4bc",
+      "origin": "modem_a:image/cdsp.b03",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b04",
+      "bytes": 220,
+      "sha256": "39bb78d49ac4d8e4761e488224afe68cfacc3a631c3ab4ddd25fe00ec97caff6",
+      "origin": "modem_a:image/cdsp.b04",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b05",
+      "bytes": 2002052,
+      "sha256": "aefc3f4ec1920960525bb0a1d85842f984e0b42484530ad38e2318a1395fd7f1",
+      "origin": "modem_a:image/cdsp.b05",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b06",
+      "bytes": 160,
+      "sha256": "e6a276384caa90051b14b7e2acbc48a14edb6e406d8af2a66291c99a47754375",
+      "origin": "modem_a:image/cdsp.b06",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b07",
+      "bytes": 2674696,
+      "sha256": "b7e3ab819e20287e2dc9d4921d54822fb9fdf383e2cf73b8bab4878f28602796",
+      "origin": "modem_a:image/cdsp.b07",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b08",
+      "bytes": 1616,
+      "sha256": "ba44d624e8d63cde3a5412e0a4edb0e1fd714db79de76cf3e34995dd948c2757",
+      "origin": "modem_a:image/cdsp.b08",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b09",
+      "bytes": 96534,
+      "sha256": "860cc88daca4ce07458cdedf693ec297fcd2ec5daea3ece4b95f53a31cc2e44e",
+      "origin": "modem_a:image/cdsp.b09",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b10",
+      "bytes": 1270056,
+      "sha256": "e9668889d91466b6802d96e8aeee953c21362bb58b0bf9f4cd2c7f89a621c575",
+      "origin": "modem_a:image/cdsp.b10",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b11",
+      "bytes": 32240,
+      "sha256": "29e525f06a38860c634f0fce8c59e0a8ded711086a0a3affdffcce4dc3e17dac",
+      "origin": "modem_a:image/cdsp.b11",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b12",
+      "bytes": 2848,
+      "sha256": "e59cb427555748e7e5b330adb66853d4be429e56ddfcc73315150f86581d93a4",
+      "origin": "modem_a:image/cdsp.b12",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b13",
+      "bytes": 80720,
+      "sha256": "94cfe504c2e99d01edb49ac09b14dd40bca7067ce5db4d41953a856bf8c1c890",
+      "origin": "modem_a:image/cdsp.b13",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b14",
+      "bytes": 4504,
+      "sha256": "8572bc574909ce7ea76e5f9b94297c23ab1b596c0e8108161f48d30d5f92282d",
+      "origin": "modem_a:image/cdsp.b14",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b15",
+      "bytes": 12288,
+      "sha256": "42b1084e90300004158d1778245781a5f8f6f260f33f6af45aee456c84cd784f",
+      "origin": "modem_a:image/cdsp.b15",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdsp.b17",
+      "bytes": 4136,
+      "sha256": "c3e69eabefba6ecdaa8c336a0a3dcde0f03c629f10705190f73312e2a1305a8e",
+      "origin": "modem_a:image/cdsp.b17",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
+    },
+    {
+      "path": "firmware/qcom/sm8475/xiaomi/unicorn/cdspr.jsn",
+      "bytes": 513,
+      "sha256": "6d01cd7dce745204d5de20efe57e2511149ca2a5b48ee562fbedefda573ca465",
+      "origin": "modem_a:image/cdspr.jsn",
+      "verification": "Read from the installed modem_a using a read-only mount on 2026-11-16; archive bytes checked against the source extraction."
     }
   ]
 }

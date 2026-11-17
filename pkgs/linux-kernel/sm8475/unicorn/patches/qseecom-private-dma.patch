@@ -1,0 +1,295 @@
+Subject: [PATCH] tee: qseecom: export bounded private TA/CDSP memory
+
+--- a/drivers/tee/qseecom/core.c
++++ b/drivers/tee/qseecom/core.c
+@@ -47,6 +47,10 @@
+ 
+ #include <linux/firmware/qcom/qcom_scm.h>
+ #include <linux/firmware/qcom/qcom_tzmem.h>
++#include <linux/dma-buf.h>
++#include <linux/dma-mapping.h>
++#include <linux/scatterlist.h>
++#include <linux/sizes.h>
+ #include <linux/soc/qcom/mdt_loader.h>
+ 
+ #include "image.h"
+@@ -233,6 +237,7 @@
+  *             listeners withdrawn, so the teardown cannot run twice.
+  */
+ struct qseecom_tee_context {
++	struct dma_buf *private_dma;
+ 	struct qseecom_tee *qtee;
+ 	struct mutex mutex;
+ 	struct list_head sessions;
+@@ -431,6 +436,8 @@
+ 		kfree(sess);
+ 	}
+ 
++	if (ctxdata->private_dma)
++		dma_buf_put(ctxdata->private_dma);
+ 	mutex_destroy(&ctxdata->mutex);
+ 	kfree(ctxdata);
+ 	ctx->data = NULL;
+@@ -771,7 +778,7 @@
+ 	off = voff->u.value.a;
+ 	width = voff->u.value.b;
+ 
+-	if (width != 4 && width != 8)
++	if (voff->u.value.c || (width != 4 && width != 8))
+ 		return -EINVAL;
+ 
+ 	/*
+@@ -794,29 +801,165 @@
+ 	return 0;
+ }
+ 
++
++/* Local client ABI, deliberately outside the TA command namespace. Allocation
++ * returns fd + 1 as the ioctl return value (including when fd is zero); it has
++ * no output parameters that could fault after the fd has been installed.
++ * These buffers have no mmap/vmap operation. Only the owning TEE context can
++ * patch their physical address into its commands. A context owns at most one
++ * 4 MiB buffer, retained until its TA sessions have been released. */
++#define QSEECOM_ALLOC_PRIVATE 0x55460001
++#define QSEECOM_PRIVATE_SIZE SZ_4M
++#define QSEECOM_PATCH_PRIVATE 1
++struct qseecom_private_dma {
++	struct qcom_tzmem_pool *pool;
++	void *memory;
++	phys_addr_t phys;
++};
++
++static struct sg_table *qseecom_private_map(struct dma_buf_attachment *attach,
++					   enum dma_data_direction direction)
++{
++	struct qseecom_private_dma *p = attach->dmabuf->priv;
++	struct sg_table *sgt;
++	int ret;
++
++	sgt = kzalloc_obj(*sgt);
++	if (!sgt)
++		return ERR_PTR(-ENOMEM);
++	ret = sg_alloc_table(sgt, 1, GFP_KERNEL);
++	if (ret)
++		goto free;
++	sg_set_page(sgt->sgl, pfn_to_page(PHYS_PFN(p->phys)),
++		    QSEECOM_PRIVATE_SIZE, 0);
++	ret = dma_map_sgtable(attach->dev, sgt, direction, DMA_ATTR_SKIP_CPU_SYNC);
++	if (ret) {
++		sg_free_table(sgt);
++		goto free;
++	}
++	return sgt;
++free:
++	kfree(sgt);
++	return ERR_PTR(ret);
++}
++
++static void qseecom_private_unmap(struct dma_buf_attachment *attach,
++		struct sg_table *sgt, enum dma_data_direction direction)
++{
++	dma_unmap_sgtable(attach->dev, sgt, direction, DMA_ATTR_SKIP_CPU_SYNC);
++	sg_free_table(sgt);
++	kfree(sgt);
++}
++
++static void qseecom_private_release(struct dma_buf *buf)
++{
++	struct qseecom_private_dma *p = buf->priv;
++
++	memzero_explicit(p->memory, QSEECOM_PRIVATE_SIZE);
++	qcom_tzmem_free(p->memory);
++	qcom_tzmem_pool_free(p->pool);
++	kfree(p);
++}
++
++static const struct dma_buf_ops qseecom_private_ops = {
++	.map_dma_buf = qseecom_private_map,
++	.unmap_dma_buf = qseecom_private_unmap,
++	.release = qseecom_private_release,
++};
++
++static int qseecom_private_alloc(struct qseecom_tee_context *ctxdata)
++{
++	struct qcom_tzmem_pool_config config = {
++		.initial_size = QSEECOM_PRIVATE_SIZE,
++		.max_size = QSEECOM_PRIVATE_SIZE,
++		.policy = QCOM_TZMEM_POLICY_STATIC,
++	};
++	DEFINE_DMA_BUF_EXPORT_INFO(info);
++	struct qseecom_private_dma *p;
++	struct dma_buf *buf;
++	int ret;
++
++	mutex_lock(&ctxdata->mutex);
++	if (ctxdata->private_dma) {
++		ret = -EBUSY;
++		goto unlock;
++	}
++	p = kzalloc_obj(*p);
++	if (!p) {
++		ret = -ENOMEM;
++		goto unlock;
++	}
++	p->pool = qcom_tzmem_pool_new(&config);
++	if (IS_ERR(p->pool)) {
++		ret = PTR_ERR(p->pool);
++		goto free;
++	}
++	p->memory = qcom_tzmem_alloc(p->pool, QSEECOM_PRIVATE_SIZE, GFP_KERNEL);
++	if (!p->memory) {
++		ret = -ENOMEM;
++		goto pool;
++	}
++	p->phys = qcom_tzmem_to_phys(p->memory);
++	if (!p->phys || upper_32_bits(p->phys + QSEECOM_PRIVATE_SIZE - 1)) {
++		ret = -EOVERFLOW;
++		goto memory;
++	}
++	memset(p->memory, 0, QSEECOM_PRIVATE_SIZE);
++	info.ops = &qseecom_private_ops;
++	info.size = QSEECOM_PRIVATE_SIZE;
++	info.flags = O_RDWR;
++	info.priv = p;
++	buf = dma_buf_export(&info);
++	if (IS_ERR(buf)) {
++		ret = PTR_ERR(buf);
++		goto memory;
++	}
++	get_dma_buf(buf); /* Context reference, independent of installed fd. */
++	ret = dma_buf_fd(buf, O_CLOEXEC);
++	if (ret < 0) {
++		dma_buf_put(buf);
++		dma_buf_put(buf);
++		goto unlock;
++	}
++	ctxdata->private_dma = buf;
++	ret++;
++	goto unlock;
++memory:
++	qcom_tzmem_free(p->memory);
++pool:
++	qcom_tzmem_pool_free(p->pool);
++free:
++	kfree(p);
++unlock:
++	mutex_unlock(&ctxdata->mutex);
++	return ret;
++}
++
+ static int qseecom_tee_invoke_func(struct tee_context *ctx,
+ 				   struct tee_ioctl_invoke_arg *arg,
+ 				   struct tee_param *param)
+ {
+ 	struct qseecom_tee_context *ctxdata = ctx->data;
+ 	struct qseecom_tee_session *sess;
++	struct dma_buf *private_dma;
+ 	size_t req_size, rsp_size;
+ 	u32 app_gen;
+ 	bool found;
+ 	void *req, *rsp;
+-	unsigned int i;
++	unsigned int i, j;
+ 	u32 app_id;
+ 	int ret;
+ 
+-	if (arg->func)
++	if (arg->func && arg->func != QSEECOM_ALLOC_PRIVATE)
+ 		return -EINVAL;
+ 
+ 	/*
+ 	 * Two parameters for the request and the response, then a pair per
+ 	 * address to patch into the request.
+ 	 */
+-	if (arg->num_params < 2 || (arg->num_params & 1) ||
+-	    arg->num_params > 2 + 2 * QSEECOM_TEE_MAX_PATCH)
++	if (arg->func == QSEECOM_ALLOC_PRIVATE ? arg->num_params != 0 :
++	    (arg->num_params < 2 || (arg->num_params & 1) ||
++	     arg->num_params > 2 + 2 * QSEECOM_TEE_MAX_PATCH))
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&ctxdata->mutex);
+@@ -824,6 +967,7 @@
+ 	app_id = sess ? sess->app_id : 0;
+ 	app_gen = sess ? sess->app_gen : 0;
+ 	found = sess;
++	private_dma = ctxdata->private_dma;
+ 	mutex_unlock(&ctxdata->mutex);
+ 
+ 	if (!found)
+@@ -838,6 +982,9 @@
+ 	if (!qseecom_tee_app_current(ctxdata->qtee, app_id, app_gen))
+ 		return -ENOENT;
+ 
++	if (arg->func == QSEECOM_ALLOC_PRIVATE)
++		return qseecom_private_alloc(ctxdata);
++
+ 	ret = qseecom_tee_memref(&param[0], TEE_IOCTL_PARAM_ATTR_TYPE_MEMREF_INPUT,
+ 				 &req, &req_size);
+ 	if (ret)
+@@ -849,8 +996,22 @@
+ 		return ret;
+ 
+ 	for (i = 2; i < arg->num_params; i += 2) {
+-		ret = qseecom_tee_check_patch(&param[i], &param[i + 1],
+-					      req_size);
++		for (j = 2; j < i; j += 2)
++			if (param[i].u.value.a < param[j].u.value.a + param[j].u.value.b &&
++			    param[j].u.value.a < param[i].u.value.a + param[i].u.value.b)
++				return -EINVAL;
++		if (param[i].attr == TEE_IOCTL_PARAM_ATTR_TYPE_VALUE_INPUT &&
++		    param[i].u.value.c == QSEECOM_PATCH_PRIVATE) {
++			if (param[i + 1].attr != TEE_IOCTL_PARAM_ATTR_TYPE_VALUE_INPUT ||
++			    param[i + 1].u.value.a || param[i + 1].u.value.b ||
++			    param[i + 1].u.value.c || !private_dma ||
++			    (param[i].u.value.b != 4 && param[i].u.value.b != 8) ||
++			    param[i].u.value.b > req_size ||
++			    param[i].u.value.a > req_size - param[i].u.value.b)
++				return -EINVAL;
++			continue;
++		}
++		ret = qseecom_tee_check_patch(&param[i], &param[i + 1], req_size);
+ 		if (ret)
+ 			return ret;
+ 	}
+@@ -874,7 +1035,8 @@
+ 		 */
+ 		need = req_size + rsp_size;
+ 		for (k = 2; k < arg->num_params; k += 2)
+-			need += param[k + 1].u.memref.size;
++			if (!param[k].u.value.c)
++				need += param[k + 1].u.memref.size;
+ 
+ 		/*
+ 		 * Every size here is bounded by the shared memory it refers to,
+@@ -911,6 +1073,15 @@
+ 			phys_addr_t pp;
+ 			void *pv;
+ 
++			if (param[k].u.value.c == QSEECOM_PATCH_PRIVATE) {
++				struct qseecom_private_dma *p = private_dma->priv;
++
++				if (pw == 4)
++					put_unaligned_le32(p->phys, b + poff);
++				else
++					put_unaligned_le64(p->phys, b + poff);
++				continue;
++			}
+ 			pv = tee_shm_get_va(pshm, param[k + 1].u.memref.shm_offs);
+ 			if (IS_ERR(pv)) {
+ 				/*
+@@ -976,6 +1147,8 @@
+ 				size_t plen = param[k + 1].u.memref.size;
+ 				void *pv;
+ 
++				if (param[k].u.value.c)
++					continue;
+ 				pv = tee_shm_get_va(pshm,
+ 						    param[k + 1].u.memref.shm_offs);
+ 				if (!IS_ERR(pv))
+@@ -1948,3 +2121,5 @@
+ MODULE_AUTHOR("Dawid Wróbel <me@dawidwrobel.com>");
+ MODULE_DESCRIPTION("Qualcomm QSEECOM TEE driver");
+ MODULE_LICENSE("GPL");
++
++MODULE_IMPORT_NS("DMA_BUF");

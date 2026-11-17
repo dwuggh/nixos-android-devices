@@ -35,12 +35,6 @@ in
       cloverFirmware
     ];
     hardware.bluetooth.enable = lib.mkDefault true;
-    # Clover's WCN3990 firmware (1.0.0.531) drops EAPOL frames that iwd sends
-    # over nl80211: the AP times out the 4-way handshake (reason 15). Send
-    # them over the regular data path, as wpa_supplicant does.
-    networking.wireless.iwd.settings.General.ControlPortOverNL80211 = lib.mkIf config.networking.wireless.iwd.enable (
-      lib.mkDefault false
-    );
     # MSS is started only by the bounded service below, after its userspace
     # peers are ready. Keep udev from auto-probing it and keep ADSP/CDSP disabled
     # until their own failure handling has been tested.
@@ -48,6 +42,10 @@ in
       "qcom_q6v5_mss"
       "qcom_q6v5_pas"
     ];
+
+    system.systemBuilderCommands = ''
+      ln -s ${config.system.build.mobileBootImage} $out/clover-boot.img
+    '';
 
     # Make the signed firmware already shipped in the stock Android partitions
     # visible before udev probes modular GPU/radio/multimedia drivers. All source
@@ -73,11 +71,7 @@ in
         RemainAfterExit = true;
         ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p /run/msm-firmware-loader";
         ExecStart = "${firmwareLoader}/bin/msm-firmware-loader-clover";
-        # A freshly installed root has no /lib yet.
-        ExecStartPost = [
-          "${pkgs.coreutils}/bin/mkdir -p /lib"
-          "${pkgs.coreutils}/bin/ln -sfn /run/msm-firmware-loader/target /lib/firmware"
-        ];
+        ExecStartPost = "${pkgs.coreutils}/bin/ln -sfn /run/msm-firmware-loader/target /lib/firmware";
       };
     };
 

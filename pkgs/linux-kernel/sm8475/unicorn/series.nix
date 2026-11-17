@@ -28,6 +28,7 @@
   ./patches/panel.patch
   ./patches/dsi-self-refresh-lifecycle.patch
   ./patches/panel-idle-recovery.patch
+  ./patches/panel-fingerprint-lease.patch
   ./patches/dpu-debugfs-state-lock.patch
   ./patches/touch.patch
   ./patches/dsp-battery.patch
@@ -47,4 +48,10 @@
   ./patches/thermal-cooling.patch
   ./patches/unused-crypto.patch
   ./patches/usb-role-switch.patch
+  ./patches/qseecom-tee.patch
+  ./patches/qseecom-listener-budget.patch
+  ./patches/qseecom-private-dma.patch
+  ./patches/qseecom-staging-layout.patch
+  ./patches/fingerprint-control.patch
+  ./patches/fingerprint-cdsp.patch
 ]

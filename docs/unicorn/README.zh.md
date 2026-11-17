@@ -3,8 +3,7 @@
 [English](README.md) · [全部设备](../README.zh.md)
 
 Unicorn 使用 U-Boot → systemd-boot → Linux 启动链，并提供独立 RAM recovery。
-内核跟随仓库锁定的 Linux 7.3.4。Unicorn 使用独立的 SM8475 补丁队列，
-保留 Asphalt 的上游队列。下述真机结果来自 7.3-rc6，重定基线后仍需重新验收。
+内核跟随仓库锁定的 Linux 7.3-rc6，与 Asphalt 共用 SM8475 平台支持。
 
 ## 配置与构建
 
@@ -16,12 +15,12 @@ OTG、MTP、共享网络及硬件验收见 [USB2 记录](usb.zh.md)。
 HIDRAW、原生触摸、镜像 U 盘和 UVC 见 [USB 扩展模式](usb-gadgets.zh.md)。
 
 ```sh
-python3 tools/unicorn-build.py --device build kernel
-python3 tools/unicorn-build.py --device build u-boot
-python3 tools/unicorn-build.py --device build recovery
-python3 tools/unicorn-build.py --device build system
-python3 tools/unicorn-build.py --device build boot-files
-python3 tools/unicorn-build.py --device build bootstrap-info
+just build unicorn kernel
+just build unicorn u-boot
+just build unicorn recovery
+just build unicorn system
+just build unicorn boot-files
+just build unicorn bootstrap-info
 ```
 
 补丁及配置见[内核说明](../../pkgs/linux-kernel/sm8475/unicorn/PATCHES.zh.md)。
@@ -85,7 +84,7 @@ recovery prepare-install --confirm-erase-userdata
 | 蓝牙 | 配置独立核实的本机原厂地址后，配对、耳机播放及 RFCOMM 传输已验证；仍可能偶发固件下载超时，HFP 与 Wi-Fi/音频并用待验收 |
 | 音频 | 提供私有运行时数据后，内置扬声器、麦克风录音及回放已验证；USB-C 数字和模拟配件未验证，模拟路由尚不完整 |
 | 相机 | S5KJN1 超广角/长焦、OV32B40 前摄原生 RAW10 驱动，实机采集未验证；IMX707 主摄未支持，见[相机说明](camera.zh.md) |
-| 指纹 | 暂缓开发；代码与验收记录保存在 `archive/unicorn-fingerprint` 分支，当前分支不包含指纹支持 |
+| 指纹 | [原生 C 运行时、专用 libfprint/fprintd 和限时照明](fingerprint.md)；离线支持已实现，实机录入、比对待验收；本地个人配置关闭指纹 PAM |
 | 传感器及其他 | 包含 DSP、电池、NFC、振动及红外驱动；专用 SSC 数据/服务及完整外设验收仍未完成 |
 
 已保留 SoundWire 恢复、音频路由及关屏提交修复。模拟耳机的 cross connection

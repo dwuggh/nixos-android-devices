@@ -85,7 +85,9 @@ def assemble(archive_path, manifest_path, output):
             require(hashlib.sha256(data).hexdigest() == entry['sha256'], f'{name}: SHA256 mismatch')
             files[name] = data
     mdts = [validate_mdt(name, files) for name in sorted(files) if name.endswith('.mdt')]
-    require(len(mdts) == 3, 'expected GPU, ADSP and SLPI metadata')
+    require({Path(entry['metadata']).stem for entry in mdts} ==
+            {'a730_zap', 'adsp', 'slpi', 'cdsp'},
+            'expected GPU, ADSP, SLPI and CDSP metadata')
     for name, data in files.items():
         if name.startswith('firmware/'):
             target = output / 'lib' / name

@@ -42,10 +42,6 @@ with lib.kernel;
   USB_RTL8152 = module;
   USB_NET_AX8817X = module;
   USB_NET_AX88179_178A = module;
-  # Dependencies for the shared NixOS reverse-path firewall matches.
-  IP_NF_IPTABLES = module;
-  IP6_NF_IPTABLES = module;
-  NFT_COMPAT = module;
   NF_TABLES = yes;
   NF_TABLES_INET = yes;
   NF_CONNTRACK = yes;
@@ -71,6 +67,16 @@ with lib.kernel;
   FW_LOADER_COMPRESS_ZSTD = yes;
   MAGIC_SYSRQ = yes;
   MAGIC_SYSRQ_SERIAL = no;
+
+  # Legacy QSEE applications used by the OEM Goodix HAL. No TA is loaded at boot.
+  QCOM_QSEECOM = yes;
+  QCOM_MDT_LOADER = yes;
+  TEE = yes;
+  TEE_QSEECOM = module;
+  XIAOMI_UNICORN_FINGERPRINT = module;
+  # TA staging needs physically contiguous memory with 4 MiB alignment.
+  CMA = yes;
+  DMA_CMA = yes;
 
   # Let the UFS driver bind the separate inline crypto engine.
   BLK_INLINE_ENCRYPTION = yes;

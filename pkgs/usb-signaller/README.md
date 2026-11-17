@@ -1,7 +1,5 @@
 # usb-signaller package
 
-[中文](README.zh.md)
-
 For configuration, connection and updates, see [USB networking](../../docs/usb-signaller.md).
 
 ## Local packaging changes
@@ -13,10 +11,7 @@ The package retains upstream source and adds a documented local patch for:
 - explicit controller/role-switch selection and ownership of only
   `usb-signaller-*` gadgets;
 - configured mode advertisement, serialized transitions and failure reporting;
-- ACM console shutdown before gadget/role changes and asynchronous restart
-  after developer-mode setup;
-- optional preservation of externally managed Type-C data roles;
-- initial `none` role handling and failed-start retry through systemd.
+- firmware-led Type-C roles on opted-in boards and bounded daemon restarts.
 
 Executable paths are substituted with Nix store paths. Two upstream unit tests
 use existing `/` and `.` instead of assuming `/sys` and `/home` exist inside the
@@ -24,6 +19,14 @@ build sandbox. Network configuration uses native networkd instead of upstream's
 NetworkManager/unudhcpd helper scripts. The upstream unrestricted D-Bus policy is
 replaced by query access for all users and mode changes for root.
 
-Configfs reconfiguration still disconnects USB. The package does not promise
-rollback to the old gadget after every failure or automatic recovery from a
-failed kernel boot; retain standard generations and independent RAM recovery.
+`lifecycle.patch` removes the old UDC mutation path; `manager.rs` owns startup,
+requests, hotplug, rollback and shutdown. A single worker and bounded queue keep
+D-Bus responsive. Exact owned names are scoped to the selected controller.
+Mode discovery reads gadget links and owned network policy, never ip_forward.
+Partial failures restore the previous mode only for the same partner/firmware
+in device role. A process lock and ExecStopPost cleanup cover duplicate starts
+and daemon crashes. The six upstream hardware tests remain manual.
+
+Configfs reconfiguration still disconnects USB. Keep standard generations and
+independent RAM recovery. Hardware/VBUS acceptance is tracked in
+[the Unicorn USB record](../../docs/unicorn/usb.zh.md).

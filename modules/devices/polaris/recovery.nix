@@ -48,7 +48,7 @@ in
         ufsSafeMode = "/sys/bus/platform/devices/1d84000.ufshc";
         roles = {
           root = role "userdata" { };
-          esp = role "system" { fsLabel = config.androidDevices.boot.uefi.label; };
+          esp = role "system" { fsLabel = "NIXOS_BOOT"; };
           firmware = role "boot" { };
           recovery = role "recovery" { };
           misc = role "misc" { bytes = 4194304; };

@@ -11,7 +11,7 @@ https://github.com/lolipuru/kernel_lenovo_sm8475-modules/blob/0ba8898cd4d9201c09
 diff --git a/Documentation/devicetree/bindings/media/qcom,sm8250-venus.yaml b/Documentation/devicetree/bindings/media/qcom,sm8250-venus.yaml
 --- a/Documentation/devicetree/bindings/media/qcom,sm8250-venus.yaml
 +++ b/Documentation/devicetree/bindings/media/qcom,sm8250-venus.yaml
-@@ -73,6 +73,26 @@
+@@ -73,6 +73,30 @@
        - const: bus
        - const: core
  
@@ -27,6 +27,10 @@ diff --git a/Documentation/devicetree/bindings/media/qcom,sm8250-venus.yaml b/Do
 +      iommus:
 +        maxItems: 1
 +      qcom,iommu-vmid:
++        description: |
++          Qualcomm SCM VMID for the secure ARP stream. Stage-1 page-table
++          pages are shared with this VMID; ARP payload pages are assigned
++          exclusively to it. Must be CP_NON_PIXEL (11).
 +        $ref: /schemas/types.yaml#/definitions/uint32
 +        const: 11
 +    required:

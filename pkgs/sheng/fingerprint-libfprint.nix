@@ -109,12 +109,9 @@ in
   pname = "xiaomi-sheng-libfprint";
   outputs = [ "out" ];
 
-  patches =
-    (old.patches or [ ])
-    ++ [
-      fpc1553Patch
-    ]
-    ++ lib.optional (stdenv.buildPlatform != stdenv.hostPlatform) ./libfprint-cross-generators.patch;
+  patches = (old.patches or [ ]) ++ [
+    fpc1553Patch
+  ];
 
   nativeBuildInputs = with buildPackages; [
     pkg-config

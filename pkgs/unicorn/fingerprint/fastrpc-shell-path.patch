@@ -1,0 +1,20 @@
+Look up the signed DSP process shell in the caller's configured DSP path.
+
+Unicorn provides a private immutable firmware directory through ADSP_LIBRARY_PATH.
+The ordinary DSP library lookup already honors it; the shell lookup must do so
+too, instead of only searching the upstream /usr and /vendor defaults.
+
+diff --git a/src/fastrpc_apps_user.c b/src/fastrpc_apps_user.c
+--- a/src/fastrpc_apps_user.c
++++ b/src/fastrpc_apps_user.c
+@@ -3329,6 +3329,10 @@ static int try_open_shell_file(int domain, const char *shell_name,
+ 
+   VERIFYC(IS_VALID_DOMAIN_ID(domain) && shell_name && fh, AEE_EBADPARM);
+ 
++  nErr = apps_std_fopen_with_env(ADSP_LIBRARY_PATH, ";", shell_name, "r", fh);
++  if (!nErr)
++    goto bail;
++
+   /* 1. Search the configured DSP library locations. */
+   nErr = fopen_from_dirlist(DSP_LIBS_LOCATION, ";", "r", shell_name, fh);
+   if (!nErr)

@@ -1,0 +1,316 @@
+{
+  "schema": 1,
+  "source_root": ".work/unicorn/fingerprint",
+  "inputs": [
+    {
+      "path": "vendor/lib64/libgf_hal.so",
+      "bytes": 982416,
+      "sha256": "d86b2d924a6e8528e10bff215145bc9ddb6d75b8d9dec784faa82ec653f692c8"
+    },
+    {
+      "path": "vendor/lib64/libgf_hal6.so",
+      "bytes": 675584,
+      "sha256": "6d30affa726f88772c7d1a78b4a9fc17761d1ac2a860cb1f385f71d0a26eb853"
+    },
+    {
+      "path": "vendor/lib64/hw/fingerprint.goodix_fod.so",
+      "bytes": 20288,
+      "sha256": "7dfb9ebb6660d3ec84445ca77d2a8370555aa6a3d6412cd210a5029bec69418d"
+    },
+    {
+      "path": "vendor/lib64/hw/fingerprint.goodix_fod6.so",
+      "bytes": 20304,
+      "sha256": "219e5ac4bb4f7664529ac5bf43ad1ad91fbdcd9d4dfec176766a308ac8ef3349"
+    },
+    {
+      "path": "vendor/lib64/libQSEEComAPI.so",
+      "bytes": 36264,
+      "sha256": "87b35b48d3ec49d8708f8dcc6a289387dae12a10dd43bf5f42a408889fc52e36"
+    },
+    {
+      "path": "vendor/lib64/libhvx_proxy_stub.so",
+      "bytes": 32600,
+      "sha256": "9dfc9bd5e0bf71c57a10ea52c63e4c0023e09e20729669a47e72579867279729"
+    },
+    {
+      "path": "vendor/bin/hw/mfp-daemon",
+      "bytes": 75072,
+      "sha256": "b9c7130a4e3489c7f280c4769f189ff93f467a817302b3f63f0f29fe8108a61c"
+    },
+    {
+      "path": "protocol/oem-command-evidence.json",
+      "bytes": 490,
+      "sha256": "81a66343acfb577a774c004ca5289512da1318418f69a4ff245940151314a20b"
+    },
+    {
+      "path": "protocol/oem-init-dependencies.json",
+      "bytes": 1142,
+      "sha256": "9ce5349fa039f6535b3df68250e22c1064cfc80493fa1f94fecf8208cebde1c5"
+    },
+    {
+      "path": "mfp-selection-evidence.json",
+      "bytes": 782,
+      "sha256": "92bffe245dc3ce85db2e9cd242508802f2b105dae0a212f58da08ca0ed5ffd67"
+    },
+    {
+      "path": "run-e0f8c015/ta-lifecycle.log",
+      "bytes": 3162,
+      "sha256": "2aab32a8203c718604f7c4e712443c94c6162c5d7817c27ff84e4ba5dc8df7ae"
+    },
+    {
+      "path": "run-e0f8c015/keymaster.log",
+      "bytes": 141,
+      "sha256": "e35ea6f46c241cbfa2af5909aec8adcc707ee8fbb1a38af7446dd1aa933ee425"
+    },
+    {
+      "path": "verification.json",
+      "bytes": 5135,
+      "sha256": "c65982bc4e34bca369de6ac3cae07619ea263749dcc7ab68ba48a98d482f5b64"
+    },
+    {
+      "path": "vendor/lib64/libarm_proxy_skel.so",
+      "bytes": 16704,
+      "sha256": "332121a366bb0efa1102f2482da266c48a08c522c94a80fbe1087afb6539454b"
+    },
+    {
+      "path": "reverse/libproxy_skel.so",
+      "bytes": 45960,
+      "sha256": "050dab21f7ba7d59008df52a67fd3aa5cadc4374373c0227614299fcdc5f52ef"
+    },
+    {
+      "path": "../display-round3/dsi-panel-l2s-38-0c-0a-dsc-cmd.dtsi",
+      "bytes": 139026,
+      "sha256": "5ff58ba702802143319cf0519c5f532f6e4f20b64a41736303dfdc4b36113d15"
+    },
+    {
+      "path": "../display-round3/dsi-panel-l2s-38-0c-0a-dsc-cmd-common.dtsi",
+      "bytes": 10526,
+      "sha256": "da3cd7609143936691419e4ec0cf38239e9f98f7b7d9d981c301913b824196b5"
+    },
+    {
+      "path": "reverse/vendor-build.prop",
+      "bytes": 26343,
+      "sha256": "d460b346accc3fed4515db05cc363cd01821217f1cf750310719b6f1351554f1"
+    },
+    {
+      "path": "authorization-20261117/android.hardware.gatekeeper@1.0-impl-qti.so",
+      "bytes": 58320,
+      "sha256": "97e73ba6d6a8c2f2268f9d58522fba566be604bfa9ea4efa39d835e57f3db948"
+    },
+    {
+      "path": "authorization-20261117/libkeymasterdeviceutils.so",
+      "bytes": 32056,
+      "sha256": "c8f68da097e6561500accb26e3078a3a269de9c3cdfa8b7c236bf1be28c10000"
+    },
+    {
+      "path": "authorization-20261117/libkeymasterutils.so",
+      "bytes": 235032,
+      "sha256": "88d0e5887b16036448567fef4c21dfb480a4a823eecca28b72dfe64aa18ebc2f"
+    },
+    {
+      "path": "authorization-20261117/libqcbor.so",
+      "bytes": 27512,
+      "sha256": "c078d5eb512319e11ed2915be14f60114d15c80432bf3e187545144f66fdb296"
+    },
+    {
+      "path": "gatekeeper-rejection-20261117/keymaster_a.bin",
+      "bytes": 1048576,
+      "sha256": "453cd884fcc26c562597a0a93a79a9824da36a6d902297cee21b9821d9688ef0"
+    }
+  ],
+  "upstream": {
+    "qsee-supplicant": "36e06680cf7f690fccbdcd07abc2a64c4bb061d8",
+    "libfprint-reference": "430e24e538ba137b6edcfe2e1b3b8cc29c66fa6a"
+  },
+  "hardware_qualification": "Deployment and initialization diagnostics recorded in docs/unicorn/fingerprint-validation.md; biometric acceptance pending.",
+  "native_protocol_profiles": {
+    "gfuni": {
+      "hal": "vendor/lib64/libgf_hal.so",
+      "send_command": "0x3f60c",
+      "header_bytes": 64,
+      "payload_length_offset": 4,
+      "sequence_offset": 8,
+      "carveout_length_offset": 36,
+      "sensor_init_bytes": 616,
+      "capture_bytes": 80,
+      "enroll_image_bytes": 176
+    },
+    "gfuni6": {
+      "hal": "vendor/lib64/libgf_hal6.so",
+      "send_command": "0x39530",
+      "header_bytes": 64,
+      "payload_length_offset": 8,
+      "sequence_offset": 12,
+      "carveout_length_offset": 40,
+      "sensor_init_bytes": 640,
+      "capture_bytes": 88,
+      "enroll_image_bytes": 184
+    }
+  },
+  "shared_protocol": {
+    "header_alias": true,
+    "payload_physical_address_offset": 0,
+    "carveout_physical_address_offset": 32,
+    "kernel_patch_address_width": 4,
+    "carveout_bytes": 4194304,
+    "auth_image_bytes": 240,
+    "error_table_entries": 308,
+    "identical_error_table_both_hals": true,
+    "enroll_hat_offset": 33,
+    "enroll_hat_bytes": 69,
+    "enroll_progress_offset": 40,
+    "auth_group_offset": 44,
+    "auth_finger_offset": 48,
+    "auth_provisional_offset": 169
+  },
+  "display": {
+    "panel": "xiaomi,l2s-38-0c-0a",
+    "physical_mode": [
+      1440,
+      3200
+    ],
+    "capture_region": [
+      586,
+      2346,
+      267,
+      267
+    ],
+    "ready_vblanks": 4,
+    "lease_max_ms": 1500
+  },
+  "dsp_protocol": {
+    "proxy_high_frequency": {
+      "input": "vendor/lib64/libhvx_proxy_stub.so",
+      "address": "0x194c",
+      "sequence": [
+        "method 8 (0,1000,0,69)",
+        "method 3 command 11"
+      ],
+      "completion": "synchronous returns; no notification wait"
+    },
+    "proxy_normal_frequency": {
+      "address": "0x1a74",
+      "sequence": [
+        "method 7"
+      ],
+      "completion": "synchronous return; no notification 7"
+    },
+    "proxy_init": {
+      "address": "0xfcc",
+      "sequence": [
+        "open",
+        "method 2",
+        "method 3 command 9",
+        "register DMA NOMAP",
+        "method 5 command 6 + DMA",
+        "method 4 (10, chip)"
+      ]
+    },
+    "hal_thread_init": {
+      "gfuni": "0x3fdbc",
+      "gfuni6": "0x39c74"
+    },
+    "hal_thread_loop": {
+      "gfuni": "0x413bc",
+      "gfuni6": "0x3b174"
+    },
+    "callback": {
+      "input": "vendor/lib64/libarm_proxy_skel.so",
+      "notification_decoder": "0x870",
+      "minimum_bytes": 8,
+      "log_decoder": "0xa28",
+      "log_header_minimum_bytes": 4
+    },
+    "selection": {
+      "input": "vendor/bin/hw/mfp-daemon",
+      "openHal": "0x8058",
+      "cached_probe": "0x8354-0x83cc",
+      "fallback_scan": "0x84d8-0x8644",
+      "policy": "last successful first; otherwise gfuni then gfuni6; first full open success wins"
+    }
+  },
+  "calibration": {
+    "profile": "gfuni6",
+    "base_readiness": "0x9a054",
+    "custom_readiness": "0x4e968",
+    "sensor_init": "0x9c188",
+    "algo_init": "0x98f08",
+    "required_mask": "0x13"
+  },
+  "gatekeeper": {
+    "stock_vendor": "V13.0.12.0.SLECNXM",
+    "resident_app": "keymaster64",
+    "shared_bytes": 40960,
+    "query": {
+      "command": "0x200",
+      "constructor": "libkeymasterdeviceutils.so:0x51e0",
+      "response_offset": 4
+    },
+    "negotiation": {
+      "command": "0x207",
+      "words": [
+        519,
+        4,
+        5,
+        4,
+        5,
+        0
+      ],
+      "rodata_file_offset": "0x2e00",
+      "caller": "libkeymasterdeviceutils.so:0x5458"
+    },
+    "enroll": {
+      "command": "0x21001",
+      "caller": "android.hardware.gatekeeper@1.0-impl-qti.so:0x7c6c",
+      "cbor": {
+        "3": "uid",
+        "8": "desired password bytes"
+      }
+    },
+    "verify": {
+      "command": "0x21002",
+      "cbor": {
+        "3": "uid",
+        "4": "challenge",
+        "6": "handle",
+        "9": "password bytes"
+      },
+      "hat_parser": "android.hardware.gatekeeper@1.0-impl-qti.so:0x9af0",
+      "hat_version_key": 11
+    },
+    "delete_user": {
+      "command": "0x21003",
+      "caller": "android.hardware.gatekeeper@1.0-impl-qti.so:0x831c",
+      "policy": "never issued by Linux provider"
+    },
+    "qualified_api": "4.1",
+    "qualified_new_parser_ta": "major 4, minor >= 540",
+    "observed_ta": "4.1012",
+    "response_offset": "4-byte aligned request end",
+    "credential_operations_on_hardware": "user new-enroll rejected: generation 27 status +16; generation 28 exact 46/+48 status -30; no committed handle or HAT",
+    "request_length": "4 + encoded CBOR size, unpadded; sendCmd x2 at 0x5854",
+    "response_pointer": "shared base + align4(request length); sendCmd x3 at 0x5888",
+    "stock_qcbor_finish": {
+      "library": "authorization-20261117/libqcbor.so",
+      "export": "0x5048",
+      "implementation": "0x4c00",
+      "trailing_data_result": 16
+    },
+    "signed_ta": {
+      "input": "gatekeeper-rejection-20261117/keymaster_a.bin",
+      "source": "phone keymaster_a partition; keymaster_b identical SHA-256",
+      "address_convention": "ELF virtual address; Ghidra default base 0x100000 subtracted",
+      "new_enroll": "0x46a0",
+      "new_verify": "0x5100",
+      "decode_enroll": "0x21ae8",
+      "storage_init": "0x13b70",
+      "user_record_lookup": "0x14294",
+      "storage_platform_init": "0x19f84",
+      "open_storage_platform": "0x1a454",
+      "command_dispatch": "0x505b0",
+      "known_minus_30": "user-record lookup returns NULL on any storage-init failure or capacity; HMAC mismatch in gk_init_last_checked_boot also yields -30",
+      "capacity": 46,
+      "policy": "no credential deletion/reset, raw secure-storage export or RootOfTrust spoofing"
+    }
+  }
+}

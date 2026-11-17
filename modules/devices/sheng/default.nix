@@ -2,7 +2,6 @@
 {
   imports = [
     ../../mobile
-    ./audio.nix
     ./boot.nix
     ./hardware.nix
     ./system-hardware.nix

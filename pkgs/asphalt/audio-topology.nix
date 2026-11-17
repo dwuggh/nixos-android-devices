@@ -1,7 +1,7 @@
 {
   runCommand,
   fetchFromGitHub,
-  pkgsBuildBuild,
+  buildPackages,
 }:
 let
   audioreachSource = fetchFromGitHub {
@@ -14,8 +14,8 @@ in
 runCommand "asphalt-audioreach-topology"
   {
     nativeBuildInputs = [
-      pkgsBuildBuild.alsa-utils
-      pkgsBuildBuild.m4
+      buildPackages.alsa-utils
+      buildPackages.m4
     ];
   }
   ''
