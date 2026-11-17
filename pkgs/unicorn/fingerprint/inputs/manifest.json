@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "origin": "same-handset stock modem firmware, read-only extraction 2026-11-14",
+  "selected_ta": null,
+  "archive_sha256": "d67b208ba7779d590cb655ea2dd331b29bf8d05d617a867ec63089d48e5e0096",
+  "files": [
+    {
+      "path": "gfuni.mdt",
+      "bytes": 4272,
+      "sha256": "ab9cd9043e82d2802dcafd6c8abceaad353fb16a8ba67f69c18746c11f5aa865"
+    },
+    {
+      "path": "gfuni.b00",
+      "bytes": 568,
+      "sha256": "ca383b0d90793a2d4b96733d443c10ec191a73322da77442a182996b17b13e77"
+    },
+    {
+      "path": "gfuni.b01",
+      "bytes": 8140556,
+      "sha256": "15ff745e53e37033bb82c38cf834ec72c31d4b7ff11d1f476227ef4b39e780fa"
+    },
+    {
+      "path": "gfuni.b02",
+      "bytes": 204,
+      "sha256": "676497960a40c45ac999cf6522badd6e6dd80cc04c15812fa2579732ab939cce"
+    },
+    {
+      "path": "gfuni.b03",
+      "bytes": 2696,
+      "sha256": "be8ffeeb4ade5d7bf4f3232aacc16e86239ccadd16d695c7653785fdbfc688b3"
+    },
+    {
+      "path": "gfuni.b04",
+      "bytes": 6526480,
+      "sha256": "860e3f9473eeaf803e693b83cc6d66e29378e8a8f44f0a226c9c97a2a7c1fce8"
+    },
+    {
+      "path": "gfuni.b05",
+      "bytes": 336,
+      "sha256": "be9471df70474989ef216a48cc341407c7ab7a35f03700c52c5774f4df678ad2"
+    },
+    {
+      "path": "gfuni.b06",
+      "bytes": 253051,
+      "sha256": "2f97312a19cf09042aff49bfce7d7a0b02dba4ea1fe5b21313ce60e00ff93d0c"
+    },
+    {
+      "path": "gfuni.b07",
+      "bytes": 2696,
+      "sha256": "be8ffeeb4ade5d7bf4f3232aacc16e86239ccadd16d695c7653785fdbfc688b3"
+    },
+    {
+      "path": "gfuni.b08",
+      "bytes": 3704,
+      "sha256": "db71097c028cfc24c97b6d9cbbafc9f097dcff959e436c7c914d3d6d57f6f4a6"
+    },
+    {
+      "path": "gfuni6.mdt",
+      "bytes": 4272,
+      "sha256": "d9bcaaa19533a8b713350d03d8159535f6d92f96523f55f683add31ffa2c4f88"
+    },
+    {
+      "path": "gfuni6.b00",
+      "bytes": 568,
+      "sha256": "c2e577269e41e89e388a88f5db2ff8db4267e99cacef440aa8044ff7ad15d5d2"
+    },
+    {
+      "path": "gfuni6.b01",
+      "bytes": 6264296,
+      "sha256": "8fbc5f862d8a492a278a23afd61ee4749e93f35e904f655ddb2645681cac59ea"
+    },
+    {
+      "path": "gfuni6.b02",
+      "bytes": 204,
+      "sha256": "53d6e034f59a18a300d5135e59cfebe3108cf1be14a4d7cdd62a505d3ce04970"
+    },
+    {
+      "path": "gfuni6.b03",
+      "bytes": 2960,
+      "sha256": "7237556d544a8cbb324b33c7f524e15d75de4b8c777bd212533cccff73726eae"
+    },
+    {
+      "path": "gfuni6.b04",
+      "bytes": 3898704,
+      "sha256": "541af2fa0876e95ee1384817e2ee17b18f1353c6f83b1e18a5c38b9c20d172a3"
+    },
+    {
+      "path": "gfuni6.b05",
+      "bytes": 336,
+      "sha256": "81cae5183b27202da9881ee3da64392ad230b986624b852f1b48fc05a1639d6f"
+    },
+    {
+      "path": "gfuni6.b06",
+      "bytes": 263220,
+      "sha256": "a3f55f81e88d8aaacc7b4da615465b37b3a6a6f5fabb74f673881cd29af1389b"
+    },
+    {
+      "path": "gfuni6.b07",
+      "bytes": 2960,
+      "sha256": "7237556d544a8cbb324b33c7f524e15d75de4b8c777bd212533cccff73726eae"
+    },
+    {
+      "path": "gfuni6.b08",
+      "bytes": 3704,
+      "sha256": "24a3d774ebb2fc4c5e6a97df8f3286fc83285a2f9a9665febb83fce9c94e55c5"
+    }
+  ]
+}

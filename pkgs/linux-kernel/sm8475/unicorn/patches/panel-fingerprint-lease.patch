@@ -1,0 +1,462 @@
+Subject: [PATCH] drm/panel: l2s: bounded file-scoped fingerprint illumination
+
+--- a/drivers/gpu/drm/panel/panel-xiaomi-l2s-380c0a.c
++++ b/drivers/gpu/drm/panel/panel-xiaomi-l2s-380c0a.c
+@@ -5,6 +5,11 @@
+  */
+ 
+ #include <linux/backlight.h>
++#include <linux/miscdevice.h>
++#include <linux/compat.h>
++#include <linux/kref.h>
++#include <linux/uaccess.h>
++#include <linux/slab.h>
+ #include <linux/debugfs.h>
+ #include <linux/seq_file.h>
+ #include <linux/delay.h>
+@@ -28,6 +33,9 @@
+ #include <drm/drm_probe_helper.h>
+ 
+ #include "panel-xiaomi-l2s-runtime.h"
++#include "panel-xiaomi-l2s-fod-tables.h"
++
++struct l2s_fod;
+ 
+ static bool seamless;
+ module_param(seamless, bool, 0400);
+@@ -47,6 +55,9 @@
+ 	"VRR capability request; unsupported until independently verified");
+ 
+ struct l2s_panel {
++	struct l2s_fod *fod;
++	bool fod_active;
++	bool fod_acquiring;
+ 	struct drm_panel panel;
+ 	struct drm_connector *connector;
+ 	unsigned int refresh;
+@@ -149,6 +159,8 @@
+ /* panel_bridge prepare runs after the incoming atomic state is installed.
+  * Select it again on every full modeset/wake, before touching panel power.
+  */
++static int l2s_fod_end_locked(struct l2s_panel *ctx);
++
+ static int l2s_panel_get_current_mode(struct l2s_panel *ctx)
+ {
+ 	struct drm_connector *connector = ctx->connector;
+@@ -221,6 +233,8 @@
+ 	int ret;
+ 
+ 	mutex_lock(&ctx->lock);
++	if (ctx->fod_active)
++		l2s_fod_end_locked(ctx);
+ 	if (!ctx->prepared || !ctx->enabled || ctx->idle_active ||
+ 	    ctx->runtime_failed || ctx->refresh != drm_mode_vrefresh(old)) {
+ 		ret = -EBUSY;
+@@ -261,6 +275,7 @@
+ {
+ 	struct l2s_panel *ctx = to_l2s_panel(panel);
+ 	return idle_hz && state->enable && !state->vrr_enabled &&
++	       !READ_ONCE(ctx->fod_active) && !READ_ONCE(ctx->fod_acquiring) &&
+ 	       !READ_ONCE(ctx->runtime_failed) &&
+ 	       drm_mode_vrefresh(&state->mode) == 120;
+ }
+@@ -271,6 +286,10 @@
+ 	int ret = -EBUSY;
+ 
+ 	mutex_lock(&ctx->lock);
++	/* An idle commit may have passed its support check before acquisition.
++	 * End exposure before the already-queued display transition proceeds. */
++	if (ctx->fod_active)
++		l2s_fod_end_locked(ctx);
+ 	/* DRM may stop the CRTC even when the optional low-rate command fails. */
+ 	ctx->idle_requested = true;
+ 	if (ctx->idle_active) {
+@@ -305,10 +324,324 @@
+ 	int ret;
+ 
+ 	lockdep_assert_held(&ctx->lock);
++	if (ctx->fod_active)
++		return 0; /* Cache brightness until the lease ends. */
+ 	ctx->dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+ 	ret = mipi_dsi_dcs_set_display_brightness_large(ctx->dsi, ctx->brightness);
+ 	ctx->dsi->mode_flags = mode_flags;
+ 	return ret;
++}
++
++
++/* fd-scoped, bounded bright-screen illumination. No TA or compositor may
++ * extend the timeout implicitly. A fresh acquire waits four actual vblanks;
++ * renewal never substitutes for the initial display-ready handshake. */
++#define L2S_FOD_INFO _IOR('L', 0, struct l2s_fod_info)
++#define L2S_FOD_ACQUIRE _IOW('L', 1, u32)
++#define L2S_FOD_RELEASE _IO('L', 2)
++struct l2s_fod_info { u32 version, width, height, x, y, w, h, active; };
++struct l2s_fod {
++	struct miscdevice misc;
++	struct kref ref;
++	struct mutex mutex; /* lifetime, outside panel/KMS locks */
++	struct delayed_work timeout;
++	unsigned long deadline;
++	struct l2s_panel *ctx;
++	bool opened;
++};
++
++static int l2s_panel_power_off(struct l2s_panel *ctx);
++static int l2s_backlight_wake(struct l2s_panel *ctx);
++
++static int l2s_fod_end_locked(struct l2s_panel *ctx)
++{
++	unsigned long flags;
++	int ret, brightness_ret;
++
++	lockdep_assert_held(&ctx->lock);
++	if (!ctx->fod_active)
++		return 0;
++	ctx->fod_active = false;
++	if (!ctx->prepared)
++		return 0;
++	flags = ctx->dsi->mode_flags;
++	ctx->dsi->mode_flags |= MIPI_DSI_MODE_LPM;
++	ret = mipi_dsi_transfer_sequence(ctx->dsi, l2s_fod_off,
++					 ARRAY_SIZE(l2s_fod_off));
++	ctx->dsi->mode_flags = flags;
++	if (ret) {
++		/* A lost DSI link cannot be allowed to leave local HBM lit after
++		 * its owner disappears. Assert reset and drop power references;
++		 * the existing explicit display recovery brings it back later. */
++		l2s_panel_power_off(ctx);
++		ctx->runtime_failed = true;
++		ctx->runtime_error = ret;
++		return ret;
++	}
++	brightness_ret = l2s_write_brightness_locked(ctx);
++	if (!ret)
++		ret = brightness_ret;
++	if (ret) {
++		/* Do not power-cycle here. Existing explicit display recovery owns
++		 * that operation; refuse further illumination until it succeeds. */
++		ctx->runtime_failed = true;
++		ctx->runtime_error = ret;
++	}
++	return ret;
++}
++
++static void l2s_fod_timeout(struct work_struct *work)
++{
++	struct l2s_fod *fod = container_of(to_delayed_work(work),
++					 struct l2s_fod, timeout);
++
++	mutex_lock(&fod->mutex);
++	if (fod->ctx) {
++		mutex_lock(&fod->ctx->lock);
++		if (time_before(jiffies, fod->deadline))
++			mod_delayed_work(system_wq, &fod->timeout, fod->deadline - jiffies);
++		else
++			l2s_fod_end_locked(fod->ctx);
++		mutex_unlock(&fod->ctx->lock);
++	}
++	mutex_unlock(&fod->mutex);
++}
++
++static void l2s_fod_free(struct kref *ref)
++{
++	struct l2s_fod *fod = container_of(ref, struct l2s_fod, ref);
++
++	mutex_destroy(&fod->mutex);
++	kfree(fod);
++}
++
++static int l2s_fod_open(struct inode *inode, struct file *file)
++{
++	struct l2s_fod *fod = container_of(file->private_data, struct l2s_fod, misc);
++	int ret = 0;
++
++	mutex_lock(&fod->mutex);
++	if (!fod->ctx)
++		ret = -ENODEV;
++	else if (fod->opened)
++		ret = -EBUSY;
++	else {
++		fod->opened = true;
++		kref_get(&fod->ref);
++		file->private_data = fod;
++	}
++	mutex_unlock(&fod->mutex);
++	return ret;
++}
++
++static int l2s_fod_close(struct inode *inode, struct file *file)
++{
++	struct l2s_fod *fod = file->private_data;
++
++	cancel_delayed_work_sync(&fod->timeout);
++	mutex_lock(&fod->mutex);
++	if (fod->ctx) {
++		mutex_lock(&fod->ctx->lock);
++		l2s_fod_end_locked(fod->ctx);
++		mutex_unlock(&fod->ctx->lock);
++	}
++	fod->opened = false;
++	mutex_unlock(&fod->mutex);
++	kref_put(&fod->ref, l2s_fod_free);
++	return 0;
++}
++
++static int l2s_fod_begin_locked(struct l2s_panel *ctx, struct drm_crtc *crtc)
++{
++	struct mipi_dsi_cmd cmds[ARRAY_SIZE(l2s_fod_on)];
++	u8 brightness[] = { 0x51, ctx->brightness >> 8, ctx->brightness & 0xff };
++	unsigned long flags = ctx->dsi->mode_flags;
++	unsigned int seq;
++	int ret, i;
++
++	lockdep_assert_held(&ctx->lock);
++	if (ctx->stopping || !ctx->prepared || !ctx->enabled || ctx->idle_active ||
++	    ctx->idle_requested || ctx->runtime_failed || !ctx->brightness)
++		return -EHOSTDOWN;
++	if (ctx->fod_active)
++		return 0;
++	memcpy(cmds, l2s_fod_on, sizeof(cmds));
++	/* OEM update <0x51, index 14, two bytes>. Keep current normal brightness. */
++	cmds[14].msg.tx_buf = brightness;
++	ctx->dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
++	ctx->fod_active = true; /* Also unwind a partially transmitted table. */
++	ret = mipi_dsi_transfer_sequence(ctx->dsi, cmds, ARRAY_SIZE(cmds));
++	ctx->dsi->mode_flags = flags;
++	if (ret)
++		goto failed;
++	ret = drm_crtc_vblank_get(crtc);
++	if (ret)
++		goto failed;
++	for (i = 0; i < 4; i++) {
++		seq = drm_crtc_vblank_count(crtc);
++		if (!wait_event_timeout(crtc->dev->vblank[drm_crtc_index(crtc)].queue,
++				drm_crtc_vblank_count(crtc) != seq,
++				msecs_to_jiffies(100))) {
++			ret = -ETIMEDOUT;
++			break;
++		}
++	}
++	drm_crtc_vblank_put(crtc);
++	if (!ret)
++		return 0;
++failed:
++	l2s_fod_end_locked(ctx);
++	return ret;
++}
++
++static long l2s_fod_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	struct l2s_fod *fod = file->private_data;
++	struct l2s_fod_info info = { 1, 1440, 3200, 586, 2346, 267, 267, 0 };
++	struct drm_connector *connector = NULL;
++	struct drm_modeset_acquire_ctx acquire;
++	struct drm_crtc *crtc = NULL;
++	struct l2s_panel *ctx;
++	u32 timeout;
++	int ret = 0;
++
++	if (cmd != L2S_FOD_INFO && cmd != L2S_FOD_ACQUIRE && cmd != L2S_FOD_RELEASE)
++		return -ENOTTY;
++	if (cmd == L2S_FOD_ACQUIRE) {
++		if (copy_from_user(&timeout, (void __user *)arg, sizeof(timeout)))
++			return -EFAULT;
++		if (timeout < 500 || timeout > 1500)
++			return -EINVAL;
++	}
++	mutex_lock(&fod->mutex);
++	ctx = fod->ctx;
++	if (!ctx) {
++		ret = -ENODEV;
++		goto out;
++	}
++	/* KMS connection lock precedes the panel lock, as in the backlight wake. */
++	if (cmd == L2S_FOD_ACQUIRE) {
++		mutex_lock(&ctx->lock);
++		ctx->fod_acquiring = true;
++		connector = ctx->connector;
++		if (connector)
++			drm_connector_get(connector);
++		mutex_unlock(&ctx->lock);
++		if (!connector) {
++			ret = -ENODEV;
++			goto out;
++		}
++		/* A static Wayland hint can already be in panel self-refresh when
++		 * the finger lands. Exit SR through KMS without waking an off display.
++		 * Prevent fresh idle admission until illumination owns the panel. */
++		ret = l2s_backlight_wake(ctx);
++		if (ret)
++			goto put;
++		drm_modeset_acquire_init(&acquire, 0);
++retry:
++		ret = drm_modeset_lock(&connector->dev->mode_config.connection_mutex, &acquire);
++		if (!ret) {
++			crtc = connector->state ? connector->state->crtc : NULL;
++			if (crtc)
++				ret = drm_modeset_lock(&crtc->mutex, &acquire);
++		}
++		if (ret == -EDEADLK) {
++			ret = drm_modeset_backoff(&acquire);
++			if (!ret)
++				goto retry;
++		}
++		if (ret)
++			goto drop;
++	}
++	mutex_lock(&ctx->lock);
++	if (cmd == L2S_FOD_INFO) {
++		info.active = ctx->fod_active;
++		if (copy_to_user((void __user *)arg, &info, sizeof(info)))
++			ret = -EFAULT;
++	} else if (cmd == L2S_FOD_RELEASE) {
++		fod->deadline = jiffies;
++		cancel_delayed_work(&fod->timeout);
++		ret = l2s_fod_end_locked(ctx);
++	} else if (!crtc || !crtc->state->active) {
++		ret = -EHOSTDOWN;
++	} else {
++		/* Start the watchdog before sending any brightness commands. */
++		fod->deadline = jiffies + msecs_to_jiffies(timeout);
++		mod_delayed_work(system_wq, &fod->timeout, msecs_to_jiffies(timeout));
++		ret = l2s_fod_begin_locked(ctx, crtc);
++		if (ret)
++			cancel_delayed_work(&fod->timeout);
++	}
++	mutex_unlock(&ctx->lock);
++drop:
++	if (connector) {
++		drm_modeset_drop_locks(&acquire);
++		drm_modeset_acquire_fini(&acquire);
++	}
++put:
++	if (connector)
++		drm_connector_put(connector);
++out:
++	if (cmd == L2S_FOD_ACQUIRE && ctx) {
++		mutex_lock(&ctx->lock);
++		ctx->fod_acquiring = false;
++		mutex_unlock(&ctx->lock);
++	}
++	mutex_unlock(&fod->mutex);
++	return ret;
++}
++
++static const struct file_operations l2s_fod_ops = {
++	.owner = THIS_MODULE,
++	.open = l2s_fod_open,
++	.release = l2s_fod_close,
++	.unlocked_ioctl = l2s_fod_ioctl,
++	.compat_ioctl = compat_ptr_ioctl,
++	/* No read/write/seek operations; this fd only owns the lease. */
++};
++
++static void l2s_fod_destroy(struct l2s_panel *ctx)
++{
++	struct l2s_fod *fod = ctx->fod;
++
++	if (!fod)
++		return;
++	misc_deregister(&fod->misc);
++	cancel_delayed_work_sync(&fod->timeout);
++	mutex_lock(&fod->mutex);
++	mutex_lock(&ctx->lock);
++	l2s_fod_end_locked(ctx);
++	fod->ctx = NULL;
++	ctx->fod = NULL;
++	mutex_unlock(&ctx->lock);
++	mutex_unlock(&fod->mutex);
++	kref_put(&fod->ref, l2s_fod_free);
++}
++
++static int l2s_fod_init(struct l2s_panel *ctx)
++{
++	struct l2s_fod *fod = kzalloc_obj(*fod);
++	int ret;
++
++	if (!fod)
++		return -ENOMEM;
++	mutex_init(&fod->mutex);
++	kref_init(&fod->ref);
++	INIT_DELAYED_WORK(&fod->timeout, l2s_fod_timeout);
++	fod->ctx = ctx;
++	fod->misc = (struct miscdevice) {
++		.minor = MISC_DYNAMIC_MINOR,
++		.name = "unicorn-fingerprint-illumination",
++		.fops = &l2s_fod_ops,
++		.mode = 0600,
++	};
++	ret = misc_register(&fod->misc);
++	if (ret) {
++		kref_put(&fod->ref, l2s_fod_free);
++		return ret;
++	}
++	ctx->fod = fod;
++	return 0;
+ }
+ 
+ static int l2s_idle_exit(struct drm_panel *panel)
+@@ -471,6 +775,7 @@
+ 	struct l2s_panel *ctx = data;
+ 	struct drm_connector *connector;
+ 
++	l2s_fod_destroy(ctx);
+ 	mutex_lock(&ctx->lock);
+ 	ctx->stopping = true;
+ 	mutex_unlock(&ctx->lock);
+@@ -792,6 +1097,7 @@
+ 	int ret;
+ 
+ 	lockdep_assert_held(&ctx->lock);
++	l2s_fod_end_locked(ctx);
+ 	if (!ctx->enabled)
+ 		return 0;
+ 	ctx->enabled = false;
+@@ -821,6 +1127,7 @@
+ 	int ret;
+ 
+ 	lockdep_assert_held(&ctx->lock);
++	l2s_fod_end_locked(ctx);
+ 	if (ctx->prepared && !ctx->idle_active) {
+ 		ret = mipi_dsi_dcs_enter_sleep_mode(ctx->dsi);
+ 		if (ret)
+@@ -1001,7 +1308,10 @@
+ 		return dev_err_probe(dev, ret, "Failed to attach DSI\n");
+ 	}
+ 
+-	return 0;
++	ret = l2s_fod_init(ctx);
++	if (ret)
++		drm_panel_remove(&ctx->panel);
++	return ret;
+ }
+ 
+ static void l2s_panel_remove(struct mipi_dsi_device *dsi)
+--- a/drivers/gpu/drm/panel/panel-xiaomi-l2s-fod-tables.h
++++ b/drivers/gpu/drm/panel/panel-xiaomi-l2s-fod-tables.h
+@@ -0,0 +1,25 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/* L2S 38/0c/0a OEM local HBM; source revision as panel runtime table. */
++static const struct mipi_dsi_cmd l2s_fod_on[] = {
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 3, .tx_buf = (const u8[]){ 0xf0, 0x5a, 0x5a } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 4, .tx_buf = (const u8[]){ 0xb0, 0x01, 0xdc, 0x1f } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 16, .tx_buf = (const u8[]){ 0x1f, 0x02, 0x00, 0x00, 0x00, 0x00, 0x24, 0x09, 0x1f, 0x35, 0xfa, 0x3f, 0x2d, 0x09, 0xaf, 0x86 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 4, .tx_buf = (const u8[]){ 0xb0, 0x02, 0xac, 0x66 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 3, .tx_buf = (const u8[]){ 0x66, 0x0f, 0xff } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 4, .tx_buf = (const u8[]){ 0xb0, 0x01, 0x6d, 0x66 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 19, .tx_buf = (const u8[]){ 0x66, 0x00, 0x40, 0x14, 0x02, 0x90, 0x52, 0x0a, 0x41, 0x48, 0x1c, 0x27, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 4, .tx_buf = (const u8[]){ 0xb0, 0x01, 0x59, 0x66 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 11, .tx_buf = (const u8[]){ 0x66, 0x08, 0x7a, 0x9f, 0xf5, 0xaf, 0x08, 0x7a, 0x9f, 0xf5, 0xaf } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 4, .tx_buf = (const u8[]){ 0xb0, 0x01, 0xb5, 0x66 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 55, .tx_buf = (const u8[]){ 0x66, 0x14, 0x01, 0xde, 0x2a, 0x43, 0xa2, 0x4f, 0x66, 0xcc, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00, 0x14, 0x01, 0xde, 0x2a, 0x43, 0xa2, 0x4f, 0x66, 0xcc, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00, 0x14, 0x01, 0xde, 0x2a, 0x43, 0xa2, 0x4f, 0x66, 0xcc, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 4, .tx_buf = (const u8[]){ 0xb0, 0x01, 0xeb, 0x66 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 55, .tx_buf = (const u8[]){ 0x66, 0x14, 0x61, 0xee, 0x2a, 0x43, 0xa2, 0x4f, 0x66, 0xcc, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00, 0x14, 0x61, 0xee, 0x2a, 0x43, 0xa2, 0x4f, 0x66, 0xcc, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00, 0x14, 0x61, 0xee, 0x2a, 0x43, 0xa2, 0x4f, 0x66, 0xcc, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00, 0x80, 0x08, 0x00 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 2, .tx_buf = (const u8[]){ 0x53, 0x30 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 3, .tx_buf = (const u8[]){ 0x51, 0x00, 0x00 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x00, .tx_len = 3, .tx_buf = (const u8[]){ 0xf0, 0xa5, 0xa5 } }, .delay_ms = 0 },
++};
++static const struct mipi_dsi_cmd l2s_fod_off[] = {
++{ .msg = { .type = 0x39, .flags = 0x40, .tx_len = 3, .tx_buf = (const u8[]){ 0xf0, 0x5a, 0x5a } }, .delay_ms = 0 },
++{ .msg = { .type = 0x15, .flags = 0x40, .tx_len = 2, .tx_buf = (const u8[]){ 0x53, 0x20 } }, .delay_ms = 0 },
++{ .msg = { .type = 0x39, .flags = 0x00, .tx_len = 3, .tx_buf = (const u8[]){ 0xf0, 0xa5, 0xa5 } }, .delay_ms = 0 },
++};

@@ -1,0 +1,84 @@
+--- a/drivers/firmware/qcom/qcom_scm.c
++++ b/drivers/firmware/qcom/qcom_scm.c
+@@ -20,6 +20,7 @@
+ #include <linux/init.h>
+ #include <linux/interconnect.h>
+ #include <linux/interrupt.h>
++#include <linux/jiffies.h>
+ #include <linux/kstrtox.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+@@ -2128,11 +2129,14 @@
+ static LIST_HEAD(qcom_scm_qseecom_listeners);
+ 
+ /*
+- * An app that keeps asking for service without ever making progress would
+- * otherwise spin here forever with the call lock held. The real bound is set
+- * by the app; this only stops a broken one from taking the machine with it.
+- */
+-#define QSEECOM_MAX_LISTENER_ROUNDS		256
++ * Goodix calibration loads many files with separate metadata/header/data
++ * requests; 256 successful requests are not evidence of a stalled app.
++ * Bound the whole transaction as well as rapid loops and service failures.
++ * Individual supplicant waits retain their existing timeout.
++ */
++#define QSEECOM_MAX_LISTENER_ROUNDS		4096
++#define QSEECOM_MAX_LISTENER_FAILURES		8
++#define QSEECOM_LISTENER_BUDGET		secs_to_jiffies(30)
+ 
+ static struct qcom_scm_qseecom_listener *qcom_scm_qseecom_listener_find(u32 id)
+ {
+@@ -2186,7 +2190,9 @@
+ static int qcom_scm_qseecom_service_listeners(struct qcom_scm_qseecom_resp *res)
+ {
+ 	struct qcom_scm_qseecom_listener *listener;
+-	unsigned int rounds = 0;
++	unsigned int rounds = 0, failures = 0;
++	unsigned long start = jiffies;
++	unsigned long deadline = start + QSEECOM_LISTENER_BUDGET;
+ 	u32 status;
+ 	int ret;
+ 	u32 id;
+@@ -2224,7 +2230,9 @@
+ 
+ 		id = res->data;
+ 
+-		if (++rounds > QSEECOM_MAX_LISTENER_ROUNDS) {
++		if (++rounds > QSEECOM_MAX_LISTENER_ROUNDS ||
++		    failures >= QSEECOM_MAX_LISTENER_FAILURES ||
++		    time_after_eq(jiffies, deadline)) {
+ 			/*
+ 			 * Answer failure before giving up. The application is
+ 			 * parked in TZ waiting for this listener, and leaving
+@@ -2233,8 +2241,8 @@
+ 			 * it the request failed and let it error out instead.
+ 			 */
+ 			dev_err(__scm->dev,
+-				"qseecom: listener %u will not settle, failing it\n",
+-				id);
++				"qseecom: listener %u budget exhausted: rounds=%u failures=%u elapsed_ms=%u; failing it\n",
++				id, rounds - 1, failures, jiffies_to_msecs(jiffies - start));
+ 			ret = qcom_scm_qseecom_listener_respond(id,
+ 					QSEECOM_LISTENER_FAILURE, res);
+ 			if (ret)
+@@ -2254,6 +2262,8 @@
+ 			status = QSEECOM_LISTENER_FAILURE;
+ 		}
+ 
++		failures = status == QSEECOM_LISTENER_SUCCESS ? 0 : failures + 1;
++
+ 		ret = qcom_scm_qseecom_listener_respond(id, status, res);
+ 		if (ret) {
+ 			dev_err(__scm->dev,
+@@ -2262,6 +2272,11 @@
+ 			return ret;
+ 		}
+ 	}
++
++	if (rounds > 256)
++		dev_info_ratelimited(__scm->dev,
++			"qseecom: serviced %u listener requests in %u ms\n",
++			rounds, jiffies_to_msecs(jiffies - start));
+ 
+ 	/*
+ 	 * A blocked call is a different problem: the app is waiting on a

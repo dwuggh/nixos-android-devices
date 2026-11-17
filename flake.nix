@@ -29,6 +29,8 @@
                 "unicorn-firmware-zstd"
                 "dodge-firmware"
                 "dodge-firmware-zstd"
+                "unicorn-fingerprint-ta-candidates"
+                "unicorn-fingerprint-dsp-firmware"
                 "aurora-firmware"
                 "aurora-firmware-zstd"
                 "aurora-touch"
@@ -91,6 +93,12 @@
           devices.unicorn.recovery = unicornRecovery.config.system.build.mobileBootImage;
           devices.unicorn.kernel = devicePackages.devices.unicorn.kernel;
           devices.unicorn.mipps-auth = devicePackages.devices.unicorn.mipps-auth;
+          devices.unicorn.fingerprint-runtime = devicePackages.devices.unicorn.fingerprint-runtime;
+          devices.unicorn.fingerprint-dsp-firmware = devicePackages.devices.unicorn.fingerprint-dsp-firmware;
+          devices.unicorn.libfprint = devicePackages.devices.unicorn.libfprint;
+          devices.unicorn.fprintd = devicePackages.devices.unicorn.fprintd;
+          devices.unicorn.fingerprint-ta = devicePackages.devices.unicorn.fingerprint-ta;
+          devices.unicorn.qsee-supplicant = devicePackages.devices.unicorn.qsee-supplicant;
           devices.unicorn.firmware = devicePackages.devices.unicorn.firmware;
           devices.unicorn.boot-kernel = unicornSystem.config.system.build.mobileDirectBootImage;
           devices.aurora.system = auroraSystem.config.system.build.toplevel;
@@ -255,6 +263,9 @@
           usb-signaller = evaluation "android-usb-signaller" ./tests/usb-signaller.nix;
           usb-signaller-role = evaluation "android-usb-signaller-role" ./tests/usb-signaller-role-config.nix;
           unicorn-usb-kernel = import ./tests/unicorn-usb-kernel.nix { flake = self; };
+          unicorn-cdsp = import ./tests/unicorn-cdsp.nix {
+            flake = self;
+          };
           usb-modes = pkgs.writeText "android-usb-modes.json" (
             builtins.unsafeDiscardStringContext (
               builtins.toJSON (import ./tests/usb-modes.nix { flake = self; })
@@ -302,6 +313,9 @@
             inherit pkgs buildSystem;
           };
           unicorn = evaluation "android-unicorn" ./tests/unicorn.nix;
+          unicorn-fingerprint-config = evaluation "android-unicorn-fingerprint" ./tests/unicorn-fingerprint.nix;
+          unicorn-fingerprint = import ./tests/unicorn-fingerprint-check.nix { inherit self nixpkgs; };
+          unicorn-fingerprint-services = import ./tests/unicorn-fingerprint-services.nix { flake = self; };
           unicorn-charging = import ./tests/unicorn-charging.nix {
             flake = self;
             inherit pkgs buildSystem;

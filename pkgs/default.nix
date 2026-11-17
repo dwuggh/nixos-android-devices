@@ -128,6 +128,25 @@ pkgs.lib.makeScope packaging.newScope (
     devices = {
       unicorn = pkgs.lib.makeScope self.newScope (device: {
         kernel = self.mkKernel { device = "unicorn"; };
+        fingerprint-runtime = compile ./unicorn/fingerprint {
+          inherit (device) qsee-supplicant;
+          fastrpc = self.fastrpc.overrideAttrs (old: {
+            patches = (old.patches or [ ]) ++ [ ./unicorn/fingerprint/fastrpc-shell-path.patch ];
+          });
+        };
+        fingerprint-dsp-firmware = device.callPackage ./unicorn/fingerprint/dsp-firmware.nix { };
+        libfprint = compile ./unicorn/fingerprint/libfprint.nix {
+          inherit (compilationPkgs) libfprint;
+          inherit (device) fingerprint-runtime fingerprint-dsp-firmware;
+        };
+        fprintd = compile ./unicorn/fingerprint/fprintd.nix {
+          inherit (compilationPkgs) fprintd;
+          inherit (device) libfprint;
+        };
+        fingerprint-ta = device.callPackage ./unicorn/fingerprint/ta.nix {
+          inherit (packaging.buildPackages) python3;
+        };
+        qsee-supplicant = compile ./unicorn/fingerprint/qsee-supplicant.nix { };
         mipps-auth = device.callPackage ./unicorn/mipps-auth.nix { };
         audio-topology = device.callPackage ./unicorn/audio {
           inherit (packaging.buildPackages) m4;

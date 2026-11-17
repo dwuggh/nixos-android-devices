@@ -72,6 +72,16 @@ with lib.kernel;
   MAGIC_SYSRQ = yes;
   MAGIC_SYSRQ_SERIAL = no;
 
+  # Legacy QSEE applications used by the OEM Goodix HAL. No TA is loaded at boot.
+  QCOM_QSEECOM = yes;
+  QCOM_MDT_LOADER = yes;
+  TEE = yes;
+  TEE_QSEECOM = module;
+  XIAOMI_UNICORN_FINGERPRINT = module;
+  # TA staging needs physically contiguous memory with 4 MiB alignment.
+  CMA = yes;
+  DMA_CMA = yes;
+
   # Let the UFS driver bind the separate inline crypto engine.
   BLK_INLINE_ENCRYPTION = yes;
   SCSI_UFS_CRYPTO = yes;

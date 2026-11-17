@@ -1,0 +1,61 @@
+--- a/src/device.c
++++ b/src/device.c
+@@ -1915,6 +1915,14 @@
+   return rand_b - rand_a;
+ }
+ 
++/* Unicorn templates may belong to Android or to an unavailable host index.
++ * Only an explicit DeleteEnrolledFinger(s) request may remove them. */
++static gboolean
++preserve_device_templates (FpDevice *dev)
++{
++  return g_strcmp0 (fp_device_get_driver (dev), "unicorn") == 0;
++}
++
+ static gboolean
+ try_delete_print (FprintDevice *rdev)
+ {
+@@ -1923,6 +1931,9 @@
+   g_autoptr(GPtrArray) host_prints = NULL;
+   FprintDevicePrivate *priv = fprint_device_get_instance_private (rdev);
+   guint i;
++
++  if (preserve_device_templates (priv->dev))
++    return FALSE;
+ 
+   device_prints = fp_device_list_prints_sync (priv->dev, NULL, &error);
+   if (!device_prints)
+@@ -2131,7 +2142,7 @@
+    *  3. None of the above, we can just continue.
+    */
+ 
+-  if (matched_print)
++  if (matched_print || (found_print && preserve_device_templates (priv->dev)))
+     {
+       g_signal_emit (rdev, signals[SIGNAL_ENROLL_STATUS], 0, "enroll-duplicate", TRUE);
+ 
+@@ -2210,6 +2221,14 @@
+       return TRUE;
+     }
+ 
++  if (existing_print && preserve_device_templates (priv->dev))
++    {
++      g_dbus_method_invocation_return_error (invocation,
++                                             FPRINT_ERROR, FPRINT_ERROR_ALREADY_IN_USE,
++                                             "Finger already enrolled; explicitly delete it before replacing it");
++      return TRUE;
++    }
++
+   if (existing_print)
+     {
+       if (!delete_enrolled_fingers (rdev, session->username, finger, &error))
+@@ -2225,7 +2244,8 @@
+   priv->enroll_data = finger;
+   priv->current_action = ACTION_ENROLL;
+ 
+-  if (fp_device_has_feature (priv->dev, FP_DEVICE_FEATURE_STORAGE) &&
++  if (!preserve_device_templates (priv->dev) &&
++      fp_device_has_feature (priv->dev, FP_DEVICE_FEATURE_STORAGE) &&
+       !fp_device_has_feature (priv->dev, FP_DEVICE_FEATURE_STORAGE_LIST) &&
+       is_first_enrollment (rdev))
+     {

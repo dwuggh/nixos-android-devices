@@ -91,7 +91,7 @@ unchanged; rebuild and explicitly install U-Boot when its patches change.
 | Bluetooth | Pairing, headset playback and RFCOMM transfers verified with a separately provisioned factory address; intermittent firmware-download timeout remains possible; HFP and concurrent Wi-Fi/audio acceptance pending |
 | Audio | Internal speakers and microphone recording/playback verified with private runtime inputs; USB-C digital and analogue accessories remain unverified; analogue routing is incomplete |
 | Camera | Native RAW10 drivers for S5KJN1 ultra-wide/telephoto and OV32B40 front; capture unverified; IMX707 main camera unsupported. See [camera details](camera.md) |
-| Fingerprint | Development deferred; code and validation records are preserved on branch `archive/unicorn-fingerprint`. This branch does not include fingerprint support |
+| Fingerprint | [Native C runtime, private libfprint/fprintd and bounded illumination](fingerprint.md); offline support implemented, handset enrollment/matching pending; PAM disabled in the local personal configuration |
 | Sensors and other peripherals | DSP, battery, NFC, haptics and infrared drivers included; dedicated SSC sensor data/services and full peripheral acceptance remain incomplete |
 
 SoundWire resume, audio routing and display-off commit fixes are retained.

@@ -17,6 +17,7 @@
 | 无线 | WLAN/蓝牙外部电源时序、PCIe SID 映射及 UART 接入 |
 | 音频 | WCD938x、AudioReach 共享内存端点、96 kHz TDM、CS35L41；SoundWire 端口/恢复及 400 kHz 功放 I2C |
 | 相机 | CAMSS、独立 CSI2 PHY、CCI、PM8008；S5KJN1 超广角/长焦及 OV32B40 前摄原生 RAW10 链路 |
+| 指纹 | 板级供电/复位/中断驱动及传统 QSEECOM TEE，没有认证后端 |
 | 其他 | SN NCI 正常读卡、AW86927 力反馈、红外、板级供电及温控 |
 
 `panel.patch` 包含最终面板与 DRM 运行时集成：固定每通道带宽、原厂命令流、
@@ -27,6 +28,11 @@
 相机包含 Linux 提交 `067c5c24cef23d913b67eaaf71ae67e7169a6620` 的独立
 CSI PHY 接口及查找依赖，回调使用锁定内核的 API。Asphalt 保留集成 CSIPHY，
 两套相机实现独立选择。传感器来源与采集限制见[相机指南](../../../../docs/unicorn/camera.zh.md)。
+
+QSEECOM TEE 移植自 `wrobelda/linux` 提交
+`4855f9e2f0a1e44e32404c7c4ce56e5052fd04ce`，保留作者及许可声明。
+支持传统应用传输及 ELF64 分段镜像组装，不改变 remoteproc 的 ELF32 路径。
+指纹控制设备仅 root 可用，不自动加载 TA，也不安装 fprintd/PAM 集成。
 
 ## 配置与固件
 

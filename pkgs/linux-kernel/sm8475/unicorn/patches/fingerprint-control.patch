@@ -1,0 +1,510 @@
+Subject: [PATCH] misc: unicorn: add runtime-powered secure fingerprint control
+
+Expose supply, active-low reset, rising IRQ and wake events without touching
+the secure sensor bus. Exclusive root-only file ownership controls power;
+release restores reset and IRQ state, including after client termination.
+Use a board compatible without asserting an unverified sensor model.
+
+diff --git a/drivers/misc/unicorn-fingerprint.c b/drivers/misc/unicorn-fingerprint.c
+new file mode 100644
+--- /dev/null
++++ b/drivers/misc/unicorn-fingerprint.c
+@@ -0,0 +1,381 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* Xiaomi 12S Pro: normal-world power/reset/IRQ, no sensor bus access. */
++#include <linux/delay.h>
++#include <linux/fs.h>
++#include <linux/gpio/consumer.h>
++#include <linux/interrupt.h>
++#include <linux/kref.h>
++#include <linux/ktime.h>
++#include <linux/miscdevice.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/pm_wakeup.h>
++#include <linux/poll.h>
++#include <linux/regulator/consumer.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/sysfs.h>
++#include <linux/uaccess.h>
++
++#define UNICORN_FP_RESET _IO('F', 0)
++#define UNICORN_FP_ENABLE_IRQ _IO('F', 1)
++#define UNICORN_FP_DISABLE_IRQ _IO('F', 2)
++
++struct unicorn_fp_event {
++	__u64 sequence;
++	__u64 timestamp_ns;
++};
++
++struct unicorn_fp {
++	struct device *dev;
++	struct miscdevice misc;
++	struct gpio_desc *reset;
++	struct regulator *vdd;
++	struct kref ref;
++	struct mutex lock;
++	spinlock_t event_lock;
++	wait_queue_head_t wait;
++	struct unicorn_fp_event event;
++	int irq;
++	bool opened;
++	bool gone;
++	bool irq_enabled;
++	bool irq_wake;
++	bool powered;
++};
++
++struct unicorn_fp_file {
++	struct unicorn_fp *fp;
++	u64 seen;
++};
++
++static void unicorn_fp_free(struct kref *ref)
++{
++	struct unicorn_fp *fp = container_of(ref, struct unicorn_fp, ref);
++
++	mutex_destroy(&fp->lock);
++	kfree(fp);
++}
++
++static int unicorn_fp_runtime_resume(struct device *dev)
++{
++	struct unicorn_fp *fp = dev_get_drvdata(dev);
++	int ret;
++
++	gpiod_set_value_cansleep(fp->reset, 1);
++	ret = regulator_enable(fp->vdd);
++	if (ret)
++		return ret;
++	fp->powered = true;
++	usleep_range(10000, 11000);
++	return 0;
++}
++
++static int unicorn_fp_runtime_suspend(struct device *dev)
++{
++	struct unicorn_fp *fp = dev_get_drvdata(dev);
++	int ret;
++
++	gpiod_set_value_cansleep(fp->reset, 1);
++	ret = regulator_disable(fp->vdd);
++	if (!ret)
++		fp->powered = false;
++	return ret;
++}
++
++static void unicorn_fp_disable_irq(struct unicorn_fp *fp)
++{
++	if (fp->irq_wake) {
++		disable_irq_wake(fp->irq);
++		fp->irq_wake = false;
++	}
++	if (fp->irq_enabled) {
++		disable_irq(fp->irq);
++		fp->irq_enabled = false;
++	}
++}
++
++static irqreturn_t unicorn_fp_irq(int irq, void *data)
++{
++	struct unicorn_fp *fp = data;
++	unsigned long flags;
++
++	spin_lock_irqsave(&fp->event_lock, flags);
++	fp->event.sequence++;
++	fp->event.timestamp_ns = ktime_get_boottime_ns();
++	spin_unlock_irqrestore(&fp->event_lock, flags);
++	pm_wakeup_event(fp->dev, 500);
++	wake_up_interruptible(&fp->wait);
++	return IRQ_HANDLED;
++}
++
++static int unicorn_fp_open(struct inode *inode, struct file *file)
++{
++	struct unicorn_fp *fp = container_of(file->private_data, struct unicorn_fp, misc);
++	struct unicorn_fp_file *ctx;
++	int ret;
++
++	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
++	if (!ctx)
++		return -ENOMEM;
++	mutex_lock(&fp->lock);
++	if (fp->gone || fp->opened) {
++		ret = fp->gone ? -ENODEV : -EBUSY;
++		goto out;
++	}
++	ret = pm_runtime_resume_and_get(fp->dev);
++	if (ret < 0)
++		goto out;
++	gpiod_set_value_cansleep(fp->reset, 1);
++	fp->opened = true;
++	kref_get(&fp->ref);
++	ctx->fp = fp;
++	ctx->seen = READ_ONCE(fp->event.sequence);
++	file->private_data = ctx;
++	mutex_unlock(&fp->lock);
++	return nonseekable_open(inode, file);
++out:
++	mutex_unlock(&fp->lock);
++	kfree(ctx);
++	return ret;
++}
++
++static long unicorn_fp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	struct unicorn_fp *fp = ((struct unicorn_fp_file *)file->private_data)->fp;
++	int ret = 0;
++
++	mutex_lock(&fp->lock);
++	if (fp->gone) {
++		ret = -ENODEV;
++		goto out;
++	}
++	switch (cmd) {
++	case UNICORN_FP_RESET:
++		gpiod_set_value_cansleep(fp->reset, 1);
++		usleep_range(3000, 4000);
++		gpiod_set_value_cansleep(fp->reset, 0);
++		usleep_range(3000, 4000);
++		break;
++	case UNICORN_FP_ENABLE_IRQ:
++		if (fp->irq_enabled)
++			break;
++		if (device_may_wakeup(fp->dev)) {
++			ret = enable_irq_wake(fp->irq);
++			if (ret)
++				break;
++			fp->irq_wake = true;
++		}
++		enable_irq(fp->irq);
++		fp->irq_enabled = true;
++		break;
++	case UNICORN_FP_DISABLE_IRQ:
++		unicorn_fp_disable_irq(fp);
++		break;
++	default:
++		ret = -ENOTTY;
++	}
++out:
++	mutex_unlock(&fp->lock);
++	return ret;
++}
++
++static bool unicorn_fp_event_ready(struct unicorn_fp_file *ctx)
++{
++	return READ_ONCE(ctx->fp->gone) ||
++		READ_ONCE(ctx->fp->event.sequence) != READ_ONCE(ctx->seen);
++}
++
++static ssize_t unicorn_fp_read(struct file *file, char __user *buf,
++			       size_t count, loff_t *offset)
++{
++	struct unicorn_fp_file *ctx = file->private_data;
++	struct unicorn_fp *fp = ctx->fp;
++	struct unicorn_fp_event event;
++	unsigned long flags;
++	int ret;
++
++	if (count < sizeof(event))
++		return -EINVAL;
++	if (file->f_flags & O_NONBLOCK) {
++		if (!unicorn_fp_event_ready(ctx))
++			return -EAGAIN;
++	} else {
++		ret = wait_event_interruptible(fp->wait, unicorn_fp_event_ready(ctx));
++		if (ret)
++			return ret;
++	}
++	if (READ_ONCE(fp->gone))
++		return -ENODEV;
++	spin_lock_irqsave(&fp->event_lock, flags);
++	event = fp->event;
++	spin_unlock_irqrestore(&fp->event_lock, flags);
++	if (copy_to_user(buf, &event, sizeof(event)))
++		return -EFAULT;
++	WRITE_ONCE(ctx->seen, event.sequence);
++	return sizeof(event);
++}
++
++static __poll_t unicorn_fp_poll(struct file *file, poll_table *wait)
++{
++	struct unicorn_fp_file *ctx = file->private_data;
++
++	poll_wait(file, &ctx->fp->wait, wait);
++	if (READ_ONCE(ctx->fp->gone))
++		return EPOLLHUP | EPOLLERR;
++	return unicorn_fp_event_ready(ctx) ? EPOLLIN | EPOLLRDNORM : 0;
++}
++
++static int unicorn_fp_release(struct inode *inode, struct file *file)
++{
++	struct unicorn_fp_file *ctx = file->private_data;
++	struct unicorn_fp *fp = ctx->fp;
++
++	mutex_lock(&fp->lock);
++	if (!fp->gone) {
++		unicorn_fp_disable_irq(fp);
++		gpiod_set_value_cansleep(fp->reset, 1);
++		pm_runtime_mark_last_busy(fp->dev);
++		pm_runtime_put_autosuspend(fp->dev);
++	}
++	fp->opened = false;
++	mutex_unlock(&fp->lock);
++	kref_put(&fp->ref, unicorn_fp_free);
++	kfree(ctx);
++	return 0;
++}
++
++static const struct file_operations unicorn_fp_fops = {
++	.owner = THIS_MODULE,
++	.open = unicorn_fp_open,
++	.release = unicorn_fp_release,
++	.read = unicorn_fp_read,
++	.poll = unicorn_fp_poll,
++	.unlocked_ioctl = unicorn_fp_ioctl,
++	.compat_ioctl = compat_ptr_ioctl,
++};
++
++static int unicorn_fp_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct unicorn_fp *fp;
++	int ret;
++
++	fp = kzalloc(sizeof(*fp), GFP_KERNEL);
++	if (!fp)
++		return -ENOMEM;
++	fp->dev = dev;
++	kref_init(&fp->ref);
++	mutex_init(&fp->lock);
++	spin_lock_init(&fp->event_lock);
++	init_waitqueue_head(&fp->wait);
++	platform_set_drvdata(pdev, fp);
++	fp->vdd = devm_regulator_get(dev, "vdd");
++	if (IS_ERR(fp->vdd)) {
++		ret = PTR_ERR(fp->vdd);
++		goto err_free;
++	}
++	fp->reset = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
++	if (IS_ERR(fp->reset)) {
++		ret = PTR_ERR(fp->reset);
++		goto err_free;
++	}
++	fp->irq = platform_get_irq(pdev, 0);
++	if (fp->irq < 0) {
++		ret = fp->irq;
++		goto err_free;
++	}
++	ret = devm_request_irq(dev, fp->irq, unicorn_fp_irq,
++			       IRQF_NO_AUTOEN, dev_name(dev), fp);
++	if (ret)
++		goto err_free;
++	ret = device_init_wakeup(dev, true);
++	if (ret)
++		goto err_irq;
++	pm_runtime_set_autosuspend_delay(dev, 1000);
++	pm_runtime_use_autosuspend(dev);
++	pm_runtime_set_suspended(dev);
++	pm_runtime_enable(dev);
++	fp->misc = (struct miscdevice) {
++		.minor = MISC_DYNAMIC_MINOR,
++		.name = "unicorn-fingerprint",
++		.fops = &unicorn_fp_fops,
++		.parent = dev,
++		.mode = 0600,
++	};
++	ret = misc_register(&fp->misc);
++	if (!ret)
++		return 0;
++	pm_runtime_disable(dev);
++	device_init_wakeup(dev, false);
++err_irq:
++	devm_free_irq(dev, fp->irq, fp);
++err_free:
++	kref_put(&fp->ref, unicorn_fp_free);
++	return dev_err_probe(dev, ret, "fingerprint control setup failed\n");
++}
++
++static void unicorn_fp_remove(struct platform_device *pdev)
++{
++	struct unicorn_fp *fp = platform_get_drvdata(pdev);
++
++	misc_deregister(&fp->misc);
++	mutex_lock(&fp->lock);
++	WRITE_ONCE(fp->gone, true);
++	unicorn_fp_disable_irq(fp);
++	devm_free_irq(&pdev->dev, fp->irq, fp);
++	pm_runtime_disable(&pdev->dev);
++	if (fp->powered)
++		unicorn_fp_runtime_suspend(&pdev->dev);
++	device_init_wakeup(&pdev->dev, false);
++	wake_up_interruptible(&fp->wait);
++	mutex_unlock(&fp->lock);
++	kref_put(&fp->ref, unicorn_fp_free);
++}
++
++static const struct dev_pm_ops unicorn_fp_pm_ops = {
++	SET_RUNTIME_PM_OPS(unicorn_fp_runtime_suspend, unicorn_fp_runtime_resume, NULL)
++};
++
++static ssize_t state_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct unicorn_fp *fp = dev_get_drvdata(dev);
++	ssize_t result;
++
++	mutex_lock(&fp->lock);
++	result = sysfs_emit(buf, "opened=%u irq_enabled=%u irq_wake=%u powered=%u sequence=%llu\n",
++		fp->opened, fp->irq_enabled, fp->irq_wake, READ_ONCE(fp->powered),
++		(unsigned long long)READ_ONCE(fp->event.sequence));
++	mutex_unlock(&fp->lock);
++	return result;
++}
++static DEVICE_ATTR_RO(state);
++
++static struct attribute *unicorn_fp_attrs[] = {
++	&dev_attr_state.attr,
++	NULL,
++};
++ATTRIBUTE_GROUPS(unicorn_fp);
++
++static const struct of_device_id unicorn_fp_match[] = {
++	{ .compatible = "xiaomi,unicorn-fingerprint" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, unicorn_fp_match);
++
++static struct platform_driver unicorn_fp_driver = {
++	.probe = unicorn_fp_probe,
++	.remove = unicorn_fp_remove,
++	.driver = {
++		.name = "unicorn-fingerprint",
++		.of_match_table = unicorn_fp_match,
++		.dev_groups = unicorn_fp_groups,
++		.pm = &unicorn_fp_pm_ops,
++	},
++};
++module_platform_driver(unicorn_fp_driver);
++
++MODULE_DESCRIPTION("Xiaomi 12S Pro secure fingerprint hardware control");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -4,6 +4,16 @@
+ #
+ 
+ menu "Misc devices"
++
++config XIAOMI_UNICORN_FINGERPRINT
++	tristate "Xiaomi 12S Pro fingerprint hardware control"
++	depends on OF && GPIOLIB && REGULATOR && PM
++	help
++	  Supply, reset and IRQ control for the secure-world-owned fingerprint
++	  sensor on Xiaomi 12S Pro. The capture bus remains secure. Exposes
++	  /dev/unicorn-fingerprint (0600); open powers the device, close resets
++	  it and releases runtime power. This provides no biometric matching.
++
+ 
+ config SENSORS_LIS3LV02D
+ 	tristate
+diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@ -71,3 +71,4 @@
+ obj-y				+= amd-sbi/
+ obj-$(CONFIG_MISC_RP1)		+= rp1/
+ obj-$(CONFIG_INTEL_SSEI)	+= issei/
++obj-$(CONFIG_XIAOMI_UNICORN_FINGERPRINT) += unicorn-fingerprint.o
+diff --git a/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn-fingerprint.dtsi b/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn-fingerprint.dtsi
+new file mode 100644
+--- /dev/null
++++ b/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn-fingerprint.dtsi
+@@ -0,0 +1,35 @@
++// SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++/* OEM reset GPIO41, IRQ GPIO40 and L11C 3.008 V. No SPI ownership change. */
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/interrupt-controller/irq.h>
++
++/ {
++	fingerprint {
++		compatible = "xiaomi,unicorn-fingerprint";
++		vdd-supply = <&pm8350c_l11>;
++		reset-gpios = <&tlmm 41 GPIO_ACTIVE_LOW>;
++		interrupt-parent = <&tlmm>;
++		interrupts = <40 IRQ_TYPE_EDGE_RISING>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&unicorn_fp_reset &unicorn_fp_irq>;
++		wakeup-source;
++	};
++};
++
++&tlmm {
++	unicorn_fp_reset: fingerprint-reset-state {
++		pins = "gpio41";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++		output-low;
++	};
++
++	unicorn_fp_irq: fingerprint-irq-state {
++		pins = "gpio40";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++		input-enable;
++	};
++};
+diff --git a/Documentation/devicetree/bindings/misc/xiaomi,unicorn-fingerprint.yaml b/Documentation/devicetree/bindings/misc/xiaomi,unicorn-fingerprint.yaml
+new file mode 100644
+--- /dev/null
++++ b/Documentation/devicetree/bindings/misc/xiaomi,unicorn-fingerprint.yaml
+@@ -0,0 +1,33 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/misc/xiaomi,unicorn-fingerprint.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Xiaomi 12S Pro secure fingerprint hardware control
++
++maintainers:
++  - Linux input maintainers <linux-input@vger.kernel.org>
++
++description: |
++  Board control interface for a secure-world-owned Goodix optical fingerprint
++  device. The fitted sensor model is determined by the trusted application.
++  Only supply, reset and interrupt resources belong to the normal world.
++
++properties:
++  compatible:
++    const: xiaomi,unicorn-fingerprint
++  vdd-supply: true
++  reset-gpios:
++    maxItems: 1
++  interrupts:
++    maxItems: 1
++  wakeup-source: true
++
++required:
++  - compatible
++  - vdd-supply
++  - reset-gpios
++  - interrupts
++
++additionalProperties: false
+diff --git a/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn.dts b/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn.dts
+--- a/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn.dts
++++ b/arch/arm64/boot/dts/qcom/sm8475-xiaomi-unicorn.dts
+@@ -13,6 +13,7 @@
+ #include "pmk8350.dtsi"
+ #include "pmr735a.dtsi"
+ #include "sm8475-xiaomi-unicorn-wireless.dtsi"
++#include "sm8475-xiaomi-unicorn-fingerprint.dtsi"
+ 
+ /* These SM8450 reference reservations differ on unicorn. */
+ /delete-node/ &adsp_mem;

@@ -16,4 +16,4 @@ These Unicorn-specific rules do not change other devices' build workflows.
 
 - Cross compilation is now the default: personal `buildSystem = "x86_64-linux"`, target/output namespace remains `aarch64-linux`. Repository example artifacts use `legacyPackages.x86_64-linux`. Never switch the kernel back to ARM64 tools under QEMU for workstation builds.
 
-- Unicorn fingerprint development is deferred on this branch. Its implementation, firmware inputs and validation records are preserved on `archive/unicorn-fingerprint`; keep fingerprint services, packages and kernel additions off the active branch. Local reverse-engineering material remains under ignored `.work/unicorn/fingerprint`.
+- This branch archives deferred Unicorn fingerprint development. Initialization worked, but Gatekeeper enrollment remains blocked by TA status -30. Do not resume fingerprint development or credential writes without an explicit new user request. The active port is maintained on `codex/unicorn-port`; the sibling `unicorn-config` repository has a matching archive branch for its personal configuration.

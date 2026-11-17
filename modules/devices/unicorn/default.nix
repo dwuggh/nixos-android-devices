@@ -21,6 +21,7 @@ in
     ./audio.nix
     ./display.nix
     ./hardware-keys.nix
+    ./fingerprint.nix
   ];
   options.hardware.unicorn.bluetoothIdentityFile = lib.mkOption {
     type = lib.types.nullOr bluetoothIdentity.pathType;

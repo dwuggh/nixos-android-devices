@@ -85,7 +85,7 @@ recovery prepare-install --confirm-erase-userdata
 | 蓝牙 | 配置独立核实的本机原厂地址后，配对、耳机播放及 RFCOMM 传输已验证；仍可能偶发固件下载超时，HFP 与 Wi-Fi/音频并用待验收 |
 | 音频 | 提供私有运行时数据后，内置扬声器、麦克风录音及回放已验证；USB-C 数字和模拟配件未验证，模拟路由尚不完整 |
 | 相机 | S5KJN1 超广角/长焦、OV32B40 前摄原生 RAW10 驱动，实机采集未验证；IMX707 主摄未支持，见[相机说明](camera.zh.md) |
-| 指纹 | 暂缓开发；代码与验收记录保存在 `archive/unicorn-fingerprint` 分支，当前分支不包含指纹支持 |
+| 指纹 | [原生 C 运行时、专用 libfprint/fprintd 和限时照明](fingerprint.md)；离线支持已实现，实机录入、比对待验收；本地个人配置关闭指纹 PAM |
 | 传感器及其他 | 包含 DSP、电池、NFC、振动及红外驱动；专用 SSC 数据/服务及完整外设验收仍未完成 |
 
 已保留 SoundWire 恢复、音频路由及关屏提交修复。模拟耳机的 cross connection

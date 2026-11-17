@@ -18,6 +18,7 @@ Unicorn drivers. [`config.nix`](config.nix) supplies board overrides on top of
 | Wireless | External WLAN/Bluetooth power sequencer, PCIe SID mapping and UART consumers |
 | Audio | WCD938x, AudioReach shared-memory endpoints, 96 kHz TDM and CS35L41 speakers; SoundWire ports/resume and 400 kHz speaker I2C |
 | Camera | CAMSS, separate CSI2 PHYs, CCI and PM8008; native S5KJN1 ultra/tele and OV32B40 front RAW10 pipelines |
+| Fingerprint | Board power/reset/IRQ driver and legacy QSEECOM TEE; no authentication backend |
 | Other | SN NCI reader mode, AW86927 force feedback, infrared, board supplies and thermal cooling |
 
 `panel.patch` contains the final panel and DRM runtime integration, including
@@ -31,6 +32,12 @@ dependencies from Linux commit `067c5c24cef23d913b67eaaf71ae67e7169a6620`.
 Callbacks use the locked kernel APIs. Asphalt retains integrated CSIPHY;
 the two camera queues are selected independently. Sensor sources and capture
 limits are documented in the [camera guide](../../../../docs/unicorn/camera.md).
+
+The QSEECOM TEE port follows `wrobelda/linux` commit
+`4855f9e2f0a1e44e32404c7c4ce56e5052fd04ce`, retaining author and license notices.
+It supports legacy application transport and ELF64 split-image assembly without
+changing remoteproc's ELF32 path. The fingerprint control device is root-only;
+no TA is automatically loaded and no fprintd/PAM integration is installed.
 
 ## Configuration and firmware
 

@@ -57,7 +57,7 @@ def main():
         "l2s_panel_prepare_locked", "l2s_panel_prepare", "l2s_panel_post_on",
         "l2s_panel_enable_locked", "l2s_panel_enable", "l2s_panel_disable_locked",
         "l2s_panel_disable", "l2s_panel_unprepare_locked", "l2s_panel_unprepare",
-        "l2s_write_brightness_locked", "l2s_idle_exit", "l2s_backlight_wake",
+        "l2s_write_brightness_locked", "l2s_fod_end_locked", "l2s_idle_exit", "l2s_backlight_wake",
         "l2s_backlight_work", "l2s_stop_backlight_work",
         "l2s_panel_get_modes",
         "l2s_panel_bl_update_status",

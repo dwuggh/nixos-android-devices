@@ -117,6 +117,8 @@ struct mipi_dsi_multi_context { struct mipi_dsi_device *dsi; int accum_err; };
 /* @PANEL_STRUCT@ */
 /* @PANEL_MODES@ */
 #include "panel-xiaomi-l2s-runtime.h"
+#include "panel-xiaomi-l2s-fod-tables.h"
+static void l2s_fod_destroy(struct l2s_panel *ctx) { assert(ctx->fod == NULL); }
 static unsigned idle_hz = 1;
 static struct l2s_panel panel;
 static struct mipi_dsi_device device;
@@ -227,6 +229,7 @@ static int drm_modeset_lock(struct mutex *m, struct drm_modeset_acquire_ctx *a) 
 }
 static int drm_modeset_backoff(struct drm_modeset_acquire_ctx *a) { backoffs++; drm_modeset_drop_locks(a); return 0; }
 static int drm_atomic_commit(struct drm_atomic_commit *s);
+static int l2s_fod_end_locked(struct l2s_panel *ctx);
 /* @PANEL_FUNCTIONS@ */
 static int backlight_update_status(struct backlight_device *b) {
     mutex_lock(&b->update_lock);
@@ -465,6 +468,25 @@ int main(void) {
     l2s_stop_backlight_work(&panel); assert(replacement.refs == 1);
     assert(l2s_panel_get_modes(&panel.panel, &connector) == -ENODEV && connector.refs == 1); cases++;
     puts("PASS coalesced brightness requests, off/unplug during pending wake and idempotent removal");
+    reset(false,120); panel.fod_acquiring = true;
+    assert(!l2s_idle_supported(&panel.panel,&current.new));
+    panel.fod_acquiring = false;
+    assert(l2s_idle_supported(&panel.panel,&current.new)); cases++;
+    reset(false,120); panel.fod_active = true;
+    backlight.props.brightness = 888;
+    assert(backlight_update_status(&backlight) == 0 && wire_brightness == 640 && panel.brightness == 888);
+    assert(!l2s_idle_supported(&panel.panel,&current.new));
+    mutex_lock(&panel.lock); assert(l2s_fod_end_locked(&panel) == 0); mutex_unlock(&panel.lock);
+    assert(!panel.fod_active && wire_brightness == 888); cases++;
+    reset(false,120); panel.fod_active = true;
+    assert(l2s_panel_disable(&panel.panel) == 0 && !panel.fod_active);
+    assert(l2s_panel_unprepare(&panel.panel) == 0); cases++;
+    reset(false,120); panel.fod_active = true; sequence_error = -EIO;
+    mutex_lock(&panel.lock); assert(l2s_fod_end_locked(&panel) == -EIO); mutex_unlock(&panel.lock);
+    assert(!panel.fod_active && !panel.prepared && !panel.enabled && !panel.supplies_enabled && panel.runtime_failed); cases++;
+    reset(false,120); panel.fod_active = true;
+    assert(l2s_idle_enter(&panel.panel) == 0 && !panel.fod_active && panel.idle_active); cases++;
+    puts("PASS illumination brightness serialization, idle race preemption, power-down and failed-off reset");
     printf("PASS %u source-extracted scenarios (hardware and scheduling faked)\n", cases);
     return 0;
 }
