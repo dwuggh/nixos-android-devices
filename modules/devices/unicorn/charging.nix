@@ -8,23 +8,19 @@ let
   cfg = config.services.xiaomi-mipps-auth;
 in
 {
-  options.services.xiaomi-mipps-auth.enable = lib.mkEnableOption "Unicorn Xiaomi charger authentication";
-  options.services.xiaomi-mipps-auth.package =
-    lib.mkPackageOption androidPackages.devices.unicorn "mipps-auth"
-      { };
+  imports = [ ../sheng/xiaomi-mipps-auth.nix ];
   options.services.xiaomi-mipps-auth.allowDataRoleSwap = lib.mkEnableOption ''
     host data role discovery for a known Xiaomi charger (may interrupt USB data)
   '';
   config = lib.mkMerge [
+    { services.xiaomi-mipps-auth.package = lib.mkDefault androidPackages.devices.unicorn.mipps-auth; }
     (lib.mkIf (cfg.enable && !config.androidDevices.recovery.enable) {
       environment.systemPackages = [ cfg.package ];
       systemd.services.xiaomi-mipps-auth = {
         description = "Unicorn Xiaomi charger authentication";
         wantedBy = [ "multi-user.target" ];
-        after = [
-          "systemd-udev-trigger.service"
-        ]
-        ++ lib.optional cfg.allowDataRoleSwap "usb-signaller.service";
+        after = [ "systemd-udev-trigger.service" ]
+          ++ lib.optional cfg.allowDataRoleSwap "usb-signaller.service";
         requires = lib.optional cfg.allowDataRoleSwap "usb-signaller.service";
         serviceConfig = {
           Type = "simple";

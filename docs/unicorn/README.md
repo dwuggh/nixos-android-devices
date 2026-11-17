@@ -3,9 +3,8 @@
 [中文](README.zh.md) · [All devices](../README.md)
 
 Unicorn uses U-Boot → systemd-boot → Linux, with a separate RAM recovery.
-The kernel follows the repository's locked Linux 7.3.4. Unicorn has a separate
-SM8475 patch queue; the existing Asphalt queue is unchanged. Hardware results
-below were recorded on 7.3-rc6; the rebase requires renewed hardware acceptance.
+The kernel follows the repository's locked Linux 7.3-rc6 and shares SM8475
+platform support with Asphalt.
 
 ## Configure and build
 
@@ -18,12 +17,12 @@ Set your own credentials and USB identity before personal deployment.
 [Additional USB modes](usb-gadgets.md) cover HIDRAW, native touch, image-backed storage and UVC.
 
 ```sh
-python3 tools/unicorn-build.py --device build kernel
-python3 tools/unicorn-build.py --device build u-boot
-python3 tools/unicorn-build.py --device build recovery
-python3 tools/unicorn-build.py --device build system
-python3 tools/unicorn-build.py --device build boot-files
-python3 tools/unicorn-build.py --device build bootstrap-info
+just build unicorn kernel
+just build unicorn u-boot
+just build unicorn recovery
+just build unicorn system
+just build unicorn boot-files
+just build unicorn bootstrap-info
 ```
 
 The [kernel guide](../../pkgs/linux-kernel/sm8475/unicorn/PATCHES.md) describes

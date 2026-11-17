@@ -1,5 +1,6 @@
-[
-  ./patches/local/0001-sm8475-core.patch
+(import ../series.nix)
+++ [
+  ./patches/local/0001-asphalt-platform.patch
   ./patches/local/0002-asphalt-display.patch
   ./patches/local/0003-asphalt-touch.patch
   ../../patches/pcie-qcom-iommu-cells.patch
@@ -18,7 +19,6 @@
   ./patches/sm-x800-linux/0017-camcc-retain-ff.patch
   ./patches/local/0018-asphalt-displayport.patch
   ./patches/local/0019-dp-debug-connector.patch
-  ./patches/upstream/0020-lucid-ole-preserve-enabled-pll.patch
   ../../patches/ssc-fastrpc-pdr.patch
   ./patches/local/0021-asphalt-slpi.patch
   ./patches/local/0022-sm8450-encoder-dpb.patch
@@ -33,17 +33,4 @@
   ../../patches/gmu-sync-state/0004.patch
   ../../patches/gmu-sync-state/0005.patch
   ./patches/local/0026-asphalt-unused-crypto.patch
-  ./patches/local/0027-sm8450-ufs-no-phy-retention.patch
-  ./patches/upstream/0028-gcc-sm8450-cx-binding.patch
-  ./patches/upstream/0029-gcc-sm8450-cx-runtime-pm.patch
-  ./patches/upstream/0030-sm8450-gcc-cx-domain.patch
-  ./patches/local/0032-sm8475-ufs-phy-base-tables.patch
-  ./patches/local/0033-sm8475-ufs-dt-bindings.patch
-  ./patches/local/0034-sm8475-ufs-turbo-mode.patch
-  ./patches/local/0035-sm8475-ufs-opp-table.patch
-  ./patches/local/0036-sm8475-ufs-ice-mx-opps.patch
-  ../../patches/ufs-opp-init-order.patch
-  ../../patches/iris-hfi-gen2-deblocking.patch
-  ../../patches/iris-hfi-gen2-error-timestamps.patch
-  ../../patches/iris-hfi-gen2-noshow.patch
 ]

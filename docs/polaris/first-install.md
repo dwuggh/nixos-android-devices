@@ -70,12 +70,11 @@ From your configuration directory, with the files tracked by Git:
 nix build .#system -o result-system
 nix build .#bootstrap-info -o result-bootstrap-info
 nix build .#recovery -o result-recovery
-nix build .#boot -o result-u-boot
 nix profile install .#mobile-device
 ```
 
-Build the system, bootstrap-info and recovery from the same locked configuration.
-For `result-u-boot`, you can also reuse a compatible Polaris U-Boot image.
+Build all three outputs from the same locked configuration. The system already
+includes its matching U-Boot image.
 
 ## Install from RAM recovery
 
@@ -102,15 +101,6 @@ mobile-device recovery --target RECOVERY_HOST prepare-boot
 mobile-device recovery --target RECOVERY_HOST prepare-boot --execute
 ```
 
-If the device lacks compatible U-Boot, flash it separately from RAM recovery:
-
-```sh
-mobile-device recovery --target RECOVERY_HOST install-image result-u-boot \
-  --partition /dev/disk/by-partlabel/boot
-mobile-device recovery --target RECOVERY_HOST install-image result-u-boot \
-  --partition /dev/disk/by-partlabel/boot --execute
-```
-
 Check and install the system:
 
 ```sh
@@ -121,8 +111,8 @@ mobile-device recovery --target RECOVERY_HOST install-initial "$SYSTEM" \
   --bootstrap-info result-bootstrap-info --execute
 ```
 
-The [first installer](../initial-install.md) verifies the closure and installs EFI
-files. An incomplete installation blocks normal boot;
+The [first installer](../initial-install.md) verifies the closure, installs EFI
+files, then writes U-Boot to `boot`. An incomplete installation blocks reboot;
 stay in recovery and follow the installer's failure guidance. After success:
 
 ```sh

@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  androidPackages,
   ...
 }:
 let
@@ -24,11 +23,6 @@ in
       default = null;
       description = "Exact registered UDC name used by both boot stages.";
     };
-    panicTimeout = lib.mkOption {
-      type = lib.types.ints.unsigned;
-      default = 30;
-      description = "Seconds before rebooting after a kernel panic; zero disables the automatic panic reboot.";
-    };
     earlyKernelParams = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
@@ -47,16 +41,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # One fixed USB serial per model; recovery uses its own. Consumers only
-    # override it to tell several units of the same model apart.
-    androidDevices.usbSerial = lib.mkDefault (
-      let
-        name = lib.toUpper cfg.deviceName;
-      in
-      if cfg.recovery.enable then "RECOVERY_${name}" else name
-    );
-    # Every registered board exports its kernel under the same attribute.
-    androidDevices.kernelPackage = lib.mkDefault androidPackages.devices.${cfg.deviceName}.kernel;
     assertions = [
       {
         assertion = !cfg.usb.enable || cfg.usbController != null;
@@ -74,7 +58,7 @@ in
       ++ [
         "ignore_loglevel"
         "printk.devkmsg=on"
-        "panic=${toString cfg.panicTimeout}"
+        "panic=30"
         "rootwait"
       ]
       ++ cfg.platformKernelParams
@@ -82,12 +66,7 @@ in
         # Full recovery owns tty2. Pin boot/status output to tty1: tty0 follows
         # the foreground VT and would overwrite the menu after it takes over.
         # Keep the display console last so /dev/console remains visible.
-        (
-          if cfg.recovery.enable && !cfg.recovery.minimal && cfg.recovery.screen.enable then
-            "console=tty1"
-          else
-            "console=tty0"
-        )
+        (if cfg.recovery.enable && !cfg.recovery.minimal then "console=tty1" else "console=tty0")
       ]
       ++ cfg.hardwareKernelParams;
     # Tag before systemd's 73-seat-late.rules schedules the uaccess builtin.

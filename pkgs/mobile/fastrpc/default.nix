@@ -12,7 +12,6 @@
   libbsd,
   pkg-config,
   libyaml,
-  systemdLibs,
   makeWrapper,
 }:
 
@@ -35,7 +34,6 @@ stdenv.mkDerivation rec {
   buildInputs = [
     libbsd
     libyaml
-    systemdLibs
   ];
 
   # The upstream Automake files use absolute paths for these data files.
@@ -51,7 +49,6 @@ stdenv.mkDerivation rec {
     ./fastrpc-rflags.patch
     ./listener-frame-bounds.patch
     ./coherent-rpcmem.patch
-    ./listener-notify.patch
   ];
 
   doCheck = stdenv.buildPlatform.canExecute stdenv.hostPlatform;

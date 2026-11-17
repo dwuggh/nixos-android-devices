@@ -10,13 +10,6 @@ let
   androidDevices = config.androidDevices;
   cfg = androidDevices.usb.signaller;
   enabled = androidDevices.enable && androidDevices.usb.enable && !androidDevices.recovery.enable;
-  extended =
-    cfg.followRole
-    || cfg.mtp.enable
-    || cfg.tethering.enable
-    || cfg.hidTouch.enable
-    || cfg.massStorage.enable
-    || cfg.uvc.enable;
   package = cfg.package;
   waitForHost = androidPackages.packaging.writeShellScript "acm-wait-host" (
     builtins.readFile ./acm-wait-host.sh
@@ -64,15 +57,7 @@ in
 {
   imports = [ ./usb-gadgets.nix ];
   options.androidDevices.usb.signaller = {
-    package = lib.mkOption {
-      type = lib.types.package;
-      default =
-        if extended then
-          androidPackages.usb-signaller.override { withExtendedModes = true; }
-        else
-          androidPackages.usb-signaller;
-      description = "USB manager package; extended modes select the serialized backend by default.";
-    };
+    package = lib.mkPackageOption androidPackages "usb-signaller" { pkgsText = "androidPackages"; };
     roleSwitch = lib.mkOption {
       type = lib.types.str;
       default = "${androidDevices.usbController}-role-switch";
@@ -103,37 +88,6 @@ in
       default = "172.16.42.1/24";
       description = "Device IPv4 address/prefix on the local USB management network.";
     };
-    manageRole = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = ''
-        Whether mode changes may write the USB data role. Disable this when
-        an external Type-C port manager owns role selection. Gadget modes
-        remain configured, ready for the port manager to select device role.
-      '';
-    };
-    hostMode = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = ''
-        Whether usb-signaller offers and applies `host_mode`. Disable it on a
-        device whose Type-C port manager (TCPM) owns the USB data role, so
-        that host mode only follows the partner and PD data-role swaps.
-      '';
-    };
-    chargerSupply = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      example = "qcom-battmgr-usb";
-      description = ''
-        Power supply whose USB type the charger firmware reports. When set,
-        usb-signaller waits (up to 15 s) for the charger to report a USB
-        type before it connects the gadget, so the gadget's D+ pull-up does
-        not disturb charger detection (a charging port is otherwise detected
-        as a standard port with a 100 mA input limit). `null` connects at
-        once.
-      '';
-    };
     controlGroup = lib.mkOption {
       # A POSIX-style group name; it is interpolated into the D-Bus XML policy.
       type = lib.types.nullOr (lib.types.strMatching "[a-z_][a-z0-9_-]*");
@@ -160,14 +114,6 @@ in
     }
     (lib.mkIf enabled {
       assertions = [
-        {
-          assertion = !extended || cfg.manageRole;
-          message = "Extended USB modes currently require usb.signaller.manageRole=true.";
-        }
-        {
-          assertion = cfg.manageRole || !cfg.hostMode;
-          message = "USB signaller hostMode requires manageRole; external port managers select host role.";
-        }
         {
           assertion =
             !cfg.mtp.enable
@@ -220,12 +166,12 @@ in
           message = "The ACM console requires built-in USB_CONFIGFS_ACM support.";
         }
       ];
-      # The daemon starts the waiter only after preparing ACM, and stops it
-      # before any role/configfs changes. udev must not race that ownership.
+      # Device arrival starts the waiter; getty itself starts after enumeration.
+      services.udev.extraRules = lib.mkIf androidDevices.usb.acm.enable ''
+        SUBSYSTEM=="tty", KERNEL=="ttyGS0", TAG+="systemd", ENV{SYSTEMD_WANTS}+="serial-getty@ttyGS0.service"
+      '';
       systemd.services."serial-getty@ttyGS0" = lib.mkIf androidDevices.usb.acm.enable {
         overrideStrategy = "asDropin";
-        after = [ "usb-signaller.service" ];
-        partOf = [ "usb-signaller.service" ];
         path = [ pkgs.coreutils ];
         serviceConfig = {
           # The main process waits in the background. Keep the inherited getty
@@ -297,13 +243,6 @@ in
         allowedUDPPorts = [ 67 ] ++ lib.optional cfg.tethering.enable 53;
         allowedTCPPorts = config.services.openssh.ports ++ lib.optional cfg.tethering.enable 53;
       };
-      # networkd starts before local file systems. On the first boot of a
-      # fresh root, /var/lib/systemd/network gets its systemd-network owner
-      # only from the system tmpfiles run; until then persistent storage
-      # (and so the USB DHCP server) fails with "Permission denied".
-      systemd.services.systemd-networkd-persistent-storage.after = [
-        "systemd-tmpfiles-setup.service"
-      ];
       systemd.services.usb-signaller-developer-mode = {
         description = "Configure the local NCM management network";
         requires = [ "systemd-networkd.service" ];
@@ -376,7 +315,7 @@ in
           loop_on_disconnect 1
           usb_functionfs_mode 1
           manufacturer "Linux Foundation"
-          product "${androidDevices.deviceName} MTP"
+          product "Unicorn MTP"
           serial "${androidDevices.usbSerial}"
           interface "MTP"
           usb_vendor_id 0x1d6b
@@ -461,7 +400,7 @@ in
       systemd.services.usb-signaller = {
         description = "USB gadget and role manager";
         wantedBy = [ "multi-user.target" ];
-        unitConfig = lib.mkIf extended {
+        unitConfig = {
           StartLimitIntervalSec = 60;
           StartLimitBurst = 3;
         };
@@ -474,12 +413,11 @@ in
           "dbus.service"
           "systemd-udev-trigger.service"
         ];
-        path = [ pkgs.coreutils ] ++ lib.optional (cfg.chargerSupply != null) pkgs.gnugrep;
+        path = [ pkgs.coreutils ];
         environment = {
           USB_SIGNALLER_SERIAL = androidDevices.usbSerial;
           USB_SIGNALLER_UDC = androidDevices.usbController;
           USB_SIGNALLER_ROLE_SWITCH = cfg.roleSwitch;
-          USB_SIGNALLER_MANAGE_ROLE = if cfg.manageRole then "1" else "0";
           USB_SIGNALLER_DEV_ADDR = mac "02";
           USB_SIGNALLER_HOST_ADDR = mac "06";
           USB_SIGNALLER_IFNAME = "usb%%d"; # systemd expands %% to a literal %.
@@ -487,8 +425,8 @@ in
             [
               "developer_mode"
               "charging_only"
+              "host_mode"
             ]
-            ++ lib.optional cfg.hostMode "host_mode"
             ++ lib.optional cfg.mtp.enable "mtp_ffs_mode"
             ++ lib.optional cfg.tethering.enable "tethering_mode"
             ++ lib.optional cfg.hidTouch.enable "hid_touch_mode"
@@ -498,46 +436,31 @@ in
           USB_SIGNALLER_FOLLOW_ROLE = if cfg.followRole then "1" else "0";
           USB_SIGNALLER_TYPEC_PORT = cfg.typecPort;
           USB_SIGNALLER_ACM = if androidDevices.usb.acm.enable then "1" else "0";
-          USB_SIGNALLER_ACM_SERVICE = lib.mkIf androidDevices.usb.acm.enable "serial-getty@ttyGS0.service";
         };
-        preStart =
-          lib.optionalString (cfg.chargerSupply != null) ''
-            # Let charger detection finish before the gadget pulls D+ up.
-            type=/sys/class/power_supply/${lib.escapeShellArg cfg.chargerSupply}/usb_type
-            for attempt in $(seq 1 150); do
-              reported=$(grep -o '\[[^]]*\]' "$type" 2>/dev/null || true)
-              if test -n "$reported" && test "$reported" != "[Unknown]"; then
-                echo "charger reports $reported"
-                sleep 1
-                break
-              fi
-              sleep 0.1
-            done
-          ''
-          + ''
-            for attempt in $(seq 1 100); do
-              if test -e /sys/class/udc/${lib.escapeShellArg androidDevices.usbController} ||
-                 test -e /sys/class/usb_role/${lib.escapeShellArg cfg.roleSwitch}/role; then
-                exit 0
-              fi
-              sleep 0.1
-            done
-            echo 'USB controller/role switch is not available' >&2
-            exit 1
-          '';
+        preStart = ''
+          for attempt in $(seq 1 100); do
+            if test -e /sys/class/udc/${lib.escapeShellArg androidDevices.usbController} ||
+               test -e /sys/class/usb_role/${lib.escapeShellArg cfg.roleSwitch}/role; then
+              exit 0
+            fi
+            sleep 0.1
+          done
+          echo 'USB controller/role switch is not available' >&2
+          exit 1
+        '';
         serviceConfig = {
           Type = "dbus";
           BusName = "com.meego.usb_moded";
           ExecStart = "${package}/bin/usb-signaller";
-          ExecStopPost = lib.mkIf extended "${package}/bin/usb-signaller --cleanup";
+          ExecStopPost = "${package}/bin/usb-signaller --cleanup";
           # Initialization errors are exposed by get_status. Bound retries only
           # cover daemon failures, never repeatedly failing hardware transitions.
-          Restart = if extended then "on-failure" else "always";
+          Restart = "on-failure";
           RestartSec = 2;
           TimeoutStartSec = 30;
-          TimeoutStopSec = lib.mkIf extended 45;
-          RuntimeDirectory = lib.mkIf extended "usb-signaller";
-          RuntimeDirectoryPreserve = lib.mkIf extended "restart";
+          TimeoutStopSec = 45;
+          RuntimeDirectory = "usb-signaller";
+          RuntimeDirectoryPreserve = "restart";
         };
       };
     })

@@ -2,16 +2,14 @@
 
 [中文](README.zh.md)
 
-Unicorn imports [`series.nix`](series.nix) for TLMM, the SoC device
+Asphalt and Unicorn import [`series.nix`](series.nix) for TLMM, the SoC device
 tree, UBWC, PLL handoff, UFS clock-parent/retention fixes and GCC CX power
 management. `config.nix` selects shared SM8450-family drivers; board queues
 select the remaining patches.
 
 The shared SoC supplies the UFS PHY's `UFS_PHY_GDSC` dependency. TLMM marks
 EGPIO as a GPIO function; its explicit interrupt offsets match the core's
-fallback. Asphalt retains its separate upstream queue under `asphalt/`; this
-queue is imported only by Unicorn. Asphalt selects its UFS follow-up
-patches explicitly. The
+fallback. These power-domain and GPIO changes also apply to Asphalt. The
 Lucid OLE PLL patch preserves bootloader-enabled PLLs; GCC binding, runtime PM
 and the CX domain reference are applied together.
 
@@ -23,15 +21,9 @@ SM8475's three roots use `clk_rcg2_shared_ops` to force-enable live updates,
 cache disabled configurations and park before parent gating. Hibern8 exit
 errors propagate to the core, and testbus writes preserve the live divider.
 
-Unicorn selects `ufs-performance-opps.patch` and `ufs-opp-init-order.patch`
-through this queue. These add ICE scaling and coordinated CX/MX requests.
-Asphalt extends upstream's existing OPPs with
-`asphalt/patches/local/0036-sm8475-ufs-ice-mx-opps.patch` and selects the same
-initialization-order fix explicitly. Its SM8475 turbo compatible, full UFS PHY
-sequence and media integration are retained. The follow-up removes the host's
-permanent NOM vote so the coordinated OPP request can use LOW_SVS at 75 MHz.
-This changes Asphalt clock/power management; it does not add a higher maximum
-frequency or establish a throughput improvement.
+Both boards select `ufs-performance-opps.patch` and `ufs-opp-init-order.patch`
+through the shared queue. Asphalt already supported 75–850 MHz; replacing its
+frequency table with OPPs adds ICE scaling and coordinated CX/MX requests.
 The OPP implementation provides two states:
 
 | AXI / UniPro / ICE | Required CX / MX level |

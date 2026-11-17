@@ -2,7 +2,7 @@
 
 [English](PATCHES.md) · [设备指南](../../../../docs/unicorn/README.zh.md)
 
-队列对应仓库锁定的 Linux 7.3.4。[`series.nix`](series.nix) 导入
+队列对应仓库锁定的 Linux 7.3-rc6。[`series.nix`](series.nix) 导入
 [SM8475 公共队列](../README.zh.md)、选定的子系统修复及 Unicorn 驱动。
 [`config.nix`](config.nix) 在 `kernel.config`、公共策略及 SoC 配置之上设置板级覆盖。
 
@@ -41,10 +41,10 @@ GPU/PAS 文件。扬声器固件、系数、校准与 Music 参数为私有运�
 ## 构建
 
 ```sh
-python3 tools/unicorn-build.py --device build kernel
-python3 tools/unicorn-build.py --device build recovery
+nix build .#devices.unicorn.kernel
+nix build .#devices.unicorn.recovery
 ```
 
 构建器在 `olddefconfig` 后核验覆盖项。通过 `tools/kernel-queue.py --help`
-查看队列导入及独立核验方法。修改 SM8475 平台补丁后应检查 Unicorn、Asphalt
+查看队列导入及独立核验方法。修改 SM8475 共用补丁后应检查 Unicorn、Asphalt
 两套队列及构建。构建成功不代表已通过实机验收。内核文件保留版权和 SPDX 声明。

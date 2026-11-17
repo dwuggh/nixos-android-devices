@@ -3,8 +3,7 @@
 [English](README.md) · [全部设备](../README.zh.md)
 
 Unicorn 使用 U-Boot → systemd-boot → Linux 启动链，并提供独立 RAM recovery。
-内核跟随仓库锁定的 Linux 7.3.4。Unicorn 使用独立的 SM8475 补丁队列，
-保留 Asphalt 的上游队列。下述真机结果来自 7.3-rc6，重定基线后仍需重新验收。
+内核跟随仓库锁定的 Linux 7.3-rc6，与 Asphalt 共用 SM8475 平台支持。
 
 ## 配置与构建
 
@@ -16,12 +15,12 @@ OTG、MTP、共享网络及硬件验收见 [USB2 记录](usb.zh.md)。
 HIDRAW、原生触摸、镜像 U 盘和 UVC 见 [USB 扩展模式](usb-gadgets.zh.md)。
 
 ```sh
-python3 tools/unicorn-build.py --device build kernel
-python3 tools/unicorn-build.py --device build u-boot
-python3 tools/unicorn-build.py --device build recovery
-python3 tools/unicorn-build.py --device build system
-python3 tools/unicorn-build.py --device build boot-files
-python3 tools/unicorn-build.py --device build bootstrap-info
+just build unicorn kernel
+just build unicorn u-boot
+just build unicorn recovery
+just build unicorn system
+just build unicorn boot-files
+just build unicorn bootstrap-info
 ```
 
 补丁及配置见[内核说明](../../pkgs/linux-kernel/sm8475/unicorn/PATCHES.zh.md)。

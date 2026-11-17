@@ -2,8 +2,8 @@
 
 [中文](PATCHES.zh.md) · [Device guide](../../../../docs/unicorn/README.md)
 
-The queue targets the repository's locked Linux 7.3.4. [`series.nix`](series.nix)
-imports the [Unicorn SM8475 queue](../README.md), selected subsystem fixes and
+The queue targets the repository's locked Linux 7.3-rc6. [`series.nix`](series.nix)
+imports the [shared SM8475 queue](../README.md), selected subsystem fixes and
 Unicorn drivers. [`config.nix`](config.nix) supplies board overrides on top of
 `kernel.config`, common policy and the shared SoC configuration.
 
@@ -48,8 +48,8 @@ hardware support. IMX707 and complete analogue headset routing remain unsupporte
 ## Build
 
 ```sh
-python3 tools/unicorn-build.py --device build kernel
-python3 tools/unicorn-build.py --device build recovery
+nix build .#devices.unicorn.kernel
+nix build .#devices.unicorn.recovery
 ```
 
 The builder verifies requested overrides after `olddefconfig`. Use

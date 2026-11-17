@@ -85,7 +85,7 @@ lib.genAttrs [ "x86_64-linux" "aarch64-linux" ] (
   assert usb.systemd.services.usb-signaller.environment.USB_SIGNALLER_ACM == "1";
   assert usbWithoutAcm.systemd.services.usb-signaller.environment.USB_SIGNALLER_ACM == "0";
   assert !(usbWithoutAcm.systemd.services ? "serial-getty@ttyGS0");
-  assert !(lib.hasInfix "serial-getty@ttyGS0.service" usb.services.udev.extraRules);
+  assert lib.hasInfix "serial-getty@ttyGS0.service" usb.services.udev.extraRules;
   assert !(lib.hasInfix "serial-getty@ttyGS0.service" usbWithoutAcm.services.udev.extraRules);
   assert usb.systemd.services."serial-getty@ttyGS0".serviceConfig.Type == "simple";
   assert usb.systemd.services."serial-getty@ttyGS0".serviceConfig.StandardInput == "null";

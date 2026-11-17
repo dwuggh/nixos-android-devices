@@ -132,7 +132,6 @@ identifiers, rather than processor names or output roles:
 | `sheng` | Xiaomi Pad 6S Pro |
 | `aurora` | Xiaomi 14 Ultra |
 | `clover` | Xiaomi Mi Pad 4 LTE (the supported variant) |
-| `unicorn` | Xiaomi 12S Pro |
 
 Board packages live under `devicePackages.devices.<codename>`, for example
 `devices.asphalt.firmware` and `devices.sheng.thp`. Shared packages such as
@@ -156,6 +155,7 @@ Example image builds use the same device namespace:
 nix build .#devices.asphalt.system
 nix build .#devices.asphalt.u-boot
 nix build .#devices.polaris.recovery
+nix build .#devices.polaris.minimal.system
 ```
 
 For flake consumers, use
@@ -182,17 +182,3 @@ their build-time header generator.
 `qmi-framework` provides the QMI client/service libraries. `qwesd` (Qualcomm's
 prebuilt daemon, unfree, `androidDevices.qtee.qwesd.package`) is in the package
 scope but not exported as a flake package.
-
-## Initrd dependency collection
-
-The mobile systemd initrd uses the unmodified Nixpkgs `makeInitrdNGTool`,
-selected for the initiating build host through the package scope. The locked
-upstream collector treats each `.note.dlopen` SONAME array as ordered
-alternatives and keeps DT_NEEDED entries independent. It reports dependencies
-that cannot be found through RUNPATH/RPATH (apart from its known glibc cases).
-
-No sibling-directory search is added. Current compiler runtimes provide the
-search paths needed to collect libgcc_s; collection must not be confused with
-changing the target dynamic linker's runtime search paths. When investigating
-warnings, inspect the exact system derivation's libraries and collected tree:
-a warning alone does not establish that a dependency is absent from the initrd.

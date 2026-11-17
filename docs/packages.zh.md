@@ -116,7 +116,6 @@ Sheng 的 `hardware.sheng.{thp,pen-status}` 选项提供 `package`。
 | `sheng` | 小米平板 6S Pro |
 | `aurora` | 小米 14 Ultra |
 | `clover` | 小米平板 4 LTE（当前支持的变体） |
-| `unicorn` | Xiaomi 12S Pro |
 
 设备专用包使用 `devicePackages.devices.<代号>`，例如
 `devices.asphalt.firmware`、`devices.sheng.thp`；`usb-signaller` 等通用包保留在顶层。
@@ -139,6 +138,7 @@ packages.overrideScope (self: old: {
 nix build .#devices.asphalt.system
 nix build .#devices.asphalt.u-boot
 nix build .#devices.polaris.recovery
+nix build .#devices.polaris.minimal.system
 ```
 
 flake 引用写作
@@ -162,15 +162,3 @@ build environment, retaining graphics-library cache reuse on both build hosts.
 [基带与 QTEE 服务](modem.zh.md)。
 `qcbor`、`qcomtee`、`mink-idl-compiler`、`minkipc` 和 `mink-modem-opener` 与其他上游系统软件一样使用原生目标 `pkgs`；`mink-idl-compiler` 是构建时的头文件生成器。
 `qmi-framework` 提供 QMI 客户端/服务库。`qwesd`（Qualcomm 预编译守护进程，非自由软件，`androidDevices.qtee.qwesd.package`）在包作用域中，但不作为 flake 包导出。
-
-## Initrd 依赖收集
-
-移动设备 systemd initrd 使用未经修改的 Nixpkgs `makeInitrdNGTool`，
-由包作用域选择发起构建主机的原生工具。锁定的上游收集器将每个
-`.note.dlopen` SONAME 数组视为有序备选项，DT_NEEDED 仍逐项处理。
-除已知的 glibc 情况外，无法通过 RUNPATH/RPATH 找到的依赖会报告警告。
-
-不再添加同目录补充查找。当前编译器运行库已提供收集 libgcc_s 所需的
-搜索路径；收集行为并不等于修改目标动态链接器的运行时搜索路径。
-排查警告时应检查实际系统派生所用的动态库及收集结果，不能仅凭警告
-断言 initrd 中缺少依赖。

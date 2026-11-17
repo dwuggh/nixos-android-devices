@@ -12,11 +12,7 @@ let
 in
 kernel.overrideAttrs (old: {
   pname = "unicorn-usb-kernel-check";
-  # Nixpkgs keeps the prepared source under the kernel dev output.
-  outputs = [
-    "out"
-    "dev"
-  ];
+  outputs = [ "out" ];
   nativeBuildInputs = old.nativeBuildInputs ++ [
     dtschema
     host.dtc
@@ -24,7 +20,6 @@ kernel.overrideAttrs (old: {
   ];
   buildPhase = ''
     runHook preBuild
-    cd "$buildRoot"
     grep -qx 'CONFIG_POSIX_MQUEUE=y' .config
     grep -qx 'CONFIG_POSIX_MQUEUE_SYSCTL=y' .config
     grep -qx 'CONFIG_UHID=m' .config
@@ -55,7 +50,7 @@ kernel.overrideAttrs (old: {
     if test -s dt-validation.log; then cat dt-validation.log; exit 1; fi
     cp ${./unicorn-usb-kernel.py} "$TMPDIR/unicorn-usb-kernel.py"
     cp ${./unicorn-usb-kernel.c} "$TMPDIR/unicorn-usb-kernel.c"
-    python3 "$TMPDIR/unicorn-usb-kernel.py" --source "$dev/lib/modules/${kernel.modDirVersion}/source"
+    python3 "$TMPDIR/unicorn-usb-kernel.py" --source "$PWD/.."
     runHook postBuild
   '';
   installPhase = ''

@@ -1,8 +1,6 @@
 { flake }:
 let
-  # The VM and every backend run on x86_64; avoid build-host-for-target
-  # splicing that drags AArch64 libraries into this standalone host test.
-  host = import flake.inputs.nixpkgs { system = "x86_64-linux"; };
+  host = (flake.lib.mkBuildEnvironment { buildSystem = "x86_64-linux"; }).buildPackages;
   packages = import ../pkgs { pkgs = host; };
   lib = host.lib;
 in
@@ -14,10 +12,6 @@ host.testers.runNixOSTest {
     # Exercise the real shared USB module on an emulated UDC, without importing
     # a Qualcomm board or replacing the VM's x86 kernel with a phone kernel.
     options.androidDevices = {
-      deviceName = lib.mkOption {
-        type = lib.types.str;
-        default = "usb-gadget-test";
-      };
       enable = lib.mkOption {
         type = lib.types.bool;
         default = true;

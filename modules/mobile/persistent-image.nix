@@ -88,6 +88,7 @@ in
     boot.growPartition = lib.mkForce false;
     nix.settings.fsync-store-paths = true;
     networking.useDHCP = false;
+    services.journald.settings.Journal.SystemMaxUse = "128M";
 
     boot.postBootCommands = ''
       if [ -f /nix-path-registration ]; then
@@ -105,10 +106,13 @@ in
         bashInteractive
         dtc
         e2fsprogs
+        file
+        htop
         iproute2
         kmod
         libgpiod
         procps
+        strace
         usbutils
         util-linux
       ]

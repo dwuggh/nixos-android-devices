@@ -78,8 +78,10 @@ in
       usb.signaller.followRole = lib.mkDefault true;
       enable = true;
       deviceName = "unicorn";
+      usbSerial = lib.mkDefault "unicorn-example";
       usbController = "a600000.usb";
       usb.signaller.address = lib.mkDefault "172.16.47.1/24";
+      kernelPackage = lib.mkDefault androidPackages.devices.unicorn.kernel;
       persistentImage.rootfs.device = lib.mkDefault "/dev/disk/by-partlabel/linux";
       boot = {
         firmwarePackage = lib.mkDefault (androidPackages.mkUBoot { device = "unicorn"; });

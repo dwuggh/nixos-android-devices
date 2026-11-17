@@ -2,22 +2,19 @@
 
 [中文](PATCHES.zh.md) · [Y700 2023 guide](../../../../docs/asphalt/README.md)
 
-The queue is adapted to the current Linux 7.3 lock. Independent patch replay,
-resolved configuration checks, the board DTB and the 43 C files touched by the
-queue pass validation. A full kernel build and device tests remain separate.
-See the [shared kernel status](../../README.md) for the other devices.
-
-The `asphalt` patch queue targets Linux 7.3. The
-ordered queue is defined in [`series.nix`](series.nix), and the kernel
-configuration is [`kernel.config`](kernel.config).
+The queue targets the locked Linux 7.3-rc6. See [`series.nix`](series.nix) for
+patch order and [`kernel.config`](kernel.config) for configuration. Recheck
+patch application, configuration and builds after queue changes; runtime
+validation is separate. Other devices are listed in the [shared kernel status](../../README.md).
 
 | Patch | Area |
 | --- | --- |
-| 0001 | SM8475 core support |
+| [Shared SM8475 queue](../README.md) | TLMM, common SoC description, UBWC, PLL handoff, UFS and GCC CX fixes |
+| 0001 | Asphalt controller constraints, CPUFreq selection and eUSB2 repeater |
 | 0002 | Display, panel, and backlight |
 | 0003 | Touchscreen |
 | [Shared PCIe fix](../../patches/pcie-qcom-iommu-cells.patch) | Parse IOMMU cells for PCIe BDF-to-SID mapping |
-| 0005 | SM8475 850 MHz UFS clock parent (GPLL3) |
+| 0005 | Board UFS clocks; the 850 MHz GPLL3 parent correction is shared |
 | 0006 | Y700 2023 device tree |
 | 0007 | Video codec |
 | 0008 | USB and audio wiring |
@@ -32,19 +29,13 @@ configuration is [`kernel.config`](kernel.config).
 | 0017 | Camera GDSC register retention |
 | 0018 | DisplayPort graph, primary FSA4480 AUX mux and QMP DP orientation |
 | 0019 | DP debugfs connector initialization |
-| 0020 | Preserve an enabled Lucid OLE PLL during bootloader display handoff |
 | `iris-hfi-gen2-{decode-order,capture-pool}.patch` | HFI gen2 decode-order controls and larger decoder capture pools |
 | [Shared GMU series](../../patches/gmu-sync-state/README.md) | Bind a driver to the GMU so GCC/GPUCC `sync_state()` completes |
 | 0026 | Disable the unused QCE node (driver is BROKEN upstream) so interconnect `sync_state()` completes |
-| 0027 | Power down UFS controller/device/PHY in system suspend (no PHY retention across CX collapse) |
-| 0028–0030 | Parent the SM8450 GCC GDSCs to RPMh CX (upstream) |
-| 0031 | Moved to the shared Qualcomm patches: [UFS lane clocks only](../../patches/ufs-qcom-lane-clocks-only.patch) (upstream f07317a8d57f) |
-| 0032 | Program the full SM8475 UFS PHY sequence for every gear |
-| 0033 | `qcom,sm8475-ufshc` binding |
-| 0034 | SM8475 UFS turbo mode configuration above 300 MHz |
-| 0035 | SM8475 UFS operating points (75 and 850 MHz) with their CX levels |
-| 0036 | Coordinate UFS AXI/UniPro/ICE scaling and CX/MX requests; bootstrap ICE at 75 MHz/LOW_SVS |
-| [Shared OPP initialization](../../patches/ufs-opp-init-order.patch) | Apply the required performance state before initial clock increases |
+| `ufs-no-phy-retention.patch` (shared) | Power down SM8450/SM8475 UFS controller/device/PHY in system suspend |
+| `ufs-shared-rcg.patch` (shared) | Park SM8475 UFS roots before gating their parents and force-enable live updates |
+| `ufs-qcom-hibern8-exit-error.patch` (shared) | Propagate a failed Hibern8 exit after clock scaling |
+| `gcc-cx-{binding,runtime-pm,domain}.patch` (shared) | Describe GCC CX dependency and enable runtime PM together |
 
 Build the kernel on an x86_64 or AArch64 Linux host with `nix build .#devices.asphalt.kernel`.
 For an x86_64 build, the derivation runs on x86_64 and produces an AArch64
@@ -52,37 +43,6 @@ kernel. Kbuild uses `ARCH=arm64`, the AArch64 target prefix, and Clang/LLD from
 `buildPackages`; no AArch64-hosted LLVM tools are needed.
 Linux kernel patches follow the upstream GPL-2.0 terms and the SPDX notices
 of the files they modify.
-
-## UFS clocks and PHY
-
-0035 replaces the legacy `freq-table-hz` with the two operating points of
-Lenovo's stock table: 75 MHz at LOW_SVS (HS-G1) and 850 MHz at TURBO_L1
-(HS-G4), the CX levels Qualcomm's GCC driver requires for those rates. Stock
-firmware also drops to 300 MHz at HS-G4 while the controller is less than half
-busy; that level is not described, so HS-G4 runs only at 850 MHz. The
-`qcom,sm8475-ufshc` compatible (0033) selects the controller's turbo
-configuration (0034), following Qualcomm's downstream driver: above 300 MHz
-the HCI turbo clock path and UniPro `ATTR_HW_CGC_EN` are set, `SYS1CLK_1US`
-counts at half the core clock and the UniPro 1 µs/40 ns cycle counts are 213
-and 9; at or below 300 MHz both bits are cleared. Link startup after a host
-reset or a powered-down resume uses the maximum frequency and so enters turbo
-mode. 0005 supplies the 850 MHz GPLL3 parent. 0032 moves SM8475's PLL, TX/RX
-and PCS values out of the HS-G4-only overlay into its base tables and adds
-`BG_TIMER`, matching the downstream table for all gears. 0031 (upstream
-f07317a8d57f) is now a shared Qualcomm patch. See the
-[UFS clock limit](../../../../docs/asphalt/hardware.md#ufs-clock-limit) for
-the measured behaviour.
-
-0036 extends those existing OPPs to nine clocks, adding ICE to the AXI/UniPro
-transition and MX as a second GCC parent. ICE starts at 75 MHz/LOW_SVS before
-its driver enables the clock. The host-level permanent NOM vote is removed;
-UFS OPPs request LOW_SVS or TURBO_L1 through the GDSC parents instead. The shared
-initialization fix obtains all clock handles before applying the initial OPP,
-raises the required performance state before clock rates, and tracks applied
-rates. Upstream's turbo compatible, controller timing and PHY sequence remain.
-This can change power consumption and storage stability during startup and
-frequency transitions; the maximum remains 850 MHz and no throughput increase
-is implied. See the [SM8475 guide](../README.md).
 
 ## Shared PCIe fix
 
@@ -113,19 +73,18 @@ S5K4H7 control semantics were also checked against the [MediaTek GPL driver (201
 
 ## Bootloader display handoff
 
-0020 imports [Esteban Urrutia's Lucid OLE PLL fix](https://lore.kernel.org/all/20260713-sm8450-qol-dispcc-v3-3-56fd05822270@proton.me/)
+The [shared SM8475 queue](../series.nix) applies [Esteban Urrutia's Lucid OLE PLL fix](https://lore.kernel.org/all/20260713-sm8450-qol-dispcc-v3-3-56fd05822270@proton.me/)
 without code changes. Keeping an inherited PLL enabled lets the MDP RCG park
 safely before Linux takes over. Pair this kernel with the U-Boot
 `/reserved-memory/splash_region` reservation; renaming that node alone breaks
-display and touch with older kernels. See the the U-Boot firmware requirements.
+display and touch with older kernels. See the [firmware requirements](../../../u-boot/sm8475/README.md).
 
-## Battery notification serialization
+## Shared UFS and GCC power management
 
-0026 makes the notification-enable worker use the existing battery-manager
-request mutex, like property reads. Both paths share a completion, so overlapping
-requests during ADSP startup can wake the wrong waiter. This local fix changes
-no charging limits or policy and leaves PDR callbacks nonblocking. Late replies
-after a request timeout remain a separate protocol limitation.
+Asphalt uses shared 75/850 MHz OPPs with AXI/UniPro/ICE scaling and coordinated
+CX/MX requests. It already supported 850 MHz; this replaces its frequency table
+and independent ICE clock management while keeping controller timing intact.
+The implementation and validation limits are in the [SM8475 guide](../README.md).
 
 ## Iris VA-API prerequisites
 
@@ -141,3 +100,11 @@ request; clients that do not set them retain the firmware default. The second
 patch allows HFI gen2 decoders to request up to 64 capture buffers without
 changing the minimum allocation or encoder queues. These prerequisites do not
 by themselves establish working decoding on every profile.
+
+## Battery notification serialization
+
+The common [notification-enable patch](../../patches/qcom-battmgr-serialize-notification-request.patch)
+uses the existing battery-manager request mutex, like property reads. Both
+paths share a completion, so overlapping requests during ADSP startup can wake
+the wrong waiter. The patch leaves PDR callbacks nonblocking and changes no
+charging policy. Replies arriving after a timeout remain a separate limitation.

@@ -9,6 +9,7 @@
 
 ```nix
 {
+  androidDevices.usbSerial = "my-phone-01";
   androidDevices.usb.ssh.enable = true;
   users.users.root.openssh.authorizedKeys.keys = [
     "ssh-ed25519 REPLACE_WITH_YOUR_PUBLIC_KEY"
@@ -60,8 +61,27 @@ SSH 失败时，从本地控制台或其他可用连接检查：
 ```sh
 ip -4 address show usb0
 systemctl status usb-signaller sshd.socket
-journalctl -b -u usb-signaller -u sshd -u systemd-networkd
+systemctl list-units --all 'sshd@*.service'
+journalctl -b -u usb-signaller -u sshd.socket -u 'sshd@*.service' -u sshd.service -u systemd-networkd
 ```
+
+SSH 默认使用 socket 激活：systemd 监听 22 端口，每个连接启动一个
+`sshd@*.service` 实例。端口监听不能证明 SSH 能完成登录，只检查
+`journalctl -u sshd` 也会漏掉实例日志。如果 `systemctl` 自身超时，在重启前从手机
+本地终端采集管理进程状态：
+
+```sh
+sudo timeout 5s systemctl show --property=Version
+printf 'systemctl exit=%s\n' "$?"
+ps -p 1 -o pid,stat,wchan:32,comm
+sudo cat /proc/1/stack
+sudo ss -lntp 'sport = :22'
+sudo journalctl -k -b -n 120 --no-pager
+```
+
+退出码 `124` 表示查询超过五秒。此前 `gs_close` 中的内核 Oops 可能使相关操作
+阻塞，但要确认它导致了管理命令超时，仍需进程栈或修复内核后的对照结果。
+重启后无法补采旧故障时的进程栈。
 
 没有出现 USB 以太网接口，通常说明线缆、端口或 gadget/控制器有问题。有地址但无法
 SSH 访问，则指向凭据、DHCP/路由或 SSH 配置。已安装系统无法启动时，RAM recovery
@@ -88,6 +108,17 @@ ACM 不能替代 NCM 或 SSH，启动也不会等待电脑打开它。仅充电/
 回到开发者模式后恢复。U-Boot 的 ACM 是独立的控制台，在交给 Linux 时结束；已安装
 系统会重新枚举自己的 USB gadget。RAM recovery 使用独立的
 `androidDevices.initrdUsb.acm.enable` 设置。
+
+共享内核队列为 `gs_close()` 增加了保护：gadget TTY 打开失败、端口指针尚未初始化
+时，清理流程安全返回。原来的错误路径为 `tty_open` → `tty_release` → `gs_close`
+→ `_raw_spin_lock_irq`，会触发空指针 Oops；等待 USB 枚举不能保护这条失败路径。
+该修复不确定最初打开失败的原因，也不覆盖所有端口生命周期竞态，见
+[上游补丁提案](https://lkml.rescloud.iu.edu/2610.1/13659.html)。
+`just check-one usb-serial-lifecycle` 在构建机上使用已打补丁的真实内核回调验证
+失败打开后的清理及正常打开/关闭行为。安装重新构建的系统代并重启后，验证无 USB
+启动、连接电脑启动、ACM 登录、新建 SSH 连接，以及至少 20 次断开重连。
+验收要求是没有新的 Oops，且上述管理进程查询在五秒内返回；构建机检查不能替代
+这些实机验证。
 
 如需不使用 socket 激活的 SSH，设置 `services.openssh.startWhenNeeded = false;`。
 修改 USB 或唯一的 SSH 监听时，保留另一条已建立的管理通道，直到**新**连接成功。
@@ -116,11 +147,9 @@ ssh root@172.16.42.1 systemctl reboot
 <a id="modes-and-peripherals"></a>
 ## 模式与外设
 
-支持的模式为 `developer_mode`、`charging_only` 和 `host_mode`。由 Type-C 端口管理器
-掌管 USB 数据角色的设备（T880）设置 `androidDevices.usb.signaller.hostMode = false`；
-其主机模式随所接设备和 PD 数据角色交换而定。MTP、网络共享和
-大容量存储未提供，因为这里没有配置相应的服务和策略。USB 角色切换默认仅限 root；
-普通用户可以通过系统总线查询守护进程。
+默认模式为 `developer_mode`、`charging_only` 和 `host_mode`。
+MTP 和网络共享仅在明确启用各自后端时发布，大容量存储不在本轮范围。
+模式切换默认仅 root 可用，普通用户可通过系统总线查询状态。
 
 要让指定用户无需 `sudo` 或 polkit 提示即可切换模式，指定一个控制组并将这些用户
 加入其中：
@@ -155,19 +184,28 @@ sudo busctl call com.meego.usb_moded /com/meego/usb_moded com.meego.usb_moded se
 | U 盘/读卡器 | 主机/VBUS 以及 USB Storage/UAS/SCSI 提供块设备。挂载和文件系统权限属于普通操作系统/桌面策略；这个最小 Niri 示例没有自动挂载界面。 |
 | 显示器/扩展坞 | USB-C DP 需要实际的 DP 走线、CC/PD、方向/mux/PHY 和 DRM 支持，再加上合成器的输出策略。仅写入数据角色无法启用 DP。DisplayLink 是独立的 USB 图形通路。 |
 
-usb-signaller 监视 Type-C 事件，但本集成未实现自动主机策略或桌面模式选择对话框。
-接线完整的内核 connector 驱动可能已经提供自动角色切换；不完整的端口仍需要板级
-CC/VBUS/角色/mux 工作。未实现多接口仲裁。仅完成驱动配置不等于实际外设测试。
+Unicorn 开启 followRole，启动、Type-C 事件和固件代次变化均由同一状态机处理，
+跟随内核协商角色。没有桌面模式选择对话框或多连接器仲裁。驱动配置不能代替
+实物外设、VBUS 或模拟音频路由测试。
 
 
 软件包补丁和上游细节记录在[软件包说明](../pkgs/usb-signaller/README.md)中。
 
-## 可选扩展模式
 
-现有设备默认保留上游 USB daemon。启用 `usb.signaller.followRole`、MTP、网络共享、
-HID 触摸、镜像存储或 UVC 后，才会选择串行管理 USB 切换的后端。扩展模式目前要求
-`manageRole = true`；由外部端口管理器控制角色的设备保留原后端。两种后端都保护
-已连接的 NBD netboot，拒绝 USB 重配置。USB 网络按接口名和 gadget MAC 匹配，
-主机模式下的网卡可继续由 NetworkManager 管理。配置和测试边界见
-[Unicorn USB](unicorn/usb.zh.md) 与[附加 gadget 模式](unicorn/usb-gadgets.zh.md)，
-其他设备仍需各自进行硬件验收。
+## Unicorn USB2 模式扩展
+
+完整的配置、状态接口、硬件证据和实机待验收项见 [Unicorn USB2](unicorn/usb.zh.md)。
+MTP 要求内核启用 `POSIX_MQUEUE=y`；配置断言会拒绝缺失此能力的内核。
+默认保留 NCM＋可选 ACM；MTP 和共享网络分别通过
+`androidDevices.usb.signaller.mtp` 和 `.tethering.enable` 启用，仅发布已配置后端。
+`followRole` 在 Unicorn 默认开启，其他设备默认关闭。MTP 明确指定非 root 用户和
+共享子目录，不导出整个 home。
+
+`set_mode` 立即返回已接受的模式名；应查询 `get_status`，等待 `busy=false` 后查看
+`desired_mode`、`actual_mode`、`last_error`。绑定 UDC 与电脑完成枚举分别报告。
+host 数据角色不能证明 VBUS 供电。共享模式不改变 Honk 配置或承诺完整代理行为。
+
+## HIDRAW、触摸、镜像 U 盘和 UVC
+
+这些可选模式复用同一个模式管理器和错误查询接口。配置及 CLI 示例见
+[USB 扩展模式](unicorn/usb-gadgets.zh.md)。

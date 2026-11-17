@@ -42,10 +42,6 @@ with lib.kernel;
   USB_RTL8152 = module;
   USB_NET_AX8817X = module;
   USB_NET_AX88179_178A = module;
-  # Dependencies for the shared NixOS reverse-path firewall matches.
-  IP_NF_IPTABLES = module;
-  IP6_NF_IPTABLES = module;
-  NFT_COMPAT = module;
   NF_TABLES = yes;
   NF_TABLES_INET = yes;
   NF_CONNTRACK = yes;

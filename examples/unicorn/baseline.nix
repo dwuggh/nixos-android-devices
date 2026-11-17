@@ -1,2 +1,4 @@
-# USB identity defaults are supplied by the shared device module.
-{ }
+{ lib, ... }:
+{
+  androidDevices.usbSerial = lib.mkDefault "unicorn-example";
+}

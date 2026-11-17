@@ -20,23 +20,12 @@ in
       default = "1";
       description = "Scale of the internal display.";
     };
-    output = lib.mkOption {
-      type = lib.types.str;
-      default = "DSI-1";
-      description = "Niri name of the internal display output.";
-    };
-    niriPowerKey = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Let niri handle the power key (its default action suspends); when false, logind's HandlePowerKey applies.";
-    };
   };
 
   config = {
     hardware.bluetooth.enable = true;
     users.users.demo = {
       isNormalUser = true;
-      uid = 1001;
       hashedPassword = "";
       extraGroups = [
         "video"
@@ -45,6 +34,8 @@ in
       ];
     };
     programs.niri.enable = true;
+    # Keep the power key inactive until display wake handling is configured.
+    services.logind.settings.Login.HandlePowerKey = "ignore";
     programs.foot.enable = true;
     environment.systemPackages = [
       pkgs.fastfetch
@@ -58,10 +49,10 @@ in
     ];
     environment.etc."niri/config.kdl".text = ''
       input {
-        touch { map-to-output "${cfg.output}"; }
-        ${lib.optionalString (!cfg.niriPowerKey) "disable-power-key-handling"}
+        disable-power-key-handling
+        touch { map-to-output "DSI-1"; }
       }
-      output "${cfg.output}" {
+      output "DSI-1" {
         scale ${cfg.scale}
       }
       layout {
